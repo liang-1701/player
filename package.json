@@ -1,5 +1,5 @@
 {
-    "name": "music",
+    "name": "player",
     "private": true,
     "version": "1.0.0",
     "main": "dist-electron/index.js",
@@ -39,7 +39,7 @@
     },
     "build": {
         "appId": "com.electron.desktop",
-        "productName": "music",
+        "productName": "player",
         "asar": true,
         "copyright": "Copyright © 2022 electron",
         "directories": {
