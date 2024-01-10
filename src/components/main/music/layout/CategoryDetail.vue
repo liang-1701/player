@@ -19,7 +19,7 @@
         </div>
         <span class="count">列表({{ musicStore.musicListDetail.list?.length }})</span>
         <ul class="music-list">
-            <li v-for="(item, index) in musicStore.musicListDetail.list" :key="item.mid">
+            <li v-for="(item, index) in musicStore.musicListDetail.list" :key="item.mid" :class="{playing:item.mid==playStore.currPlayMusic.mid}">
                 <div class="index">
                     <span>{{ index + 1 }}</span>
                 </div>
@@ -200,6 +200,9 @@ $name-width: calc(100% - $index-width - $singer-width - $album-width - $time-wid
                 float: right;
             }
         }
+    }
+    .playing {
+        color: var(--playing-li-color);
     }
     li:hover .control {
         display: block;
