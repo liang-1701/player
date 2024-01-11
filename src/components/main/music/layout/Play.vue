@@ -2,7 +2,7 @@
     <div class="container-play">
         <!-- 播放进度条 -->
         <div class="progress">
-            <input type="range" class="play-progress" min="0" max="100" step="1" value="30">
+            <input type="range" class="play-progress" min="0" max="1" step="0.0001" :value="currentTimeVal" @mousedown="stopUpdate=true" @input="changeTime">
         </div>
         <div class="play-content">
             <div class="play-info">
@@ -14,7 +14,7 @@
                         <span>{{ playStore.currPlayMusic.name||'听点什么呢' }}</span>
                     </div>
                     <div class="info-time">
-                        <span class="current-time">00:00</span>
+                        <span class="current-time">{{ formatTime(currentTime) }}</span>
                         <span>/</span>
                         <span class="total-time">{{ playStore.currPlayMusic.time||'00:00' }}</span>
                     </div>
@@ -92,12 +92,48 @@
 
 <script  lang="ts" setup>
 import playMusic from "@/store/modules/playMusic";
-import { ref } from "vue";
+import { ref, } from "vue";
 import { eventBus } from "@/common/eventBus";
+import { formatTime, toSeconds } from '@/common/utils'
 
 let playStore = playMusic();
 const playQueueOpen = ref(false)
 const playState = ref(false)
+const currentTime = ref(0)
+const currentTimeVal = ref(0)
+const stopUpdate = ref(false)
+
+const changeTime = () => {
+    const playProgress = document.getElementsByClassName("play-progress")[0] as HTMLInputElement;
+    let a = playProgress.value;
+    currentTimeVal.value = Number(a);
+    upProgress();
+    if(stopUpdate.value) return;
+    eventBus.emit("audio-play-seek", playProgress.value);
+}
+
+const upProgress = () => {
+    const percent = currentTimeVal.value;
+    const playProgress = document.getElementsByClassName("play-progress")[0] as HTMLElement;
+    playProgress.style.backgroundSize = `${percent * 100}% 100%`;
+    currentTimeVal.value = percent;
+}
+
+eventBus.on("audio-time-update", (data) => {
+    if(stopUpdate.value) return;
+    const allTime = toSeconds(playStore.currPlayMusic.time||'00:00');
+    currentTime.value = Number(data);
+    const percent = currentTime.value / allTime;
+    currentTimeVal.value = percent;
+    upProgress();
+});
+
+document.addEventListener("mouseup", () => {
+    if(stopUpdate.value) {
+        stopUpdate.value = false;
+        changeTime();
+    }
+});
 
 const changePlayState = () => {
     eventBus.emit("audio-play-change");
@@ -137,7 +173,7 @@ document.addEventListener("click", closeQueue)
         background-color: #ddd;
         border-radius: 15px;
         background: -webkit-linear-gradient(var(--progress-color), var(--progress-color)) no-repeat #cccccc;
-        background-size: 10% 100%;
+        background-size: 0% 100%;
     }
     .play-progress::-webkit-slider-thumb {
         appearance: none;
@@ -146,7 +182,11 @@ document.addEventListener("click", closeQueue)
         background-color: var(--progress-color);
         border-radius: 50%;
         cursor: pointer;
+        opacity: 0;
     }
+}
+.progress:hover .play-progress::-webkit-slider-thumb{
+    opacity: 1;
 }
 .play-content {
     display: flex;

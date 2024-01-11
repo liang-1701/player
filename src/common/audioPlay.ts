@@ -19,10 +19,9 @@ class AudioPlay {
         }
         return audio;
     }
-
+    
     play() {
-        console.log("play");
-        console.log(this.currMusic);
+        let self = this;
         this.sound = new Howl({
             src: [this.currMusic.playUrl||''],
             html5: true,
@@ -31,9 +30,9 @@ class AudioPlay {
             onplay: function() {
                 console.log("play之后");
                 eventBus.emit("audio-play-state", true);
+                requestAnimationFrame(self.timeupdate.bind(self))
             },
             onpause: function() {
-                console.log("pause之后");
                 eventBus.emit("audio-play-state", false);
             },
             onend: function() {
@@ -42,6 +41,7 @@ class AudioPlay {
             },
             onseek: function() {
                 console.log("seek之后");
+                requestAnimationFrame(self.timeupdate.bind(self))
             }
         });
         this.sound.play();
@@ -49,7 +49,6 @@ class AudioPlay {
 
     // 切换播放状态
     togglePlay() {
-        console.log("togglePlay");
         if(this.sound) {
             if(this.sound.playing()) {
                 this.sound.pause();
@@ -77,11 +76,31 @@ class AudioPlay {
         }
     }
 
+    // 设置播放时间
+    seek(percent: number) {
+        if(this.sound) {
+            if(this.sound.playing()) {
+                this.sound.seek(this.sound.duration() * percent);
+            }else {
+                this.sound.seek(this.sound.duration() * percent);
+                this.togglePlay();
+            }
+        }
+    }   
+
+    // timeupdate
+    timeupdate() {
+        if(this.sound) {
+            eventBus.emit("audio-time-update", this.sound.seek());
+            if(this.sound.playing()) {
+                requestAnimationFrame(this.timeupdate.bind(this))
+            }
+        }
+    }
 }
 
 // 播放
 export const play = (music: music) => {
-    console.log("播放");
     AudioPlay.get(music).play();
 }
 
@@ -103,5 +122,11 @@ export const stop = () => {
 eventBus.on("audio-play-change", () => {
     if(audio) {
         audio.togglePlay();
+    }
+});
+
+eventBus.on("audio-play-seek", (data) => {
+    if(audio) {
+        audio.seek(data);
     }
 });
