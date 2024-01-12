@@ -13,14 +13,14 @@
 <script  lang="ts" setup>
 import Left from '@/components/main/music/layout/Left.vue'
 import Play from '@/components/main/music/layout/Play.vue';
-import { onMounted } from 'vue'
-import musicResource from "@/store/modules/musicResource";
+// import { onMounted } from 'vue'
+// import musicResource from "@/store/modules/musicResource";
 
-let musicStore = musicResource();
+// let musicStore = musicResource();
 
-onMounted(() => {
-    musicStore.init()
- })
+// onMounted(() => {
+//     musicStore.init()
+//  })
 </script>
 
 <style lang="scss" scoped>

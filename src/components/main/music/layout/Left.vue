@@ -1,9 +1,9 @@
 <template>
     <div class="container-left">
-        <div class="plat-title"> {{ musicStore.menus.meta.title }}</div>
+        <div class="plat-title"> {{ musicStore.menus!.meta.title }}</div>
         <div class="plat-list">
-            <el-menu class="plat-menu" style="border-right: none;" :default-active="musicStore.defaultId.path" router>
-                <el-menu-item class="plat" v-for="(item) in musicStore.menus.children.filter(item => item.meta.type=='platform')" :index="item.path" @click="changePlat">{{item.meta.title}}</el-menu-item>
+           <el-menu class="plat-menu" style="border-right: none;" :default-active="$router.currentRoute.value.params.id">
+                <el-menu-item class="plat" @click="changePlat(item)" v-for="(item) in musicStore.menus!.meta.platform" :index="item.id">{{item.name}}</el-menu-item>
             </el-menu>
         </div>
     </div>
@@ -11,14 +11,23 @@
 
 <script  lang="ts" setup>
 import musicResource from "@/store/modules/musicResource";
+import { useRouter } from 'vue-router';
+import { onMounted } from "vue";
+
+let $router = useRouter();
 
 let musicStore = musicResource();
 
-
-const changePlat = (e:any) => {
-    
-    musicStore.setDefaultMenu(e.index);
+const changePlat = (item:any) => {
+    musicStore.setCurrentPlat(item);
+    $router.push({path: `/category/${item.id}`})
 }
+
+onMounted(() => {
+    const id = $router.currentRoute.value.params.id;
+    const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == id);
+    musicStore.setCurrentPlat(plat);
+})
 </script>
 
 <style lang="scss" scoped>

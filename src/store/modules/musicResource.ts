@@ -1,13 +1,13 @@
 import { defineStore } from "pinia";
 import { routes } from "@/router/modules/musicRouters";
-import { getQQCategoryList, getQQCategoryDetailById, getQQTopList, getMusicListDetail } from "@/platform/qq";
+import { getQQCategoryList, getQQCategoryDetailById, getQQTopList, getMusicListDetail } from "@/platform/qqmusic";
 import { Category, CategoryItem, CategoriesDetailItem, musicList } from "@/type/musicTypes";
 
 let menuStore = defineStore("menu", {
     state: () => {
         return {
-            menus: routes.filter(item => item.name=="music")[0],
-            defaultId: {},
+            menus: routes.find(item => item.name=='music')?.children.filter(item => item.show)[0],
+            currentPlat: {} as any,
             categories:Array<Category>(),  // 所有分类
             categoriesDetail: Array<CategoryItem>(),  // 详细类别
             categoriesDetailList: Array<CategoriesDetailItem>(),  // 分类详细展示
@@ -16,13 +16,13 @@ let menuStore = defineStore("menu", {
     },
     actions: {
         // 设置默认平台
-        init () {
-            this.defaultId = this.menus.children.filter(item => item.meta.default)[0];
-            this.getCategoryList();
-        },
+        // init () {
+        //     this.currentPlat = this.menus!.meta.platform?.find(item => item.default);
+        // },
         // 切换平台
-        setDefaultMenu(path: string) {
-            this.defaultId = this.menus.children.filter(item => item.meta.type=="platform").filter(item => item.path==path)[0];
+        setCurrentPlat(plat: any) {
+            this.currentPlat = plat;
+            this.getCategoryList();
         },
         getCategoryList() {
             getQQCategoryList().then((result) => {
