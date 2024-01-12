@@ -28,7 +28,6 @@ class AudioPlay {
             loop: false,
             volume: 0.2,
             onplay: function() {
-                console.log("play之后");
                 eventBus.emit("audio-play-state", true);
                 requestAnimationFrame(self.timeupdate.bind(self))
             },
@@ -36,12 +35,14 @@ class AudioPlay {
                 eventBus.emit("audio-play-state", false);
             },
             onend: function() {
-                console.log("end之后");
                 eventBus.emit("audio-play-state", false);
+                eventBus.emit("audio-play-next");
             },
             onseek: function() {
-                console.log("seek之后");
                 requestAnimationFrame(self.timeupdate.bind(self))
+            },
+            onstop: function() {
+                eventBus.emit("audio-play-state", false);
             }
         });
         this.sound.play();
@@ -73,6 +74,11 @@ class AudioPlay {
     stop() {
         if(this.sound) {
             this.sound.stop();
+            this.sound.unload();
+            this.currMusic = {} as music;
+            this.sound = undefined;
+            audio = null;
+            // eventBus.emit("audio-play-state", false);
         }
     }
 

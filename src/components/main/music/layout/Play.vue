@@ -103,6 +103,8 @@ const currentTime = ref(0)
 const currentTimeVal = ref(0)
 const stopUpdate = ref(false)
 
+eventBus.on("audio-play-next", playStore.nextMuisc);
+
 const changeTime = () => {
     const playProgress = document.getElementsByClassName("play-progress")[0] as HTMLInputElement;
     let a = playProgress.value;
