@@ -12,22 +12,18 @@
 <script  lang="ts" setup>
 import musicResource from "@/store/modules/musicResource";
 import { useRouter } from 'vue-router';
-import { onMounted } from "vue";
+import { inject } from 'vue';
 
 let $router = useRouter();
-
 let musicStore = musicResource();
+const alltag:any = inject("all-tag");
 
-const changePlat = (item:any) => {
-    musicStore.setCurrentPlat(item);
-    $router.push({path: `/category/${item.id}`})
+const changePlat = async (item:any) => {
+    await musicStore.setCurrentPlat(item);
+    $router.push({path: `/category/${item.id}`});
+    alltag.initDefaultClass();
 }
 
-onMounted(() => {
-    const id = $router.currentRoute.value.params.id;
-    const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == id);
-    musicStore.setCurrentPlat(plat);
-})
 </script>
 
 <style lang="scss" scoped>

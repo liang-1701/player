@@ -13,14 +13,43 @@
 <script  lang="ts" setup>
 import Left from '@/components/main/music/layout/Left.vue'
 import Play from '@/components/main/music/layout/Play.vue';
-// import { onMounted } from 'vue'
-// import musicResource from "@/store/modules/musicResource";
+import { provide, ref, onMounted } from "vue";
+import musicResource from "@/store/modules/musicResource";
+import { useRouter } from 'vue-router';
 
-// let musicStore = musicResource();
+let $router = useRouter();
 
-// onMounted(() => {
-//     musicStore.init()
-//  })
+let musicStore = musicResource();
+const musicListOpen = ref(false)
+const defaultClass = ref()
+
+const getRadio = (id: number) => {
+    musicStore.getCategoryDetailById(id);
+}
+
+const setDefaultClass = (id: number) => {
+    defaultClass.value = id;
+}
+
+const initDefaultClass = () => {
+    defaultClass.value = Number(musicStore.categoriesDetail.find((item) => item.default)?.categoryId);
+    musicStore.getCategoryDetailById(defaultClass.value);
+}
+
+onMounted(async () => {
+    const id = $router.currentRoute.value.params.id;
+    const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == id);
+    await musicStore.setCurrentPlat(plat);
+    initDefaultClass()
+})
+
+provide("all-tag", {
+    musicListOpen,
+    defaultClass,
+    setDefaultClass,
+    getRadio,
+    initDefaultClass
+})
 </script>
 
 <style lang="scss" scoped>

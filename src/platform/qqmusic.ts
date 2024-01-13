@@ -30,15 +30,16 @@ export const getCategoryList = async () => {
     // 推荐
     let recommended = {
         groupId: -1,
-        categoryGroupNam: "精选",
+        categoryGroupName: "精选",
         items: [
             {
                 categoryId: 999999,
-                categoryName: "推荐"
+                categoryName: "推荐",
+                default: true
             },
             {
                 categoryId: 999998,
-                categoryName: "排行榜"
+                categoryName: "排行榜",
             }
         ]
     };
@@ -59,7 +60,7 @@ export const getCategoryList = async () => {
             group: "other"
         })
     })
-    return { categoriesArray, categoriesDetail, playList };
+    return { categoriesArray, categoriesDetail };
 };
 
 const removeDuplicate = (item: any) => {

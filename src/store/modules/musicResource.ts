@@ -16,18 +16,15 @@ let menuStore = defineStore("menu", {
     },
     actions: {
         // 切换平台
-        setCurrentPlat(plat: any) {
+        async setCurrentPlat(plat: any) {
             this.currentPlat = plat;
-            this.getCategoryList();
+            await this.getCategoryList();
         },
-        getCategoryList() {
-            importAndExtract(`/src/platform/${this.currentPlat.file}`, 'getCategoryList').then((menthod) => {
-                return menthod();
-            }).then((result) => {
-                this.categories = result!.categoriesArray;
-                this.categoriesDetail = result!.categoriesDetail;
-                this.categoriesDetailList = result!.playList;
-            })
+        async getCategoryList() {
+            const method = await importAndExtract(`/src/platform/${this.currentPlat.file}`, 'getCategoryList');
+            const result = await method();
+            this.categories = result!.categoriesArray;
+            this.categoriesDetail = result!.categoriesDetail;
         },
         // 获取分类详细展示
         getCategoryDetailById(id: number) {
