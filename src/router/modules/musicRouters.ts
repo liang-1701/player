@@ -4,7 +4,7 @@ export const routes = [
         path: '/music',
         component: () => import('@/components/main/music/Home.vue'),
         name: 'music',
-        redirect: '/category/2',
+        redirect: '/category/1',
         meta: {
             title: '音乐',
         },

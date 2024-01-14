@@ -9,7 +9,7 @@
                      <span>{{ item.categoryGroupName }}</span>
                  </div>
                  <div class="detail">
-                     <span class="tag-span" v-for="(item1) in item.items" :class="{tagClassActive:alltag.defaultClass.value==item1.categoryId?true:false}" @click="alltag.getRadio(item1.categoryId); alltag.setDefaultClass(item1.categoryId);">{{item1.categoryName}}</span>
+                     <span class="tag-span" v-for="(item1) in item.items" :class="{tagClassActive:alltag.defaultClass.value==item1.categoryId?true:false}" @click="alltag.getRadio(item1.categoryId, 1); alltag.setDefaultClass(item1.categoryId);">{{item1.categoryName}}</span>
                  </div>
              </div>
          </div>

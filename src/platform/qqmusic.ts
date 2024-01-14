@@ -1,6 +1,6 @@
 import axios from "axios";
 import qs from "qs";
-import { Category, CategoryItem, CategoriesDetailItem, musicList, music } from "@/type/musicTypes";
+import { Category, CategoryItem, CategoriesDetailItem, musicList, music, CategoriesDetail } from "@/type/musicTypes";
 import { formatTime, nextInt } from '@/common/utils'
 
 enum URL {
@@ -12,7 +12,9 @@ enum URL {
 }
 
 // 推荐歌单
-let playList: Array<CategoriesDetailItem> = [];
+let playList: CategoriesDetail = {
+    categoriesDetailItem: []
+};
 
 // 全部分类
 export const getCategoryList = async () => {
@@ -53,7 +55,7 @@ export const getCategoryList = async () => {
         }
     });
     categoryJson.playlist.forEach((item: any) => {
-        playList.push({
+        playList.categoriesDetailItem.push({
             imgUrl: item.imgurl,
             title: item.dissname,
             tid: item.dissid,
@@ -75,8 +77,7 @@ const removeDuplicate = (item: any) => {
 }
 
 // 分类详情
-export const getCategoryDetailById = async (id: number) => {
-    let categoriesDetail: Array<CategoriesDetailItem> = [];
+export const getCategoryDetailById = async (id: number|string, page: number) => {
     if(999999 == id) return { categoriesDetail: playList };
     if(999998 == id) return { categoriesDetail: (await getTopList()).topList };
     const reqBody = JSON.stringify({
@@ -86,24 +87,32 @@ export const getCategoryDetailById = async (id: number) => {
             param: {
                 caller: "0",
                 category_id: id,
-                page: 0,
+                page: (page - 1),
                 use_page: 1,
                 size: 35
             }
         }
     });
     const response = await axios.post(URL.CATEGORY_DETAIL_URL, reqBody);
+    const categoriesDetailItem:Array<CategoriesDetailItem> = []
     response.data.req_1.data.content.v_item.forEach((item: any) => {
-        categoriesDetail.push({
+        categoriesDetailItem.push({
             imgUrl: item.basic.cover.default_url,
             title: item.basic.title,
             tid: item.basic.tid,
-            group: "other"
+            group: "other",
         });
     });
+    let categoriesDetail: CategoriesDetail = {
+        categoriesDetailItem,
+        page: {
+            total: response.data.req_1.data.content.total_cnt,
+            size: 35
+        }
+    };
     return {categoriesDetail};
 };
-
+    
 // 排行榜
 export const getTopList = async () => {
     const reqBody = {
@@ -129,10 +138,12 @@ export const getTopList = async () => {
         })
     };
     const response = await axios.get(URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody));
-    let topList: Array<CategoriesDetailItem> = [];
+    let topList: CategoriesDetail = {
+        categoriesDetailItem: []
+    };
     response.data.req_1.data.group.forEach((item: any) => {
         item.toplist.forEach((i: any) => {
-            topList.push({
+            topList.categoriesDetailItem.push({
                 imgUrl: i.frontPicUrl,
                 title: i.title,
                 tid: i.topId,
@@ -146,7 +157,7 @@ export const getTopList = async () => {
     return { topList };
 }
 
-export const getMusicListDetail = async (id: number, group: string, data: any) => {
+export const getMusicListDetail = async (id: number|string, group: string, data: any) => {
     if(group == "top") {
         // 排行榜
         const reqBody = {
