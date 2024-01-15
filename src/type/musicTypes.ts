@@ -55,8 +55,9 @@ export interface musicList {
 }
 
 export interface page {
-    page?: number,
-    size?: number,
-    total?: number,
+    page?: number,   // 当前页
+    size?: number,   // 每页大小
+    total?: number,  // 总数
+    totalPage?: number,  // 总页数
     data?: Record<string, any>
 }

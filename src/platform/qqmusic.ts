@@ -29,7 +29,7 @@ export const getCategoryList = async () => {
     let categoriesArray: Array<Category> = [];
     let categoriesDetail: Array<CategoryItem> = [];
     let newArray: any = [];
-    // 推荐
+    // 推荐, 排行榜
     let recommended = {
         groupId: -1,
         categoryGroupName: "精选",

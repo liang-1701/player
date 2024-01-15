@@ -25,7 +25,7 @@
                 </div>
             </el-row>
             <div class="category-page" v-if="musicStore.categoriesDetailList.page">
-                <el-pagination v-model:current-page="currentPage" @current-change="alltag.getRadio(alltag.defaultClass.value, currentPage)" :hide-on-single-page="true" :page-size="musicStore.categoriesDetailList.page?.size" :pager-count="7" layout="prev, pager, next, jumper" :total="musicStore.categoriesDetailList.page?.total" prev-text="上一页" next-text="下一页" />
+                <el-pagination v-model:current-page="currentPage" @current-change="alltag.getRadio(alltag.defaultClass.value, currentPage)" :hide-on-single-page="true" :page-size="musicStore.categoriesDetailList.page?.size" :pager-count="7" layout="prev, pager, next, jumper" :total="musicStore.categoriesDetailList.page?.total" :page-count="musicStore.categoriesDetailList.page?.totalPage" prev-text="上一页" next-text="下一页" />
             </div>
         </div>
         <div class="all-tag"><ALLtag class="all-tag" /></div>
