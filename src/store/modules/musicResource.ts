@@ -40,6 +40,8 @@ let menuStore = defineStore("menu", {
                 return menthod(id, group, data);
             }).then((result) => {
                 this.musicListDetail = result!.musicListDetail;
+                console.log("音乐列表");
+                console.log(this.musicListDetail);
             })
         }
     },

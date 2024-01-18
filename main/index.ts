@@ -95,6 +95,10 @@ const overrideRequest = (details: Electron.OnBeforeSendHeadersListenerDetails) =
             referer = 'https://music.163.com/search/'
         }
         if (!referer) referer = origin
+    } else if (url.includes("kugou")) {
+        origin = "https://www.kugou.com/"
+        referer = origin
+        if (url.includes("&cmd=123&ext=mp4&hash=")) xrouter = 'trackermv.kugou.com'
     }
     //默认Referer
     if (!referer || referer.includes('localhost')) {

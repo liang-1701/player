@@ -1,7 +1,7 @@
 import axios from "axios";
 import qs from "qs";
 import { Category, CategoryItem, CategoriesDetailItem, musicList, music, CategoriesDetail } from "@/type/musicTypes";
-import { formatTime, nextInt, randomText, toTrimString } from '@/common/utils'
+import { formatTime, randomText, toTrimString } from '@/common/utils'
 import CryptoJS from 'crypto-js';
 import forge from "node-forge";
 
@@ -132,7 +132,7 @@ export const getTopList = async () => {
     return { categoriesDetail };
 }
 
-export const getMusicListDetail = async (id: number, group: string, data: any) => {
+export const getMusicListDetail = async (id: number|string, group: string, data: any) => {
     let param = {
         id,
         offset: 0,
@@ -160,7 +160,8 @@ export const getMusicListDetail = async (id: number, group: string, data: any) =
                 mid: item.al.id,
                 name: item.al.name,
             },
-            singer: item.ar.map((s: { id: any, name: any; }) => ({mid: s.id, name: s.name}))
+            singer: item.ar.map((s: { id: any, name: any; }) => ({mid: s.id, name: s.name})),
+            data: { chl: 1 }
         })
     })
     let musicListDetail: musicList = {

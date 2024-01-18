@@ -45,7 +45,7 @@ export interface music {
 }
 
 export interface musicList {
-    tid: number,
+    tid: number|string,
     title: string,
     img: string,
     desc: string,
