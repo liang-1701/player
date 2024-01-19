@@ -11,6 +11,7 @@ import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import { createPinia } from 'pinia'
 import router from './router'
 import VueLazyLoad from "vue3-lazyload";
+import '@/common/request' 
 
 const app = createApp(App);
 // app.config.globalProperties.$global = global
