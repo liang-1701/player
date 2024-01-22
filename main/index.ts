@@ -20,7 +20,7 @@ const createWindow = () => {
         transparent: true,
         hasShadow: false,
         webPreferences: {
-            contextIsolation: false, // 是否开启隔离上下文
+            // contextIsolation: false, // 是否开启隔离上下文
             nodeIntegration: true, // 渲染进程使用Node API
             sandbox: false,
             preload: path.join(__dirname, "./preload.js"), // 需要引用js文件
@@ -47,12 +47,12 @@ const createWindow = () => {
     });
 
     win.webContents.on("did-finish-load", () => {
-        ipcMain.handle("on-close-custom-event", () => {
+        ipcMain.on("on-close-custom-event", () => {
             win.close();
         })
         let winsSize = win.getSize();
         let winsPosition = win.getPosition();
-        ipcMain.handle("on-max-custom-event", (event, res) => {
+        ipcMain.on("on-max-custom-event", (event, res) => {
             if (!res.winMax) {
                 winsSize = win.getSize();
                 winsPosition = win.getPosition();
@@ -62,7 +62,7 @@ const createWindow = () => {
                 win.setPosition(winsPosition[0], winsPosition[1])
             }
         })
-        ipcMain.handle("on-min-custom-event", () => {
+        ipcMain.on("on-min-custom-event", () => {
             win.minimize()
         })
     });
