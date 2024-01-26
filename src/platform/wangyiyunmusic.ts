@@ -78,7 +78,7 @@ export class WangYiYunMusicApi {
 
     // 分类详情
     static getCategoryDetailById = async (id: number|string, page: number) => {
-        if("排行榜" == id) return { categoriesDetail: (await getTopList()).categoriesDetail }
+        if("排行榜" == id) return { categoriesDetail: (await this.getTopList()).categoriesDetail }
         const reqBody = {
             cat: id,
             order: "hot",

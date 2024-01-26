@@ -68,7 +68,7 @@ export class KuGouMusicApi {
 
     // 分类详情
     static getCategoryDetailById = async (id: number|string, page: number) => {
-        if("排行榜" == id) return { categoriesDetail: (await getTopList()).categoriesDetail }
+        if("排行榜" == id) return { categoriesDetail: (await this.getTopList()).categoriesDetail }
         const a = await axios.get(URL.BASE_URL + id + `&p=${page}&pagesize=20`);
         const parser = new DOMParser();
         const doc = parser.parseFromString(a.data, "text/html");
