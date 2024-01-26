@@ -14,8 +14,8 @@ const NONCE = '0CoJUm6Qyw8W8jud'
 const PUBLIC_KEY = '010001'
 const IV = '0102030405060708'
 const CHOICE = '012345679abcdef'
-const EAPI_KEY = 'e82ckenh8dichen8'
-const EAPI_PADDING_KEY = '36cd479b6b5'
+// const EAPI_KEY = 'e82ckenh8dichen8'
+// const EAPI_PADDING_KEY = '36cd479b6b5'
 
 enum URL {
     BASE_URL = "https://music.163.com",
@@ -27,166 +27,168 @@ enum URL {
     MUSIC_PLAY_URL = "https://music.163.com/weapi/song/enhance/player/url/v1?csrf_token="
 }
 
-// 全部分类
-export const getCategoryList = async () => {
-    const a = await axios.get(URL.CATEGORY_LIST_URL);
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(a.data, "text/html");
-    const categoryList = doc.body.querySelectorAll("#cateListBox .f-cb")
-    let categoriesArray: Array<Category> = [];
-    let categoriesDetail: Array<CategoryItem> = [];
-    categoryList.forEach((el, index) => {
-        let categories: Array<CategoryItem> = [];
-        const dt = el.querySelector("dt")?.textContent;
-        el.querySelectorAll(".s-fc1 ")?.forEach((dd) => {
-            const categoryItem: CategoryItem = {
-                categoryName: dd.textContent||'',
-                categoryId: dd.textContent||'',
-            }
-            categories.push(categoryItem);
-            categoriesDetail.push(categoryItem);
+export class WangYiYunMusicApi {
+
+    // 全部分类
+    static getCategoryList = async () => {
+        const a = await axios.get(URL.CATEGORY_LIST_URL);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(a.data, "text/html");
+        const categoryList = doc.body.querySelectorAll("#cateListBox .f-cb")
+        let categoriesArray: Array<Category> = [];
+        let categoriesDetail: Array<CategoryItem> = [];
+        categoryList.forEach((el, index) => {
+            let categories: Array<CategoryItem> = [];
+            const dt = el.querySelector("dt")?.textContent;
+            el.querySelectorAll(".s-fc1 ")?.forEach((dd) => {
+                const categoryItem: CategoryItem = {
+                    categoryName: dd.textContent||'',
+                    categoryId: dd.textContent||'',
+                }
+                categories.push(categoryItem);
+                categoriesDetail.push(categoryItem);
+            });
+            categoriesArray.push({
+                categoryGroupName: dt||'',
+                groupId: index,
+                items: categories,
+            })
         });
-        categoriesArray.push({
-            categoryGroupName: dt||'',
-            groupId: index,
-            items: categories,
-        })
-    });
-    let items = [
-        {
-            categoryId: "全部",
-            categoryName: "推荐",
-            default: true
-        },
-        {
-            categoryId: "排行榜",
-            categoryName: "排行榜",
-        }
-    ]
-    // 推荐, 排行榜
-    let recommended = {
-        groupId: -1,
-        categoryGroupName: "精选",
-        items
-    };
-    categoriesDetail.unshift(...items);
-    categoriesArray.unshift(recommended)
-    return { categoriesArray, categoriesDetail };
-};
-
-// 分类详情
-export const getCategoryDetailById = async (id: number|string, page: number) => {
-    if("排行榜" == id) return { categoriesDetail: (await getTopList()).categoriesDetail }
-    const reqBody = {
-        cat: id,
-        order: "hot",
-        limit: 35,
-        offset: (page - 1) * 35,
-    };
-    const a = await axios.get(URL.CATEGORY_LIST_URL + "?" + qs.stringify(reqBody));
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(a.data, "text/html");
-    let categoriesDetailItem: Array<CategoriesDetailItem> = [];
-    doc.body.querySelectorAll("#m-pl-container li")?.forEach((li) => {
-        categoriesDetailItem.push({
-            imgUrl: li.querySelector(".u-cover img")?.getAttribute('src')||'',
-            title: li.querySelector(".dec a")?.textContent||'',
-            tid: li.querySelector(".dec a")?.getAttribute('href')?.split('=')[1]||'',
-            group: "other",
-        })
-    })
-    const pgEls = doc.querySelectorAll("#m-pl-pager .u-page .zpgi");
-    let categoriesDetail: CategoriesDetail = {
-        categoriesDetailItem,
-    };
-    if (pgEls && pgEls.length > 0) {
-        const totalEl = Number(pgEls[pgEls.length - 1].textContent);
-        categoriesDetail.page = {
-            size: 35,   // 每页大小
-            totalPage: totalEl,  // 总页数
-        }
-    }
-    return { categoriesDetail };
-}
-
-export const getTopList = async () => {
-    const a = await axios.get(URL.TOP_LIST_URL);
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(a.data, "text/html");
-    const topLi = doc.body.querySelectorAll("#toplist li");
-    let categoriesDetailItem: Array<CategoriesDetailItem> = [];
-    topLi.forEach(item => {
-        const img = item.querySelector(".mine .left img")
-        const name = item.querySelector(".mine .name a")
-        if (!img) return;
-        categoriesDetailItem.push({
-            imgUrl: img?.getAttribute('src')?.split('?')[0] + "?param=300y300"||'',
-            title: name?.textContent||'',
-            tid: name?.getAttribute('href')?.split("=")[1]||'',
-            group: "top",
-        })
-    })
-    let categoriesDetail: CategoriesDetail = {
-        categoriesDetailItem,
-    };
-    return { categoriesDetail };
-}
-
-export const getMusicListDetail = async (id: number|string, group: string, data: any) => {
-    let param = {
-        id,
-        offset: 0,
-        total: true,
-        limit: 1000,
-        n: 1000,
-        csrf_token: ''
-    };
-    const res1 = await axios.post(URL.MUSIC_LIST_DETAIL_1, qs.stringify(weapi(param)));
-    let ids: any[] = [];
-    let c:any[] = [];
-    res1.data.playlist.trackIds.forEach((item: { id: any; }) =>{ 
-        ids.push(item.id)
-        c.push({id: item.id})
-    })
-    const res2 = await axios.post(URL.MUSIC_LIST_DETAIL_2, qs.stringify(weapi({c:JSON.stringify(c), ids:JSON.stringify(ids)})));
-    let songList: Array<music> = []
-    res2.data.songs.forEach((item: { id: any; name: any; dt: number; al: { picUrl: any; id: any; name: any; }; ar: { id: any; name: any; }[]; }) => {
-        songList.push({
-            mid: item.id,
-            name: item.name,
-            time: formatTime(item.dt / 1000),
-            img: item.al.picUrl,
-            album: {
-                mid: item.al.id,
-                name: item.al.name,
+        let items = [
+            {
+                categoryId: "全部",
+                categoryName: "推荐",
+                default: true
             },
-            singer: item.ar.map((s: { id: any, name: any; }) => ({mid: s.id, name: s.name})),
-            data: { chl: 1 }
+            {
+                categoryId: "排行榜",
+                categoryName: "排行榜",
+            }
+        ]
+        // 推荐, 排行榜
+        let recommended = {
+            groupId: -1,
+            categoryGroupName: "精选",
+            items
+        };
+        categoriesDetail.unshift(...items);
+        categoriesArray.unshift(recommended)
+        return { categoriesArray, categoriesDetail };
+    };
+
+    // 分类详情
+    static getCategoryDetailById = async (id: number|string, page: number) => {
+        if("排行榜" == id) return { categoriesDetail: (await getTopList()).categoriesDetail }
+        const reqBody = {
+            cat: id,
+            order: "hot",
+            limit: 35,
+            offset: (page - 1) * 35,
+        };
+        const a = await axios.get(URL.CATEGORY_LIST_URL + "?" + qs.stringify(reqBody));
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(a.data, "text/html");
+        let categoriesDetailItem: Array<CategoriesDetailItem> = [];
+        doc.body.querySelectorAll("#m-pl-container li")?.forEach((li) => {
+            categoriesDetailItem.push({
+                imgUrl: li.querySelector(".u-cover img")?.getAttribute('src')||'',
+                title: li.querySelector(".dec a")?.textContent||'',
+                tid: li.querySelector(".dec a")?.getAttribute('href')?.split('=')[1]||'',
+                group: "other",
+            })
         })
-    })
-    let musicListDetail: musicList = {
-        tid: res1.data.playlist.id,
-        title: res1.data.name,
-        img: res1.data.playlist.coverImgUrl,
-        desc: res1.data.playlist.description,
-        list: songList
-    };
-    return { musicListDetail };
+        const pgEls = doc.querySelectorAll("#m-pl-pager .u-page .zpgi");
+        let categoriesDetail: CategoriesDetail = {
+            categoriesDetailItem,
+        };
+        if (pgEls && pgEls.length > 0) {
+            const totalEl = Number(pgEls[pgEls.length - 1].textContent);
+            categoriesDetail.page = {
+                size: 35,   // 每页大小
+                totalPage: totalEl,  // 总页数
+            }
+        }
+        return { categoriesDetail };
+    }
+
+    static getTopList = async () => {
+        const a = await axios.get(URL.TOP_LIST_URL);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(a.data, "text/html");
+        const topLi = doc.body.querySelectorAll("#toplist li");
+        let categoriesDetailItem: Array<CategoriesDetailItem> = [];
+        topLi.forEach(item => {
+            const img = item.querySelector(".mine .left img")
+            const name = item.querySelector(".mine .name a")
+            if (!img) return;
+            categoriesDetailItem.push({
+                imgUrl: img?.getAttribute('src')?.split('?')[0] + "?param=300y300"||'',
+                title: name?.textContent||'',
+                tid: name?.getAttribute('href')?.split("=")[1]||'',
+                group: "top",
+            })
+        })
+        let categoriesDetail: CategoriesDetail = {
+            categoriesDetailItem,
+        };
+        return { categoriesDetail };
+    }
+
+    static getMusicListDetail = async (id: number|string, _group: string, _data: any) => {
+        let param = {
+            id,
+            offset: 0,
+            total: true,
+            limit: 1000,
+            n: 1000,
+            csrf_token: ''
+        };
+        const res1 = await axios.post(URL.MUSIC_LIST_DETAIL_1, qs.stringify(weapi(param)));
+        let ids: any[] = [];
+        let c:any[] = [];
+        res1.data.playlist.trackIds.forEach((item: { id: any; }) =>{ 
+            ids.push(item.id)
+            c.push({id: item.id})
+        })
+        const res2 = await axios.post(URL.MUSIC_LIST_DETAIL_2, qs.stringify(weapi({c:JSON.stringify(c), ids:JSON.stringify(ids)})));
+        let songList: Array<music> = []
+        res2.data.songs.forEach((item: { id: any; name: any; dt: number; al: { picUrl: any; id: any; name: any; }; ar: { id: any; name: any; }[]; }) => {
+            songList.push({
+                mid: item.id,
+                name: item.name,
+                time: formatTime(item.dt / 1000),
+                img: item.al.picUrl,
+                album: {
+                    mid: item.al.id,
+                    name: item.al.name,
+                },
+                singer: item.ar.map((s: { id: any, name: any; }) => ({mid: s.id, name: s.name})),
+                data: { chl: 1 }
+            })
+        })
+        let musicListDetail: musicList = {
+            tid: res1.data.playlist.id,
+            title: res1.data.name,
+            img: res1.data.playlist.coverImgUrl,
+            desc: res1.data.playlist.description,
+            list: songList
+        };
+        return { musicListDetail };
+    }
+
+    static getSongDetail = async (music: music) => {
+        let param = {
+            ids: [music.mid],
+            level: 'standard',
+            encodeType: 'flac', //aac
+            csrf_token: ''
+        };
+        const res = await axios.post(URL.MUSIC_PLAY_URL, qs.stringify(weapi(param)));
+        let playUrl = res.data.data[0].url;
+        return { playUrl }
+    }
+
 }
-
-export const getSongDetail = async (music: music) => {
-    let param = {
-        ids: [music.mid],
-        level: 'standard',
-        encodeType: 'flac', //aac
-        csrf_token: ''
-    };
-    const res = await axios.post(URL.MUSIC_PLAY_URL, qs.stringify(weapi(param)));
-    let playUrl = res.data.data[0].url;
-    return { playUrl }
-}
-
-
 const weapi = (text:any) => {
     if (typeof (text) === 'object') text = JSON.stringify(text);
     const secretkey = randomText(CHOICE, 16);

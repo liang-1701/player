@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { routes } from "@/router/modules/musicRouters";
 import { Category, CategoryItem, musicList, CategoriesDetail } from "@/type/musicTypes";
-import { importAndExtract } from "@/common/importModule";
+import { getClassName } from "@/common/importModule";
 
 let menuStore = defineStore("menu", {
     state: () => {
@@ -21,28 +21,22 @@ let menuStore = defineStore("menu", {
             await this.getCategoryList();
         },
         async getCategoryList() {
-            const method = await importAndExtract(`/src/platform/${this.currentPlat.file}`, 'getCategoryList');
-            const result = await method();
+            const method = await getClassName(this.currentPlat.file, "getCategoryList");
+            const result = await method!();
             this.categories = result!.categoriesArray;
             this.categoriesDetail = result!.categoriesDetail;
         },
         // 获取分类详细展示
-        getCategoryDetailById(id: number|string, page: number) {
-            importAndExtract(`/src/platform/${this.currentPlat.file}`, 'getCategoryDetailById').then((menthod) => {
-                return menthod(id, page);
-            }).then((result) => {
-                this.categoriesDetailList = result!.categoriesDetail;
-            })
+        async getCategoryDetailById(id: number|string, page: number) {
+            const method = await getClassName(this.currentPlat.file, "getCategoryDetailById");
+            const result = await method!(id, page);
+            this.categoriesDetailList = result!.categoriesDetail;
         },
         // 详细歌单
-        getMusicListDetail(id: number|string, group: string, data: any) {
-            importAndExtract(`/src/platform/${this.currentPlat.file}`, 'getMusicListDetail').then((menthod) => {
-                return menthod(id, group, data);
-            }).then((result) => {
-                this.musicListDetail = result!.musicListDetail;
-                console.log("音乐列表");
-                console.log(this.musicListDetail);
-            })
+        async getMusicListDetail(id: number|string, group: string, data: any) {
+            const method = await getClassName(this.currentPlat.file, "getMusicListDetail");
+            const result = await method!(id, group, data);
+            this.musicListDetail = result!.musicListDetail;
         }
     },
     getters: {

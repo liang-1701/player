@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { music } from "@/type/musicTypes";
 import { play, toggleMusic, togglePlay, stop } from "@/common/audioPlay";
 import musicResource from "@/store/modules/musicResource";
-import { importAndExtract } from "@/common/importModule";
+import { getClassName } from "@/common/importModule";
 
 let musicStore = musicResource();
 
@@ -56,8 +56,8 @@ let playStore = defineStore("play", {
             this.currPlayMusic = music;
             if (music.playUrl) { return }
             const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == music.data?.chl);
-            const method = await importAndExtract(`/src/platform/${plat?.file}`, 'getSongDetail');
-            const result = await method(music);
+            const method = await getClassName(plat!.file, "getSongDetail");
+            const result = await method!(music);
             this.currPlayMusic.playUrl = result.playUrl;
         },
         async play(music: music) {

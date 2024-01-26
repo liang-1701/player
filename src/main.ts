@@ -11,6 +11,7 @@ import { createPinia } from 'pinia'
 import router from './router'
 import VueLazyLoad from "vue3-lazyload";
 import '@/common/request' 
+import error from '@/assets/imgs/error.png'
 
 const app = createApp(App);
 // app.config.globalProperties.$global = global
@@ -18,6 +19,6 @@ app.use(ElementPlus, { locale: zhCn });
 app.use(createPinia());
 app.use(router);
 app.use(VueLazyLoad, {
-    error: "error.png"
+    error: error,
 });
 app.mount("#app");
