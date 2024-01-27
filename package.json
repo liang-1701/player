@@ -1,7 +1,7 @@
 {
     "name": "player",
     "private": true,
-    "version": "1.0.0",
+    "version": "0.0.1",
     "main": "dist-electron/index.js",
     "scripts": {
         "dev": "vite",
@@ -86,7 +86,7 @@
             }
         ],
         "releaseInfo": {
-            "releaseNotes": "版本更新的具体内容"
+            "releaseNotes": "基础功能"
         }
     }
 }
