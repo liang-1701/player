@@ -1,6 +1,6 @@
 <template>
     <div class="container-left">
-        <div class="plat-title"> {{ musicStore.menus!.meta.title }}</div>
+        <div class="title"> {{ musicStore.menus!.meta.title }}</div>
         <div class="plat-list">
            <el-menu class="plat-menu" style="border-right: none;" :default-active="$router.currentRoute.value.params.id">
                 <el-menu-item class="plat" @click="changePlat(item)" v-for="(item) in musicStore.menus!.meta.platform" :index="item.id">{{item.name}}</el-menu-item>
@@ -16,44 +16,43 @@ import { inject } from 'vue';
 
 let $router = useRouter();
 let musicStore = musicResource();
-const alltag:any = inject("all-tag");
+const musicEnevt:any = inject("music-enevt");
 
 const changePlat = async (item:any) => {
     await musicStore.setCurrentPlat(item);
-    $router.push({path: `/category/${item.id}`});
-    alltag.initDefaultClass();
+    $router.push({path: `/square/${item.id}`});
+    musicEnevt.initDefaultClass();
 }
-
 </script>
 
 <style lang="scss" scoped>
-.plat-title {
+.container-left {
     display: flex;
-    height: 40px;
+    flex-direction: column;
     align-items: center;
-    justify-content:center;
-    font-size: 18px;
-    color: var(--tille-txet-color);
-    font-weight: bold;
-}
-.plat-list {
-    display: flex;
-    align-items: center;
-    justify-content:center;
-    .is-active, .is-active:hover {
-        background-color: var(--bg-color-active);
+    margin-right: 10px;
+    .title {
+        font-weight: bold;
+        font-size: 18px;
+        color: var(--title-txet-color);
+        margin-bottom: 10px;
     }
-    .plat:not(.is-active):hover {
-        background-color: var(--bg-color-hover);
-    }
-    .plat {
-        color: var(--text-color);
-        height: 40px;
-        border-radius: 10px;
-        margin-top: 10px;
-    }
-    .plat-menu {
-        background-color: var(--bg-color);
+    .plat-list {
+        .is-active, .is-active:hover {
+            background-color: var(--button-color-active);
+        }
+        .plat:not(.is-active):hover {
+            background-color: var(--button-color-hover);
+        }
+        .plat {
+            height: 40px;
+            border-radius: 10px;
+            margin-top: 10px;
+            padding: 10px;
+        }
+        .plat-menu {
+            background-color: var(--bg-color);
+        }
     }
 }
 </style>

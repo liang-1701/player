@@ -13,7 +13,7 @@ const createWindow = () => {
     win = new BrowserWindow({
         width: winState.width,
         height: winState.height,
-        minWidth: 1020,
+        minWidth: 1040,
         minHeight: 630,
         x: winState.x,
         y: winState.y,

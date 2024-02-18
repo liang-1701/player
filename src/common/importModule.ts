@@ -12,20 +12,20 @@
 
 export const getClassName = async (type: string, methodname: string)=> {
     switch(type) {
-        case 'wangyiyunmusic':{
-            const importModule = await import('@/platform/wangyiyunmusic');
+        case 'wangyiyun':{
+            const importModule = await import('@/platform/music/wangyiyun');
             const men = methodname as keyof typeof importModule.WangYiYunMusicApi;
             const res = importModule.WangYiYunMusicApi[men] as Function
             return res;
         }
-        case 'kugoumusic':{
-            const importModule = await import('@/platform/kugoumusic');
+        case 'kugou':{
+            const importModule = await import('@/platform/music/kugou');
             const men = methodname as keyof typeof importModule.KuGouMusicApi;
             const res = importModule.KuGouMusicApi[men] as Function
             return res;
         }
-        case 'qqmusic':{
-            const importModule = await import('@/platform/qqmusic');
+        case 'qq':{
+            const importModule = await import('@/platform/music/qq');
             const men = methodname as keyof typeof importModule.QQMusicApi;
             const res = importModule.QQMusicApi[men] as Function
             return res;

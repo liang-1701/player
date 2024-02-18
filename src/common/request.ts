@@ -3,8 +3,12 @@ import { ElLoading } from 'element-plus'
 
 let loading: any;
 
+let request = axios.create({
+    timeout: 30000, // 超时时间
+});
+
 // request添加拦截器
-axios.interceptors.request.use(
+request.interceptors.request.use(
     (config) => {
         loading = ElLoading.service({
             lock: true,
@@ -19,7 +23,7 @@ axios.interceptors.request.use(
 );
 
 // response
-axios.interceptors.response.use(
+request.interceptors.response.use(
     (response) => {
         loading.close();
         return response;
@@ -28,3 +32,5 @@ axios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+export default request;

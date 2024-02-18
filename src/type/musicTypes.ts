@@ -1,60 +1,76 @@
+// 分类
 export interface Category {
-    categoryGroupName: string,
     groupId: number
-    items: Array<CategoryItem>,
-
+    name: string,
+    categoryItems: Array<CategoryItem>,
+    data?: Record<string, any>
 }
 
+// 分类详情
 export interface CategoryItem {
     categoryName:string,
     categoryId: number|string,
     default?: boolean,
-}
-
-export interface CategoriesDetail {
-    categoriesDetailItem: Array<CategoriesDetailItem>,
-    page?: page,
     data?: Record<string, any>
 }
-export interface CategoriesDetailItem {
+
+// 歌单广场
+export interface Square {
+    squareItems: Array<SquareItem>,
+    page?: Page,
+    data?: Record<string, any>
+}
+
+
+// 歌单广场详细
+export interface SquareItem {
+    id: number|string,
     imgUrl: string,
     title: string,
-    tid: number|string,
     group: string,
     data?: Record<string, any>
 }
 
-export interface singer {
-    mid: string,
+// 歌单内容
+export interface SquareDetail {
+    id: string|number,
     name: string,
+    desc: string,
+    img: string,
+    updateTime?: string,
+    songs: Array<Song>,
+    data?: Record<string, any>
 }
 
-export interface music {
-    index?: number,  // 列表索引
-    mid: string,
+// 歌曲详细
+export interface Song {
+    id: string|number,
     name: string,
     time: string
-    album: {
-        mid: string,
-        name: string,
-    },
-    singer: Array<singer>,
+    album: Album,
+    singers: Array<Singer>,
     playUrl?: string,  // 播放地址
     img?: string,  // 封面
     data?: Record<string, any>
 }
 
-export interface musicList {
-    tid: number|string,
-    title: string,
-    img: string,
-    desc: string,
-    updateTime?: string,
-    list: Array<music>,
+// 专辑
+export interface Album {
+    id: string|number,
+    name: string,
+    img?: string, // 封面
     data?: Record<string, any>
 }
 
-export interface page {
+// 歌手
+export interface Singer {
+    id: string,
+    name: string,
+    img?: string,  // 封面
+    data?: Record<string, any>
+}
+
+export interface Page {
     page?: number,   // 当前页
     size?: number,   // 每页大小
     total?: number,  // 总数
