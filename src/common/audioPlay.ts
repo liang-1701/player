@@ -59,7 +59,7 @@ class AudioPlay {
     }
     
     // 切换歌曲
-    toggleMusic(song: Song){
+    toggleSong(song: Song){
         if(this.sound) {
             // 先卸载当前
             this.sound.unload();
@@ -77,7 +77,6 @@ class AudioPlay {
             this.currSong = {} as Song;
             this.sound = undefined;
             audio = null;
-            // eventBus.emit("audio-play-state", false);
         }
     }
 
@@ -112,17 +111,23 @@ export const play = (song: Song) => {
 
 // 切换状态
 export const togglePlay = () => {
-    audio.togglePlay();
+    if(audio) {
+        audio.togglePlay();
+    }
 }
 
 // 切换歌曲
-export const toggleMusic = (song: Song) => {
-    audio.toggleMusic(song);
+export const toggleSong = (song: Song) => {
+    if(audio) {
+        audio.toggleSong(song);
+    }
 }
 
 // 停止播放
 export const stop = () => {
-    audio.stop();
+    if(audio) {
+        audio.stop();
+    }
 }
 
 eventBus.on("audio-play-volume", (data) => {

@@ -7,21 +7,21 @@
                 <span class="desc" v-html="musicStore.squareDetail.desc"></span>
                 <span class="time" v-if="musicStore.squareDetail.updateTime">最后更新时间: {{ musicStore.squareDetail.updateTime }}</span>
                 <div class="control">
-                    <add-music theme="filled" size="24" fill="#333"/>
-                    <list-add theme="filled" size="24" fill="#333"/>
+                    <add-music @click="playMusicStore.addSongList(musicStore.squareDetail.songs);playMusicStore.play(musicStore.squareDetail.songs[0])" theme="filled" size="24" fill="#333"/>
+                    <list-add @click="playMusicStore.addSongList(musicStore.squareDetail.songs)" theme="filled" size="24" fill="#333"/>
                 </div>
             </div>
         </div>
         <span class="song-count">列表({{ musicStore.squareDetail.songs?.length }})</span>
         <ul class="song-list">
-            <li v-for="(item, index) in musicStore.squareDetail.songs" :key="item.id">
+            <li v-for="(item, index) in musicStore.squareDetail.songs" :key="item.id" :class="{playing:item.id==playMusicStore.currPlaySong.id}">
                 <div class="index">{{ index + 1 }}</div>
                 <div class="name">
                     <span>{{ item.name }}</span>
                     <div class="control">
-                        <play-one theme="filled" size="24" fill="#333"/>
-                        <pause theme="filled" size="24" fill="#333"/>
-                        <plus theme="filled" size="24" fill="#333"/>
+                        <play-one @click="playMusicStore.play(item)" :class="{hide:musicEnevt.playState.value&&item.id==playMusicStore.currPlaySong.id}" theme="filled" size="24" fill="#333"/>
+                        <pause @click="playMusicStore.play(item)" :class="{hide:!(musicEnevt.playState.value&&item.id==playMusicStore.currPlaySong.id)}" theme="filled" size="24" fill="#333"/>
+                        <plus @click="playMusicStore.addSong(item)" theme="filled" size="24" fill="#333"/>
                     </div>    
                 </div>
                 <div class="singer">
@@ -40,8 +40,12 @@
 <script  lang="ts" setup>
 import { AddMusic, ListAdd, PlayOne, Pause, Plus } from '@icon-park/vue-next'
 import musicResource from "@/store/modules/musicResource";
+import playMusic from "@/store/modules/playMusic";
+import { inject } from "vue";
 
 let musicStore = musicResource();
+let playMusicStore = playMusic();
+const musicEnevt:any = inject("music-enevt");
 </script>
 
 <style lang="scss" scoped>
@@ -76,6 +80,10 @@ let musicStore = musicResource();
                 overflow: hidden;
                 white-space: break-spaces;
             }
+            .time {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
             .control {
                 display: flex;
                 align-items: center;
@@ -104,6 +112,9 @@ let musicStore = musicResource();
             align-items: center;
             border-radius: 10px;
             line-height: 40px;
+            &.playing {
+                color: var(--li-active);
+            }
             > * {
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -112,7 +123,7 @@ let musicStore = musicResource();
                 box-sizing: border-box;
             }
             .index {
-                width: 40px;
+                width: 50px;
             }
             .name {
                 flex: 4;
@@ -131,6 +142,9 @@ let musicStore = musicResource();
                     > *:hover :deep(path) {
                         fill: var(--icon-color-hover);
                         stroke: var(--icon-color-hover);
+                    }
+                    .hide {
+                        display: none;
                     }
                 }
             }

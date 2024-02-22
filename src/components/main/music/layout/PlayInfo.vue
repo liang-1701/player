@@ -1,0 +1,251 @@
+<template>
+    <div class="container-info" :class="{show:playInfoShow}">
+        <div class="header">
+            <div class="header no-drag">
+                <Up @click="close" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+                <Minus @click="winEnevt.setMin()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+                <Square @click="winEnevt.setMax()" v-if="!winEnevt.winMax.value" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+                <MinusTheTop @click="winEnevt.setMax()" v-else theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+                <Close  @click="winEnevt.setCls()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+            </div>
+        </div>
+        <div class="body">
+            <div class="info" v-show="playMusicStore.currPlaySong.name">
+                <span class="name"> {{ playMusicStore.currPlaySong.name }} </span>
+                <div class="singer">                    
+                    <span v-for="(singer, i) in playMusicStore.currPlaySong.singers">
+                        {{ singer.name }}
+                        <span v-if="i < playMusicStore.currPlaySong.singers.length - 1">, </span>  
+                    </span>
+                </div>
+                <span class="album"> {{ playMusicStore.currPlaySong.album?.name }} </span>
+                <img :src="playMusicStore.currPlaySong.img||musicbg" alt="">
+            </div>
+            <div class="lyrics" v-show="playMusicStore.currPlaySong.name" >
+                <p v-for="(item) in playMusicStore.currPlaySong.lyrics">{{ item.txt }}</p>
+            </div>
+        </div>
+        <div class="foot">
+            <!-- 播放进度条 -->
+            <input type="range" class="play-progress" min="0" max="1" step="0.0001" :value="playSongEvent.currentTimeVal.value" @input="playSongEvent.changeProgress" @mouseup="playSongEvent.changeTime" @mousedown="playSongEvent.stopUpdate.value=true">
+            <div class="play-show">
+                <div class="time">
+                    <span class="current-time">{{ formatTime(playSongEvent.currentTime.value) }}</span>
+                    <span>/</span>
+                    <span class="total-time">{{ playMusicStore.currPlaySong.time||'00:00' }}</span>
+                </div>
+                <div class="play-control">
+                    <go-start @click="playMusicStore.prevMuisc" theme="filled" size="24" fill="#333"/>
+                    <play @click="playSongEvent.changePlayState" :class="{'play-button-hide':musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
+                    <pause-one @click="playSongEvent.changePlayState" :class="{'play-button-hide':!musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
+                    <go-end @click="playMusicStore.nextMuisc" theme="filled" size="24" fill="#333"/>
+                    <music-list @click.stop="playSongEvent.playQueueOpen.value=!playSongEvent.playQueueOpen.value;playSongEvent.scrollPlaying()" theme="filled" size="24" fill="#333"/>
+                </div>
+                <div class="play-Volume">
+                    <div class="control" @click="playSongEvent.mute">
+                        <volume-mute :class="{hide:!playSongEvent.isMute.value}" theme="filled" size="24" fill="#333"/>
+                        <volume-small :class="{hide:playSongEvent.isMute.value || playSongEvent.playVolumeVal.value>0.4}" theme="filled" size="24" fill="#333"/>
+                        <volume-notice :class="{hide:playSongEvent.isMute.value || playSongEvent.playVolumeVal.value<=0.4}" theme="filled" size="24" fill="#333"/>
+                    </div>
+                    <!-- 声音调节 -->
+                    <input type="range" class="volume-progress" min="0" max="1" step="0.01" :value="playSongEvent.playVolumeVal.value" @input="playSongEvent.changeVolume">
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts" setup>
+import { Up, Minus, Close, MinusTheTop, Square, Play, PauseOne, GoStart, GoEnd, VolumeMute, VolumeSmall, VolumeNotice, MusicList } from '@icon-park/vue-next'
+import { inject } from 'vue';
+import playMusic from "@/store/modules/playMusic";
+import musicbg from '@/assets/imgs/musicbg.png'
+import { formatTime } from '@/common/utils'
+
+defineProps(['playInfoShow']);
+const emit = defineEmits(['changePlayInfoShow']);
+const winEnevt:any = inject('win-enevt');
+const musicEnevt:any = inject("music-enevt");
+const playSongEvent:any = inject('play-song-event');
+let playMusicStore = playMusic();
+
+const close = () => {
+    emit('changePlayInfoShow', false)
+}
+</script>
+
+<style lang="scss" scoped>
+.container-info {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: var(--bg-color);
+    left: 0;
+    top: -100%;
+    border-radius: 10px;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    .header {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        padding: 0 20px;
+        div > * {
+            padding: 3px 5px;
+            &:hover {
+                background-color: var(--header-bg-color-hover);
+            }
+        }
+    }
+    &.show {
+        top: 0;
+    }
+    > * {
+        padding: 0 10px;
+    }
+    .body {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        .info {
+            flex: 1;
+            margin-left: 10%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            > * {
+                margin: 5px;
+            }
+            .name {
+                font-size: 22px;
+                font-weight: 700;
+            }
+            .singer, .album {
+                cursor: pointer;
+                &:hover {
+                    color: var(--text-color-hover);
+                }
+            }
+            img {
+                width: 140px;
+                height: 140px;
+                border-radius: 10px;
+            }
+        }
+        .lyrics {
+            flex: 2;
+            height: calc(100vh - 200px);
+            margin-right: 10%;
+            overflow-y: scroll;
+            text-align: center;
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    }
+    .foot {
+        height: 70px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        .play-progress {
+            appearance: none;
+            width: 90%;
+            height: 3px;
+            border-radius: 15px;
+            background: -webkit-linear-gradient(var(--progress-left-color), var(--progress-left-color)) no-repeat var(--progress-right-color);
+            background-size: 0% 100%;
+            cursor: pointer;
+            &::-webkit-slider-thumb {
+                appearance: none;
+                width: 10px;
+                height: 10px;
+                background-color: var(--progress-left-color);
+                border-radius: 50%;
+                opacity: 0;
+            }
+            &:hover::-webkit-slider-thumb {
+                opacity: 1;
+            }
+        }
+        .play-show {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            padding: 10px 30px;
+            box-sizing: border-box;
+            .time {
+                font-size: 20px;
+                >* {
+                    margin: 0 2px;
+                }
+                .current-time, .total-time{
+                    display: inline-block;
+                    width: 40px;
+                }
+            }
+            .play-control {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                > *{
+                    margin: 0 5px;
+                    cursor: pointer;
+                    &:nth-child(2):hover :deep(path:first-child),
+                    &:nth-child(3):hover :deep(path:first-child) {
+                        fill: var(--icon-color-hover);
+                        stroke: var(--icon-color-hover);
+                    }
+                    &:nth-child(1):hover :deep(path),
+                    &:nth-child(4):hover :deep(path),
+                    &:nth-child(5):hover :deep(path) {
+                        fill: var(--icon-color-hover);
+                        stroke: var(--icon-color-hover);
+                    }
+                    &.play-button-hide {
+                        display: none;
+                    }
+                }
+            }
+            .play-Volume {
+                display: flex;
+                align-items: center;
+                .control > *{
+                    cursor: pointer;
+                    &:hover :deep(path) {
+                        fill: var(--icon-color-hover);
+                        stroke: var(--icon-color-hover);
+                    }
+                    &.hide {
+                        display: none;
+                    }
+                }
+                .volume-progress {
+                    appearance: none;
+                    margin: 0 10px;
+                    width: 100px;
+                    height: 3px;
+                    border-radius: 15px;
+                    background: -webkit-linear-gradient(var(--progress-left-color), var(--progress-left-color)) no-repeat var(--progress-right-color);
+                    background-size: 20% 100%;
+                    &::-webkit-slider-thumb {
+                        appearance: none;
+                        width: 10px;
+                        height: 10px;
+                        background-color: var(--progress-left-color);
+                        border-radius: 50%;
+                        cursor: pointer;
+                        opacity: 0;
+                    }
+                    &:hover::-webkit-slider-thumb {
+                        opacity: 1;
+                    }
+                }
+            }
+        }
+    }
+}
+</style>

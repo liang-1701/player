@@ -51,6 +51,8 @@ export interface Song {
     singers: Array<Singer>,
     playUrl?: string,  // 播放地址
     img?: string,  // 封面
+    lyrics?: [{time:'',txt:''}],  // 歌词
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 

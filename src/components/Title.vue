@@ -6,37 +6,28 @@
             <right-c @click="$router.forward()" theme="outline" size="22" fill="#333" :strokeWidth="2" />
         </div>
         <div class="search">
-            <el-input class="search-text no-drag" v-model="searchText" placeholder="搜一搜想听的" clearable @change=""></el-input>
+            <el-input class="search-text no-drag" v-model="searchText" placeholder="搜一搜想听的" clearable @change="musicStore.searchSongs(searchText)"></el-input>
         </div>
         <div class="win-control no-drag">
             <Setting @click="$router.push('/setting')" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
-            <Minus @click="setMin()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
-            <Square @click="setMax()" v-if="!winMax" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
-            <MinusTheTop @click="setMax()" v-else theme="outline" size="20" fill="#333" :strokeWidth="2"/>
-            <Close  @click="setCls()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+            <Minus @click="winEnevt.setMin()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+            <Square @click="winEnevt.setMax()" v-if="!winEnevt.winMax.value" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+            <MinusTheTop @click="winEnevt.setMax()" v-else theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+            <Close  @click="winEnevt.setCls()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
         </div>
     </div>
 </template>
 
 <script  lang="ts" setup>
 import { Setting, Minus, Close, MinusTheTop, Square, RightC, LeftC } from '@icon-park/vue-next'
-import { ref } from 'vue';
+import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
+import musicResource from "@/store/modules/musicResource";
 
+let musicStore = musicResource();
 let $router = useRouter();
 const searchText = ref('')
-const winMax = ref(false)
-
-const setMin = () => {
-    window.api.winMin();
-}
-const setMax = () => {
-    window.api.winMax({ winMax: winMax.value});
-    winMax.value = !winMax.value
-}
-const setCls = () => {
-    window.api.winClose();
-}
+const winEnevt:any = inject('win-enevt')
 
 </script>
 
