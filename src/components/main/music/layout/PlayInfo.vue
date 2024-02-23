@@ -22,12 +22,14 @@
                 <img :src="playMusicStore.currPlaySong.img||musicbg" alt="">
             </div>
             <div class="lyrics" v-show="playMusicStore.currPlaySong.name" >
-                <p v-for="(item) in playMusicStore.currPlaySong.lyrics">{{ item.txt }}</p>
+                <ul>
+                    <li v-for="(item) in playMusicStore.currPlaySong.lyrics" :data-time="item.time">{{ item.txt }}</li>
+                </ul>
             </div>
         </div>
         <div class="foot">
             <!-- 播放进度条 -->
-            <input type="range" class="play-progress" min="0" max="1" step="0.0001" :value="playSongEvent.currentTimeVal.value" @input="playSongEvent.changeProgress" @mouseup="playSongEvent.changeTime" @mousedown="playSongEvent.stopUpdate.value=true">
+            <input type="range" data-time="00:00" style="--time-left:0" class="play-progress" min="0" max="1" step="0.0001" :value="playSongEvent.currentTimeVal.value" @input="playSongEvent.changeProgress" @mouseup="playSongEvent.changeTime" @mousedown="playSongEvent.stopUpdate.value=true">
             <div class="play-show">
                 <div class="time">
                     <span class="current-time">{{ formatTime(playSongEvent.currentTime.value) }}</span>
@@ -57,10 +59,10 @@
 
 <script lang="ts" setup>
 import { Up, Minus, Close, MinusTheTop, Square, Play, PauseOne, GoStart, GoEnd, VolumeMute, VolumeSmall, VolumeNotice, MusicList } from '@icon-park/vue-next'
-import { inject } from 'vue';
+import { inject, watch } from 'vue';
 import playMusic from "@/store/modules/playMusic";
 import musicbg from '@/assets/imgs/musicbg.png'
-import { formatTime } from '@/common/utils'
+import { formatTime, msToSeconds } from '@/common/utils'
 
 defineProps(['playInfoShow']);
 const emit = defineEmits(['changePlayInfoShow']);
@@ -68,6 +70,28 @@ const winEnevt:any = inject('win-enevt');
 const musicEnevt:any = inject("music-enevt");
 const playSongEvent:any = inject('play-song-event');
 let playMusicStore = playMusic();
+
+watch(
+    () => playSongEvent.currentTime.value,
+    (newVal) => {
+        const lyrics = playMusicStore.currPlaySong.lyrics||[];
+        const active = document.querySelectorAll('.lyrics ul .active') as unknown as HTMLLIElement[];
+        active.forEach((e:HTMLLIElement) => e.classList.remove('active'));
+        for (let i = 0; i < lyrics.length; i++) {
+            if (msToSeconds(lyrics[i].time) <= newVal && lyrics[i + 1] && msToSeconds(lyrics[i + 1].time) > newVal) {
+                const el = document.querySelector(`[data-time='${lyrics[i].time}']`) as HTMLLIElement;
+                el.classList.add('active');
+                // 调整位置
+                const lyricsList = document.querySelector('.lyrics ul') as HTMLElement;
+                const scrollTop = -i * el.offsetHeight + 200;
+                lyricsList.style.top = `${scrollTop}px`;
+                break;
+            }
+        }
+    }, {
+        immediate: true
+    }
+)
 
 const close = () => {
     emit('changePlayInfoShow', false)
@@ -135,13 +159,33 @@ const close = () => {
             }
         }
         .lyrics {
+            border: red solid 1px;
             flex: 2;
             height: calc(100vh - 200px);
             margin-right: 10%;
             overflow-y: scroll;
             text-align: center;
+            box-sizing: border-box;
             &::-webkit-scrollbar {
                 display: none;
+            }
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                position: relative;
+                transition: all 0.3s;
+                li {
+                    font-size: 18px;
+                    line-height: 30px;
+                    height: 30px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    &.active {
+                        color: var(--text-color-active);
+                    }
+                }
             }
         }
     }
@@ -158,6 +202,7 @@ const close = () => {
             background: -webkit-linear-gradient(var(--progress-left-color), var(--progress-left-color)) no-repeat var(--progress-right-color);
             background-size: 0% 100%;
             cursor: pointer;
+            position: relative;
             &::-webkit-slider-thumb {
                 appearance: none;
                 width: 10px;
@@ -168,6 +213,16 @@ const close = () => {
             }
             &:hover::-webkit-slider-thumb {
                 opacity: 1;
+            }
+            &:hover::after {
+                content: attr(data-time);
+                position: absolute;
+                left: var(--time-left);
+                bottom: 7px;
+                background-color: var(--bg-color);
+                padding: 2px 4px;
+                border-radius: 5px;
+                font-size: 14px;
             }
         }
         .play-show {

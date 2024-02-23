@@ -1,7 +1,7 @@
 <template>
     <div class="container-play">
         <!-- 播放进度条 -->
-        <input type="range" class="play-progress" min="0" max="1" step="0.0001" :value="currentTimeVal" @input="changeProgress" @mouseup="changeTime" @mousedown="stopUpdate=true">
+        <input type="range" data-time="00:00" style="--time-left:0" class="play-progress" min="0" max="1" step="0.0001" :value="currentTimeVal" @input="changeProgress" @mouseup="changeTime" @mousedown="stopUpdate=true">
         <div class="play-show">
             <div class="play-info">
                 <div class="img" @click="playInfoShow = true">
@@ -119,6 +119,12 @@ const changeProgress = (payload: Event) => {
         currentTimeVal.value = 0;
     };
     upProgress();
+    upAfterProgress(el);
+}
+
+const upAfterProgress = (el: HTMLInputElement) => {
+    el.dataset.time = formatTime(currentTimeVal.value * toSeconds(playMusicStore.currPlaySong.time));
+    el.style.setProperty("--time-left", `${currentTimeVal.value * 100 - 4}%`);
 }
 
 const upProgress = () => {
@@ -221,6 +227,7 @@ provide('play-song-event', {
         border-radius: 15px;
         background: -webkit-linear-gradient(var(--progress-left-color), var(--progress-left-color)) no-repeat var(--progress-right-color);
         background-size: 0% 100%;
+        position: relative;
         cursor: pointer;
         &::-webkit-slider-thumb {
             appearance: none;
@@ -232,6 +239,16 @@ provide('play-song-event', {
         }
         &:hover::-webkit-slider-thumb {
             opacity: 1;
+        }
+        &:hover::after {
+            content: attr(data-time);
+            position: absolute;
+            left: var(--time-left);
+            bottom: 7px;
+            background-color: var(--bg-color);
+            padding: 2px 4px;
+            border-radius: 5px;
+            font-size: 14px;
         }
     }
     .play-show {
