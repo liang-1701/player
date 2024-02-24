@@ -18,9 +18,9 @@ export const get = (url: string, params:any) => {
     })
 }
 
-export const post = (url: string, data:any, params:any) => {
+export const post = (url: string, data:any, params:any, headers:any) => {
     return new Promise((resolve, reject) => {
-        request.post(url, data, {params: params}).then(resp => {
+        request.post(url, data, {params: params, headers: headers}).then(resp => {
             if (resp.status === 200) {
                 resolve(resp.data);
             }else {

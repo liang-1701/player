@@ -25,7 +25,7 @@
                     </div>    
                 </div>
                 <div class="singer">
-                    <span v-for="(singer, i) in item.singers">
+                    <span @click="musicEnevt.getSingerDetail(singer)" v-for="(singer, i) in item.singers">
                         {{ singer.name }}
                         <span v-if="i < item.singers.length - 1">, </span>  
                     </span>
@@ -156,6 +156,10 @@ const musicEnevt:any = inject("music-enevt");
             }
             .singer {
                 flex: 2;
+                span:hover {
+                    cursor: pointer;
+                    color: var(--text-color-hover);
+                }
             }
             .album {
                 flex: 2;

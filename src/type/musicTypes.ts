@@ -61,6 +61,8 @@ export interface Album {
     id: string|number,
     name: string,
     img?: string, // 封面
+    time?: string,  // 发行时间
+    singer?: Singer,  // 歌手
     data?: Record<string, any>
 }
 
@@ -70,6 +72,16 @@ export interface Singer {
     name: string,
     img?: string,  // 封面
     data?: Record<string, any>
+}
+
+export interface SingerDetail {
+    id: string,
+    name: string,
+    img?: string,  // 封面
+    songsTotal: number,  // 歌曲总数
+    recommend?: Array<Song>,
+    songs?: Array<Song>,
+    albums?: Array<Album>,
 }
 
 export interface Page {

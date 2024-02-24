@@ -68,6 +68,14 @@ export const routes = [
                 meta: {
                     title: '分类详情歌曲列表',
                 },
+            },
+            {
+                path: '/singerDetail',
+                name: 'singerDetail',
+                component: () => import('@/components/main/music/layout/SingerDetail.vue'),
+                meta: {
+                    title: '歌手详情',
+                },
             }
         ]
     }

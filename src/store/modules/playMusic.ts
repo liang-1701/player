@@ -21,8 +21,8 @@ let playStore = defineStore("play", {
             }
         },
         // 在播放队列最后添加多首歌曲
-        addSongList(songs: Song[]) {
-            songs.forEach(song => this.addSong(song));
+        addSongList(songs: any) {
+            songs.forEach((song:any) => this.addSong(song));
         },
         // 删除播放队列中的某首歌曲
         removeSong(song: Song) {

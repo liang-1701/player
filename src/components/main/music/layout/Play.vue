@@ -186,7 +186,6 @@ const scrollPlaying = () => {
     if(playing){
         const rect = playing.getBoundingClientRect();
         const desiredTopOffset = (queueList.clientHeight / 2) - (rect.height / 2);
-        console.log(rect.top + queueList.scrollTop - desiredTopOffset);
         queueList.scrollTo({
             top: rect.top + queueList.scrollTop - desiredTopOffset,
             behavior: "smooth"

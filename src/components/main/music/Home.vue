@@ -18,6 +18,11 @@ let musicStore = musicResource();
 const defaultClass = ref();  // 默认平台
 const playState = ref(false);  // 播放状态
 
+const getSingerDetail = (singer:any) => {
+    musicStore.getSingerDetail(singer, 1);
+    $router.push('/singerDetail')
+}
+
 eventBus.on("audio-play-state", (data) => {
     playState.value =  Boolean(data);
 });
@@ -47,7 +52,8 @@ provide("music-enevt", {
     playState,
     setDefaultClass,
     getSquare,
-    initDefaultClass
+    initDefaultClass,
+    getSingerDetail
 })
 </script>
 
