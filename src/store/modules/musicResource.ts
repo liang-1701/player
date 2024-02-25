@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { routes } from "@/router/modules/musicRouters";
-import { Category, CategoryItem, Square, SquareDetail, SingerDetail, Singer } from "@/type/musicTypes";
+import { Category, CategoryItem, Square, SquareDetail, SingerDetail, Singer, Album } from "@/type/musicTypes";
 import { getClassName } from "@/common/importModule";
 
 let menuStore = defineStore("menu", {
@@ -13,6 +13,7 @@ let menuStore = defineStore("menu", {
             square: {} as Square,  // 歌单广场
             squareDetail: {} as SquareDetail,  // 歌单内容
             singerDetail: {} as SingerDetail, // 歌手详细
+            albumDetail: {} as Album, // 歌手详细
         };
     },
     actions: {
@@ -74,6 +75,12 @@ let menuStore = defineStore("menu", {
             }else {
                 this.singerDetail.albums?.push(...result.albums);
             }
+        },
+        // 专辑详情
+        async getAlbumDetail(album: Album) {
+            const method = await getClassName(this.currentPlat.file, "getAlbumDetail");
+            const result = await method!(album);
+            this.albumDetail = result.albumDetail;
         },
     },
     getters: {

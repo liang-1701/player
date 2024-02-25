@@ -1,20 +1,19 @@
 <template>
-    <div class="container-square-detail">
-        <div class="square">
-            <img v-lazy="musicStore.squareDetail.img">
+    <div class="container-album-detail">
+        <div class="album-info">
+            <img v-lazy="musicStore.albumDetail.img" alt="">
             <div class="content">
-                <span class="name" v-html="musicStore.squareDetail.name"></span>
-                <span class="desc" v-html="musicStore.squareDetail.desc"></span>
-                <span class="time" v-if="musicStore.squareDetail.updateTime">最后更新时间: {{ musicStore.squareDetail.updateTime }}</span>
+                <span class="name">{{ musicStore.albumDetail.name }}</span>
+                <span class="desc" v-html="musicStore.albumDetail.desc"></span>
+                <span class="time">发行时间: {{ musicStore.albumDetail.time }}</span>
                 <div class="control">
-                    <add-music @click="playMusicStore.addSongList(musicStore.squareDetail.songs);playMusicStore.play(musicStore.squareDetail.songs[0])" theme="filled" size="24" fill="#333"/>
-                    <list-add @click="playMusicStore.addSongList(musicStore.squareDetail.songs)" theme="filled" size="24" fill="#333"/>
+                    <add-music @click="playMusicStore.addSongList(musicStore.albumDetail.songs);playMusicStore.play(musicStore.albumDetail.songs![0])" theme="filled" size="24" fill="#333"/>
+                    <list-add @click="playMusicStore.addSongList(musicStore.albumDetail.songs)" theme="filled" size="24" fill="#333"/>
                 </div>
             </div>
         </div>
-        <span class="song-count">列表({{ musicStore.squareDetail.songs?.length }})</span>
         <ul class="song-list">
-            <li v-for="(item, index) in musicStore.squareDetail.songs" :key="item.id" :class="{playing:item.id==playMusicStore.currPlaySong.id}">
+            <li v-for="(item, index) in musicStore.albumDetail.songs" :key="item.id" :class="{playing:item.id==playMusicStore.currPlaySong.id}">
                 <div class="index">{{ index + 1 }}</div>
                 <div class="name">
                     <span>{{ item.name }}</span>
@@ -30,7 +29,6 @@
                         <span v-if="i < item.singers.length - 1">, </span>  
                     </span>
                 </div>
-                <div class="album" @click="musicEnevt.getAlbum(item.album)">{{ item.album.name }}</div>
                 <div class="time">{{ item.time }}</div>
             </li>
         </ul>
@@ -49,24 +47,24 @@ const musicEnevt:any = inject("music-enevt");
 </script>
 
 <style lang="scss" scoped>
-.container-square-detail {
+.container-album-detail {
     display: flex;
     flex-direction: column;
     padding: 0 20px;
-    box-sizing: border-box;
-    .square {
+    .album-info {
         display: flex;
-        justify-content: space-between;
+        > * {
+            margin: 0 20px;
+        }
         img {
             width: 150px;
             height: 150px;
-            border-radius: 10px;
+            border-radius: 20px;
         }
         .content {
-            flex: 1;
-            margin-left: 20px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             .name {
                 font-size: 20px;
                 font-weight: 700;
@@ -77,12 +75,14 @@ const musicEnevt:any = inject("music-enevt");
                 display: -webkit-box;
                 -webkit-line-clamp: 3;
                 -webkit-box-orient: vertical;
-                overflow: hidden;
+                overflow: scroll;
                 white-space: break-spaces;
+                &::-webkit-scrollbar {
+                    display: none;
+                }
             }
             .time {
                 font-size: 14px;
-                margin-bottom: 5px;
             }
             .control {
                 display: flex;
@@ -99,9 +99,6 @@ const musicEnevt:any = inject("music-enevt");
                 }
             }
         }
-    }
-    .song-count {
-        margin-top: 30px;
     }
     .song-list {
         list-style: none;
@@ -157,13 +154,6 @@ const musicEnevt:any = inject("music-enevt");
             .singer {
                 flex: 2;
                 span:hover {
-                    cursor: pointer;
-                    color: var(--text-color-hover);
-                }
-            }
-            .album {
-                flex: 2;
-                &:hover {
                     cursor: pointer;
                     color: var(--text-color-hover);
                 }

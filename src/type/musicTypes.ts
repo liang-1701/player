@@ -62,7 +62,9 @@ export interface Album {
     name: string,
     img?: string, // 封面
     time?: string,  // 发行时间
+    desc?: string,  // 描述
     singer?: Singer,  // 歌手
+    songs?: Array<Song>,
     data?: Record<string, any>
 }
 

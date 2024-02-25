@@ -217,7 +217,7 @@ export class KuGouMusicApi {
                 id: item.album_audio_id,
                 name: item.songname,
                 time: formatTime(item.timelength / 1000),
-                album: {id: item.album_id, name: item.album_name},
+                album: {id: item.album_id, name: item.album_name, img: item.album_sizable_cover.replace("{size}", 240)},
                 singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240)})),
                 chl: CHL
             })
@@ -355,7 +355,6 @@ export class KuGouMusicApi {
         if (page !=1) {
             return { albums: [] }
         }
-        // 推荐
         const res = await get(`https://www.kugou.com/yy/?r=singer/album&sid=${singer.id}&p=1&t=1708780593820`, null) as any;
         let albums: Array<Album> = [];
         res.data.forEach((item:any) => {
@@ -368,6 +367,44 @@ export class KuGouMusicApi {
             })
         });
         return { albums };
+    }
+
+    // 专辑详情
+    static getAlbumDetail = async (album: Album) => {
+        const res = await get(`https://www.kugou.com/album/${album.id}.html`, null) as any;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(res, "text/html");
+        const desc = doc.querySelector(".more_intro")?.textContent;
+        const img = doc.querySelector(".alm2 .pic img")!.getAttribute("_src");
+        const detailItems = doc.querySelector('.alm2 .detail')!.childNodes;
+        const script = doc.querySelectorAll("script");
+        let globalData = [] as any;
+        script.forEach(s => {
+            if(s.textContent!.includes("var data=")) {
+                globalData = Function(s.textContent + ' return {data}')();
+            }
+        })
+        let songs: Array<Song> = [];
+        globalData.data.forEach((item:any) => {
+            songs.push({
+                id: item.album_audio_id,
+                name: item.songname,
+                time: formatTime(item.timelength / 1000),
+                album: {id: item.album_id, name: item.album_name},
+                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240)})),
+                chl: CHL,  // 渠道
+            })
+        });
+        let albumDetail = {
+            id: album.id,
+            name: album.name,
+            img: album.img || img, // 封面
+            time: album.time || detailItems.item(12).textContent,  // 发行时间
+            desc: desc,  // 描述
+            singer: album.singer || songs[0].singers[0],  // 歌手
+            songs: songs,
+        };
+        return { albumDetail };
     }
 }
 
