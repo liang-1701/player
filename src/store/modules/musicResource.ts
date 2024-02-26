@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { routes } from "@/router/modules/musicRouters";
-import { Category, CategoryItem, Square, SquareDetail, SingerDetail, Singer, Album } from "@/type/musicTypes";
+import { Category, CategoryItem, Square, SquareDetail, SingerDetail, Singer, Album, SingerSquare } from "@/type/musicTypes";
 import { getClassName } from "@/common/importModule";
 
 let menuStore = defineStore("menu", {
@@ -14,6 +14,8 @@ let menuStore = defineStore("menu", {
             squareDetail: {} as SquareDetail,  // 歌单内容
             singerDetail: {} as SingerDetail, // 歌手详细
             albumDetail: {} as Album, // 歌手详细
+            singerSquare : Array<SingerSquare>(), // 歌手广场
+            singers: Array<Singer>(), // 所有歌手
         };
     },
     actions: {
@@ -82,6 +84,19 @@ let menuStore = defineStore("menu", {
             const result = await method!(album);
             this.albumDetail = result.albumDetail;
         },
+        // 所有歌手
+        async getAllSingers() {
+            const method = await getClassName(this.currentPlat.file, "getAllSingers");
+            const result = await method!();
+            this.singerSquare = result.singerSquare;
+            this.singers = result.singers;
+        },
+        // 查询歌手
+        async getSingersByTypes(data:string[]) {
+            const method = await getClassName(this.currentPlat.file, "getSingersByTypes");
+            const result = await method!(data);
+            this.singers = result.singers;
+        }
     },
     getters: {
         
