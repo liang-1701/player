@@ -13,12 +13,12 @@
             <div class="info" v-show="playMusicStore.currPlaySong.name">
                 <span class="name"> {{ playMusicStore.currPlaySong.name }} </span>
                 <div class="singer">                    
-                    <span v-for="(singer, i) in playMusicStore.currPlaySong.singers">
+                    <span @click="musicEnevt.getSingerDetail(singer);close()" v-for="(singer, i) in playMusicStore.currPlaySong.singers">
                         {{ singer.name }}
                         <span v-if="i < playMusicStore.currPlaySong.singers.length - 1">, </span>  
                     </span>
                 </div>
-                <span class="album"> {{ playMusicStore.currPlaySong.album?.name }} </span>
+                <span @click="musicEnevt.getAlbum(playMusicStore.currPlaySong.album);close()" class="album"> {{ playMusicStore.currPlaySong.album?.name }} </span>
                 <img :src="playMusicStore.currPlaySong.img||musicbg" alt="">
             </div>
             <div class="lyrics" v-show="playMusicStore.currPlaySong.name" >
