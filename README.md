@@ -1,6 +1,3 @@
-网易云音乐api: https://docs.neteasecloudmusicapi.binaryify.com/#/?id=neteasecloudmusicapi
-网易云音乐github: https://binaryify.github.io/NeteaseCloudMusicApi/#/?id=neteasecloud
-    
 基于Electron + Vue 3开发的播放器。   
 
 郑重声明：本项目仅供学习交流，请支持正版!
