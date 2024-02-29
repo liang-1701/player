@@ -31,7 +31,7 @@
                 <div>
                     <svg t="1703726970407" class="icon" id="next-control" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11117" width="25" height="25"><path d="M810.666667 512a52.92 52.92 0 0 1-25.78 45.666667l-618.666667 373.28a53.333333 53.333333 0 0 1-80.886667-45.666667V138.72a53.333333 53.333333 0 0 1 80.886667-45.666667l618.666667 373.28A52.92 52.92 0 0 1 810.666667 512z m128 405.333333V106.666667a21.333333 21.333333 0 0 0-42.666667 0v810.666666a21.333333 21.333333 0 0 0 42.666667 0z" fill="#5C5C66" p-id="11118"></path></svg>
                 </div>
-                <div @click.stop="playQueueOpen = !playQueueOpen">
+                <div @click.stop="playQueueOpen = !playQueueOpen;scrollPlaying()">
                     <svg @click="" t="1703727118022" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11675" width="25" height="25"><path d="M426.666667 874.666667a21.333333 21.333333 0 0 1-21.333334 21.333333H64a21.333333 21.333333 0 0 1 0-42.666667h341.333333a21.333333 21.333333 0 0 1 21.333334 21.333334zM64 128h896a21.333333 21.333333 0 0 0 0-42.666667H64a21.333333 21.333333 0 0 0 0 42.666667z m0 384h597.333333a21.333333 21.333333 0 0 0 0-42.666667H64a21.333333 21.333333 0 0 0 0 42.666667z m896 341.333333h-85.333333a21.333333 21.333333 0 0 0 0 42.666667h85.333333a21.333333 21.333333 0 0 0 0-42.666667z m-90.053333-369.22c16.733333 17.42 23.806667 41.146667 26.533333 53.733334a21.333333 21.333333 0 1 0 41.706667-9.026667c-4.5-20.773333-14.666667-50.513333-37.466667-74.266667-11.04-11.493333-23.64-20.093333-37.493333-25.606666-10.306667-7.126667-19.44-16.58-27.153334-28.133334-19.64-29.393333-24.373333-64.04-25.446666-82.08A21.333333 21.333333 0 0 0 768 320v479.586667c-1.413333-1.02-2.846667-2-4.326667-3.006667-27.64-18.433333-64-28.58-102.34-28.58s-74.666667 10.146667-102.34 28.58c-14.253333 9.5-25.56 20.746667-33.613333 33.44-8.88 14-13.38 29.013333-13.38 44.666667s4.5 30.666667 13.38 44.666666c8.053333 12.666667 19.333333 23.94 33.613333 33.44C586.666667 971.186667 622.98 981.333333 661.333333 981.333333s74.666667-10.146667 102.34-28.58c14.253333-9.5 25.56-20.746667 33.613334-33.44 8.88-14 13.38-29.013333 13.38-44.666666V438a140.893333 140.893333 0 0 0 30.966666 27.82A21.18 21.18 0 0 0 846 468c8.706667 3.226667 16.766667 8.666667 23.946667 16.113333z" fill="#5C5C66" p-id="11676"></path></svg>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                 </div>
             </div>
             <ul class="queue-list">
-                <li v-for="(item) in playStore.playQueue" :key="item.index">
+                <li v-for="(item) in playStore.playQueue" :key="item.index" :class="{playing:item.mid==playStore.currPlayMusic.mid}">
                     <div class="info">
                         <span class="name-line">{{ item.name }}</span>
                         <div class="info-line">
@@ -101,6 +101,7 @@ import { music } from "@/type/musicTypes";
 let playStore = playMusic();
 const playQueueOpen = ref(false)
 const playState = ref(false)
+const playPrevMid = ref("")
 
 const timeupdate = () => {
     let audio = document.getElementsByTagName("audio")[0] as HTMLAudioElement;
@@ -118,13 +119,20 @@ const continueSong = () => {
 }
 
 const playCurrentSong = async (music: music) => {
-    playStore.addMusic(music)
-    await playStore.getSongDetail(music);
-    if (playStore.currPlayMusic.playUrl) {
-        let audio = document.getElementsByTagName("audio")[0] as HTMLAudioElement;
-        audio.play();
-        playState.value = true;
-        eventBus.emit("get-play-state", playState.value);
+    if(playPrevMid.value != music.mid) {
+        playStore.addMusic(music)
+        await playStore.getSongDetail(music);
+        if (playStore.currPlayMusic.playUrl) {
+            let audio = document.getElementsByTagName("audio")[0] as HTMLAudioElement;
+            audio.addEventListener('canplaythrough', () => {
+                audio.play();
+                playState.value = true;
+                eventBus.emit("get-play-state", playState.value);
+            });
+        }
+        playPrevMid.value = music.mid;
+    }else {
+        continueSong();
     }
 }
 
@@ -141,7 +149,19 @@ eventBus.on("play-music", (data: any) => {
     playCurrentSong(data);
 });
 
+const scrollPlaying = () => {
+    const queueList = document.getElementsByClassName("queue-list")[0] as HTMLElement;
+    const playing = queueList.getElementsByClassName("playing")[0] as HTMLElement;
+    if(playing){
+        const rect = playing.getBoundingClientRect();
+        var desiredTopOffset = (queueList.clientHeight / 2) - (rect.height / 2);
+        queueList.scrollTo({
+            top: rect.top + queueList.scrollTop - desiredTopOffset,
+            behavior: "smooth"
+        })
 
+    }
+}
 
 const closeQueue = () => {
     playQueueOpen.value = false;
@@ -365,6 +385,9 @@ document.addEventListener("click", closeQueue)
                     fill: var(--control-btn-color);
                 }
             }
+        }
+        .playing {
+            color: var(--playing-li-color);
         }
         li:hover {
             background-color: var(--music-detail-list-hover-color);
