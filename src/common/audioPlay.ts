@@ -26,7 +26,6 @@ class AudioPlay {
             src: [this.currMusic.playUrl||''],
             html5: true,
             loop: false,
-            volume: 0.2,
             onplay: function() {
                 eventBus.emit("audio-play-state", true);
                 requestAnimationFrame(self.timeupdate.bind(self))
@@ -103,6 +102,7 @@ class AudioPlay {
             }
         }
     }
+
 }
 
 // 播放
@@ -124,6 +124,15 @@ export const toggleMusic = (music: music) => {
 export const stop = () => {
     audio.stop();
 }
+
+eventBus.on("audio-play-volume", (data) => {
+    Howler.volume(Number(data));
+});
+
+eventBus.on("audio-play-mute", (data) => {
+    Howler.mute(Boolean(data))
+    
+});
 
 eventBus.on("audio-play-change", () => {
     if(audio) {
