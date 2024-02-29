@@ -16,12 +16,5 @@ export const routes = [
                 title: '设置',
             }
         },
-        {
-            path: '/musicList',
-            name: 'musicList',
-            meta: {
-                title: '音乐列表',
-            }
-        },
     ]
     

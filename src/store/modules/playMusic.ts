@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { music } from "@/type/musicTypes";
-import { getSongDetail } from '@/platform/qq'
+import { getSongDetail } from '@/platform/qqmusic'
 import { play, toggleMusic, togglePlay, stop } from "@/common/audioPlay";
 
 let playStore = defineStore("play", {
