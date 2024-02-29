@@ -1,7 +1,7 @@
 <template>
     <el-drawer v-model="alltag.musicListOpen.value" title="全部分类" style="background-color: var(--bg-color);">
          <div class="current-class">
-             <span>{{ currentClass }}</span>
+             <span>{{ musicStore.categoriesDetail.find(item => item.categoryId == alltag.defaultClass.value)?.categoryName }}</span>
          </div>
          <div class="class-detail">
              <div v-for="(item) in musicStore.categories">
@@ -18,29 +18,10 @@
 
 <script  lang="ts" setup>
 import musicResource from "@/store/modules/musicResource";
-import { inject, watch, ref } from "vue";
+import { inject } from "vue";
 
 let musicStore = musicResource();
 const alltag:any = inject("all-tag");
-
-const currentClass = ref("");
-
-watch(
- () => alltag.defaultClass.value,
- (newval) => {
-     let a1 = musicStore.categoriesDetail.find(item => item.categoryId == newval)
-     if (newval == 999999) {
-         currentClass.value = "推荐";
-     }else if (newval == 999998) {
-         currentClass.value = "排行榜";
-     }else {
-         currentClass.value = a1!.categoryName;
-     }
- },
- { 
-     immediate: true
- }
-)
 </script>
 
 <style lang="scss" scoped>

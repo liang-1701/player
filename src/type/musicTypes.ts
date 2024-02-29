@@ -8,6 +8,7 @@ export interface Category {
 export interface CategoryItem {
     categoryName:string,
     categoryId: number,
+    default?: boolean,
 }
 
 export interface CategoriesDetailItem {
