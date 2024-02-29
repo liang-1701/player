@@ -25,8 +25,8 @@
                     <svg t="1703726748044" class="icon" id="prev-control" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10931" width="25" height="25"><path d="M213.333333 512a52.92 52.92 0 0 0 25.78 45.666667l618.666667 373.28a53.333333 53.333333 0 0 0 80.886667-45.666667V138.72a53.333333 53.333333 0 0 0-80.886667-45.666667L239.133333 466.333333A52.92 52.92 0 0 0 213.333333 512z m-128 405.333333V106.666667a21.333333 21.333333 0 0 1 42.666667 0v810.666666a21.333333 21.333333 0 0 1-42.666667 0z" fill="#5C5C66" p-id="10932"></path></svg>
                 </div>
                 <div>
-                    <svg t="1703727003306" class="icon" @click="continueSong" :class="{play:playState}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11303" width="25" height="25"><path d="M512 42.666667C252.793333 42.666667 42.666667 252.793333 42.666667 512s210.126667 469.333333 469.333333 469.333333 469.333333-210.126667 469.333333-469.333333S771.206667 42.666667 512 42.666667z m196.546667 500.493333l-266.666667 176A37.333333 37.333333 0 0 1 384 688V336.033333a37.333333 37.333333 0 0 1 57.893333-31.16l266.666667 176a37.333333 37.333333 0 0 1 0 62.32z" fill="#5C5C66" p-id="11304"></path></svg>
-                    <svg t="1703727089514" class="icon" @click="pauseCurrentSong()" :class="{pause:!playState}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11489" width="25" height="25"><path d="M512 42.666667C252.793333 42.666667 42.666667 252.793333 42.666667 512s210.126667 469.333333 469.333333 469.333333 469.333333-210.126667 469.333333-469.333333S771.206667 42.666667 512 42.666667z m106.666667 682.666666a21.333333 21.333333 0 0 1-21.333334-21.333333V320a21.333333 21.333333 0 0 1 42.666667 0v384a21.333333 21.333333 0 0 1-21.333333 21.333333z m-213.333334 0a21.333333 21.333333 0 0 1-21.333333-21.333333V320a21.333333 21.333333 0 0 1 42.666667 0v384a21.333333 21.333333 0 0 1-21.333334 21.333333z" fill="#5C5C66" p-id="11490"></path></svg>
+                    <svg t="1703727003306" class="icon" @click="changePlayState" :class="{play:playState}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11303" width="25" height="25"><path d="M512 42.666667C252.793333 42.666667 42.666667 252.793333 42.666667 512s210.126667 469.333333 469.333333 469.333333 469.333333-210.126667 469.333333-469.333333S771.206667 42.666667 512 42.666667z m196.546667 500.493333l-266.666667 176A37.333333 37.333333 0 0 1 384 688V336.033333a37.333333 37.333333 0 0 1 57.893333-31.16l266.666667 176a37.333333 37.333333 0 0 1 0 62.32z" fill="#5C5C66" p-id="11304"></path></svg>
+                    <svg t="1703727089514" class="icon" @click="changePlayState" :class="{pause:!playState}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11489" width="25" height="25"><path d="M512 42.666667C252.793333 42.666667 42.666667 252.793333 42.666667 512s210.126667 469.333333 469.333333 469.333333 469.333333-210.126667 469.333333-469.333333S771.206667 42.666667 512 42.666667z m106.666667 682.666666a21.333333 21.333333 0 0 1-21.333334-21.333333V320a21.333333 21.333333 0 0 1 42.666667 0v384a21.333333 21.333333 0 0 1-21.333333 21.333333z m-213.333334 0a21.333333 21.333333 0 0 1-21.333333-21.333333V320a21.333333 21.333333 0 0 1 42.666667 0v384a21.333333 21.333333 0 0 1-21.333334 21.333333z" fill="#5C5C66" p-id="11490"></path></svg>
                 </div>
                 <div>
                     <svg t="1703726970407" class="icon" id="next-control" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11117" width="25" height="25"><path d="M810.666667 512a52.92 52.92 0 0 1-25.78 45.666667l-618.666667 373.28a53.333333 53.333333 0 0 1-80.886667-45.666667V138.72a53.333333 53.333333 0 0 1 80.886667-45.666667l618.666667 373.28A52.92 52.92 0 0 1 810.666667 512z m128 405.333333V106.666667a21.333333 21.333333 0 0 0-42.666667 0v810.666666a21.333333 21.333333 0 0 0 42.666667 0z" fill="#5C5C66" p-id="11118"></path></svg>
@@ -74,8 +74,8 @@
                         </div>
                     </div>
                     <div class="control">
-                        <svg t="1703991609601" class="icon" @click="playCurrentSong(item)" :class="{playHide:item.mid==playStore.currPlayMusic.mid&&playState}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5474" width="18" height="18"><path d="M870.2 466.333333l-618.666667-373.28a53.333333 53.333333 0 0 0-80.866666 45.666667v746.56a53.206667 53.206667 0 0 0 80.886666 45.666667l618.666667-373.28a53.333333 53.333333 0 0 0 0-91.333334z" fill="#5C5C66" p-id="5475"></path></svg>
-                        <svg t="1703991646436" class="icon" @click="pauseCurrentSong()" :class="{playHide:!(item.mid==playStore.currPlayMusic.mid&&playState)}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5660" width="18" height="18"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" fill="#5C5C66" p-id="5661"></path></svg>
+                        <svg t="1703991609601" class="icon" @click="playStore.play(item)" :class="{playHide:item.mid==playStore.currPlayMusic.mid&&playState}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5474" width="18" height="18"><path d="M870.2 466.333333l-618.666667-373.28a53.333333 53.333333 0 0 0-80.866666 45.666667v746.56a53.206667 53.206667 0 0 0 80.886666 45.666667l618.666667-373.28a53.333333 53.333333 0 0 0 0-91.333334z" fill="#5C5C66" p-id="5475"></path></svg>
+                        <svg t="1703991646436" class="icon" @click="playStore.play(item)" :class="{playHide:!(item.mid==playStore.currPlayMusic.mid&&playState)}" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5660" width="18" height="18"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" fill="#5C5C66" p-id="5661"></path></svg>
                         <svg t="1704248260169" class="icon del" @click="playStore.removeMusic(item)" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4450" width="18" height="18"><path d="M412 744c-19.8 0-36-16.2-36-36V500c0-19.8 16.2-36 36-36s36 16.2 36 36v208c0 19.8-16.2 36-36 36zM612 744c-19.8 0-36-16.2-36-36V500c0-19.8 16.2-36 36-36s36 16.2 36 36v208c0 19.8-16.2 36-36 36z" fill="#333333" p-id="4451"></path><path d="M923.8 248H736v-82c0-56.2-45.8-102-102-102H390c-56.2 0-102 45.8-102 102v82H100.2C80.3 248 64 264.2 64 284s16.3 36 36.2 36H192v518c0 16.4 3.2 32.4 9.6 47.5 6.1 14.5 14.9 27.6 26.1 38.8 11.2 11.2 24.2 20 38.8 26.1 15.1 6.4 31.1 9.6 47.5 9.6h396c16.4 0 32.4-3.2 47.5-9.6 14.5-6.1 27.6-14.9 38.8-26.1 11.2-11.2 20-24.2 26.1-38.8 6.4-15.1 9.6-31.1 9.6-47.5V320h91.8c19.9 0 36.2-16.2 36.2-36s-16.3-36-36.2-36zM360 166c0-16.6 13.4-30 30-30h244c16.6 0 30 13.4 30 30v82H360v-82z m400 672c0 27.6-22.4 50-50 50H314c-27.6 0-50-22.4-50-50V320h496v518z" fill="#333333" p-id="4452"></path></svg>
                     </div>
                 </li>
@@ -87,7 +87,6 @@
                 </div>
             </div>
         </div>
-        <audio :src="playStore.currPlayMusic.playUrl" @timeupdate="timeupdate"></audio>
     </div>
 </template>
 
@@ -95,58 +94,17 @@
 import playMusic from "@/store/modules/playMusic";
 import { ref } from "vue";
 import { eventBus } from "@/common/eventBus";
-import { formatTime } from '@/common/utils'
-import { music } from "@/type/musicTypes";
 
 let playStore = playMusic();
 const playQueueOpen = ref(false)
 const playState = ref(false)
-const playPrevMid = ref("")
 
-const timeupdate = () => {
-    let audio = document.getElementsByTagName("audio")[0] as HTMLAudioElement;
-    let currentTime = document.getElementsByClassName("current-time")[0] as HTMLElement;
-    currentTime.textContent = formatTime(audio.currentTime)
-};
-
-const continueSong = () => {
-    if (playStore.currPlayMusic.playUrl) {
-        let audio = document.getElementsByTagName("audio")[0] as HTMLAudioElement;
-        audio.play();
-        playState.value = true;
-        eventBus.emit("get-play-state", playState.value);
-    }
+const changePlayState = () => {
+    eventBus.emit("audio-play-change");
 }
 
-const playCurrentSong = async (music: music) => {
-    if(playPrevMid.value != music.mid) {
-        playStore.addMusic(music)
-        await playStore.getSongDetail(music);
-        if (playStore.currPlayMusic.playUrl) {
-            let audio = document.getElementsByTagName("audio")[0] as HTMLAudioElement;
-            audio.addEventListener('canplaythrough', () => {
-                audio.play();
-                playState.value = true;
-                eventBus.emit("get-play-state", playState.value);
-            });
-        }
-        playPrevMid.value = music.mid;
-    }else {
-        continueSong();
-    }
-}
-
-const pauseCurrentSong = async () => {
-    let audio = document.getElementsByTagName("audio")[0] as HTMLAudioElement;
-    audio.pause();
-    playState.value = false;
-    eventBus.emit("get-play-state", playState.value);
-}
-
-eventBus.on("pause-music", pauseCurrentSong);
-
-eventBus.on("play-music", (data: any) => {
-    playCurrentSong(data);
+eventBus.on("audio-play-state", (data) => {
+    playState.value =  Boolean(data);
 });
 
 const scrollPlaying = () => {

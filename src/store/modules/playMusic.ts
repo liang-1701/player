@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { music } from "@/type/musicTypes";
 import { getSongDetail } from '@/platform/qq'
+import { play, toggleMusic, togglePlay } from "@/common/audioPlay";
 
 let playStore = defineStore("play", {
     state: () => {
@@ -48,6 +49,32 @@ let playStore = defineStore("play", {
             this.currPlayMusic = music;
             const res = await getSongDetail(music)
             this.currPlayMusic.playUrl = res.playUrl;
+        },
+        async play(music: music) {
+            if(!this.currPlayMusic.mid) {
+                this.addMusic(music);
+                await this.getSongDetail(music);
+                play(this.currPlayMusic);
+            }else if(this.currPlayMusic.mid == music.mid){
+                togglePlay();
+            }else {
+                this.addMusic(music);
+                await this.getSongDetail(music);
+                console.log(this.currPlayMusic);
+                // 切换歌曲
+                toggleMusic(this.currPlayMusic);
+            }
+        },
+        togglePlay() {
+            togglePlay();
+        },
+        // 上一首
+        prevMuisc(){
+
+        },
+        // 下一首
+        nextMuisc() {
+
         }
     },
     getters: {
