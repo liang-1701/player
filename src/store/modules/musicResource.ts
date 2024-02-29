@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { routes } from "@/router/modules/musicRouters";
-import { Category, CategoryItem, Square, SquareDetail } from "@/type/musicTypes";
+import { Category, CategoryItem, Square, SquareDetail, SingerDetail, Singer } from "@/type/musicTypes";
 import { getClassName } from "@/common/importModule";
 
 let menuStore = defineStore("menu", {
@@ -12,6 +12,7 @@ let menuStore = defineStore("menu", {
             categoriesDetail: Array<CategoryItem>(),  // 详细类别
             square: {} as Square,  // 歌单广场
             squareDetail: {} as SquareDetail,  // 歌单内容
+            singerDetail: {} as SingerDetail, // 歌手详细
         };
     },
     actions: {
@@ -42,7 +43,38 @@ let menuStore = defineStore("menu", {
         async searchSongs(keywords: string) {
             const method = await getClassName(this.currentPlat.file, "searchSongs");
             const result = await method!(keywords);
-        }
+            console.log(result);
+        },
+        // 歌手详情
+        async getSingerDetail(singer: Singer, page: number) {
+            const method = await getClassName(this.currentPlat.file, "getSingerDetail");
+            const result = await method!(singer, page);
+            if (page === 1) {
+                this.singerDetail = result.singerDetail;
+            }else {
+                this.singerDetail.recommend?.push(...result.singerDetail.recommend);
+            }
+        },
+        // 通过歌手获得歌曲
+        async getSongsBySinger(singer: Singer, page: number) {
+            const method = await getClassName(this.currentPlat.file, "getSongsBySinger");
+            const result = await method!(singer, page);
+            if (page === 1) {
+                this.singerDetail.songs = result.songs;
+            }else {
+                this.singerDetail.songs?.push(...result.songs);
+            }
+        },
+        // 通过歌手获得专辑
+        async getAlbumsBySinger(singer: Singer, page: number) {
+            const method = await getClassName(this.currentPlat.file, "getAlbumsBySinger");
+            const result = await method!(singer, page);
+            if (page === 1) {
+                this.singerDetail.albums = result.albums;
+            }else {
+                this.singerDetail.albums?.push(...result.albums);
+            }
+        },
     },
     getters: {
         

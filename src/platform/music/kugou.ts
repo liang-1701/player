@@ -1,4 +1,4 @@
-import { Category, CategoryItem, Square, SquareItem, SquareDetail, Song } from "@/type/musicTypes";
+import { Category, CategoryItem, Square, SquareItem, SquareDetail, Song, SingerDetail, Album, Singer } from "@/type/musicTypes";
 import { formatTime } from '@/common/utils'
 import CryptoJS from 'crypto-js';
 import { post, get } from "@/common/http";
@@ -23,7 +23,7 @@ export class KuGouMusicApi {
             'dfid': '1nhI9M0MVRfK2uTtUl4EF7yN',
             'signature': '19a9dd8c692db28479854841516c88de'
         } 
-        const res = await post(url, data, params);
+        const res = await post(url, data, params, null);
         (res as any).data.forEach((item: any) => {
             const items: Array<CategoryItem> = [];
             item.son.forEach((el:any) => {
@@ -91,7 +91,7 @@ export class KuGouMusicApi {
                 "withtag": 1
             }
         }
-        const res = await post(url, data, null);
+        const res = await post(url, data, null, null);
         let items: SquareItem[] = [];
         (res as any).data.special_list.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -132,7 +132,7 @@ export class KuGouMusicApi {
               'area_code': '1',
               'signature': 'e7b4a1a07fd3979b9883d678ef818b00'
             }
-        const res = await post(url, null, params);
+        const res = await post(url, null, params, null);
         let items: SquareItem[] = [];
         (res as any).data.info.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -172,7 +172,7 @@ export class KuGouMusicApi {
                 name: item.songname,
                 time: formatTime(item.duration / 1000),
                 album: {id: item.album_id, name: item.album_name},
-                singers: item.authors.map((s: { author_id: any, author_name: any; }) => ({mid: s.author_id, name: s.author_name})),
+                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240)})),
                 chl: CHL
             })
         })
@@ -210,7 +210,7 @@ export class KuGouMusicApi {
                 "rank_cid": info.rank_cid,
                 "zone": "tx6_gz_kmr"
             }
-        const res1 = await post('http://kmr.service.kugou.com/container/v2/rank_audio', body, null);
+        const res1 = await post('http://kmr.service.kugou.com/container/v2/rank_audio', body, null, null);
         let songs: Array<Song> = [];
         (res1 as any).data.forEach((item:any) => {
             songs.push({
@@ -218,7 +218,7 @@ export class KuGouMusicApi {
                 name: item.songname,
                 time: formatTime(item.timelength / 1000),
                 album: {id: item.album_id, name: item.album_name},
-                singers: item.authors.map((s: { author_id: any, author_name: any; }) => ({mid: s.author_id, name: s.author_name})),
+                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240)})),
                 chl: CHL
             })
         })
@@ -283,6 +283,92 @@ export class KuGouMusicApi {
         
     }
     
+    // 歌手详情
+    static getSingerDetail = async (singer: Singer, page: number) => {
+        const data = {
+            "appid": 1001,
+            "clientver": 10246,
+            "mid": "d8de2ff0a89da0a2528dc85e66beff07",
+            "clienttime": 1708692038898,
+            "key": "fbb5a08c54eff6787829da3ba57ee5c3",
+            "author_id": singer.id,
+            "sort": 1,
+            "page": page,
+            "pagesize": 20,
+            "area_code": "all"
+        }
+        // 推荐
+        const res = await post('http://kmr.service.kugou.com/container/v2/audio_group/author', data, null, null) as any;
+        let recommend: Array<Song> = [];
+        res.data.forEach((item:any) => {
+            recommend.push({
+                id: item.album_audio_id,
+                name: item.audio_name,
+                time: formatTime(item.timelength / 1000),
+                album: {id: item.album_id, name: item.album_name},
+                singers: [{id: singer.id, name: item.author_name}],
+                chl: CHL
+            })
+        });
+        let singerDetail: SingerDetail = {
+            id: singer.id,
+            name: singer.name,
+            img: singer.img,
+            songsTotal: res.total,
+            recommend: recommend,
+        };
+        return { singerDetail };
+    }
+
+    // 通过歌手获得歌曲
+    static getSongsBySinger = async (singer: Singer, page: number) => {
+        const data = {
+            "appid": 1001,
+            "clientver": 10246,
+            "mid": "d8de2ff0a89da0a2528dc85e66beff07",
+            "clienttime": 1708692038898,
+            "key": "fbb5a08c54eff6787829da3ba57ee5c3",
+            "author_id": singer.id,
+            "sort": 1,
+            "page": page,
+            "pagesize": 20,
+            "area_code": "all"
+        }
+        // 推荐
+        const res = await post('http://kmr.service.kugou.com/container/v2/audio_group/author', data, null, null) as any;
+        let songs: Array<Song> = [];
+        res.data.forEach((item:any) => {
+            songs.push({
+                id: item.album_audio_id,
+                name: item.audio_name,
+                time: formatTime(item.timelength / 1000),
+                album: {id: item.album_id, name: item.album_name},
+                singers: [{id: singer.id, name: item.author_name}],
+                chl: CHL
+            })
+        });
+        return { songs };
+    }
+
+    // 通过歌手获得专辑
+    static getAlbumsBySinger = async (singer: Singer, page: number) => {
+        if (page !=1) {
+            return { albums: [] }
+        }
+        // 推荐
+        const res = await get(`https://www.kugou.com/yy/?r=singer/album&sid=${singer.id}&p=1&t=1708780593820`, null) as any;
+        let albums: Array<Album> = [];
+        res.data.forEach((item:any) => {
+            albums.push({
+                id: item.albumid,
+                name: item.albumname,
+                img: item.img, // 封面
+                time: item.publish_time,  // 发行时间
+                singer: singer
+            })
+        });
+        return { albums };
+    }
 }
 
 const parseLyrics = (lyrics: string) => {
