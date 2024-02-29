@@ -4,15 +4,6 @@
              <span>{{ currentClass }}</span>
          </div>
          <div class="class-detail">
-             <div>
-                 <div class="title">
-                     <span>精选</span>
-                 </div>
-                 <div class="detail">
-                     <span class="tag-span" :class="{tagClassActive:alltag.defaultClass.value==999999?true:false}" @click="musicStore.getCategoryList(); alltag.setDefaultClass(999999);">推荐</span>
-                     <span class="tag-span" :class="{tagClassActive:alltag.defaultClass.value==999998?true:false}" @click="musicStore.getTopList(); alltag.setDefaultClass(999998);">排行榜</span>
-                 </div>
-             </div>
              <div v-for="(item) in musicStore.categories">
                  <div class="title">
                      <span>{{ item.categoryGroupName }}</span>

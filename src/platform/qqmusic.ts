@@ -3,7 +3,7 @@ import qs from "qs";
 import { Category, CategoryItem, CategoriesDetailItem, musicList, music } from "@/type/musicTypes";
 import { formatTime, nextInt } from '@/common/utils'
 
-enum QQ_URL {
+enum URL {
     // 分类
     CATEGORY_LIST_URL = "https://y.qq.com/n/ryqq/category/",
     CATEGORY_DETAIL_URL = "https://u.y.qq.com/cgi-bin/musicu.fcg",
@@ -11,9 +11,12 @@ enum QQ_URL {
     MUSIC_IMG = "https://y.qq.com/music/photo_new/T002R300x300M000${albummid}.jpg?max_age=2592000"
 }
 
+// 推荐歌单
+let playList: Array<CategoriesDetailItem> = [];
+
 // 全部分类
-export const getQQCategoryList = async () => {
-    let a = await axios.get(QQ_URL.CATEGORY_LIST_URL);
+export const getCategoryList = async () => {
+    let a = await axios.get(URL.CATEGORY_LIST_URL);
     const parser = new DOMParser();
     const doc = parser.parseFromString(a.data, "text/html");
     const script = doc.body.querySelector("script");
@@ -24,6 +27,22 @@ export const getQQCategoryList = async () => {
     let categoriesArray: Array<Category> = [];
     let categoriesDetail: Array<CategoryItem> = [];
     let newArray: any = [];
+    // 推荐
+    let recommended = {
+        groupId: -1,
+        categoryGroupNam: "精选",
+        items: [
+            {
+                categoryId: 999999,
+                categoryName: "推荐"
+            },
+            {
+                categoryId: 999998,
+                categoryName: "排行榜"
+            }
+        ]
+    };
+    categoryJson.categories.unshift(recommended)
     categoryJson.categories.forEach((item: any) => {
         if (!newArray.includes(item.groupId)) {
             newArray.push(item.groupId);
@@ -32,7 +51,6 @@ export const getQQCategoryList = async () => {
             categoriesArray.push(itemNew);
         }
     });
-    let playList: Array<CategoriesDetailItem> = [];
     categoryJson.playlist.forEach((item: any) => {
         playList.push({
             imgUrl: item.imgurl,
@@ -56,7 +74,10 @@ const removeDuplicate = (item: any) => {
 }
 
 // 分类详情
-export const getQQCategoryDetailById = async (id: number) => {
+export const getCategoryDetailById = async (id: number) => {
+    let categoriesDetail: Array<CategoriesDetailItem> = [];
+    if(999999 == id) return { categoriesDetail: playList };
+    if(999998 == id) return { categoriesDetail: (await getTopList()).topList };
     const reqBody = JSON.stringify({
         req_1: {
             module: "playlist.PlayListCategoryServer",
@@ -70,8 +91,7 @@ export const getQQCategoryDetailById = async (id: number) => {
             }
         }
     });
-    const response = await axios.post(QQ_URL.CATEGORY_DETAIL_URL, reqBody);
-    let categoriesDetail: Array<CategoriesDetailItem> = [];
+    const response = await axios.post(URL.CATEGORY_DETAIL_URL, reqBody);
     response.data.req_1.data.content.v_item.forEach((item: any) => {
         categoriesDetail.push({
             imgUrl: item.basic.cover.default_url,
@@ -84,7 +104,7 @@ export const getQQCategoryDetailById = async (id: number) => {
 };
 
 // 排行榜
-export const getQQTopList = async () => {
+export const getTopList = async () => {
     const reqBody = {
         _: Date.now(),
         uin: 0,
@@ -107,7 +127,7 @@ export const getQQTopList = async () => {
             }
         })
     };
-    const response = await axios.get(QQ_URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody));
+    const response = await axios.get(URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody));
     let topList: Array<CategoriesDetailItem> = [];
     response.data.req_1.data.group.forEach((item: any) => {
         item.toplist.forEach((i: any) => {
@@ -147,14 +167,14 @@ export const getMusicListDetail = async (id: number, group: string, data: any) =
                 }
             })
         }
-        const response = await axios.get(QQ_URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody));
+        const response = await axios.get(URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody));
         let songList: Array<music> = []
         response.data.req_1.data.songInfoList.forEach((item: any) => {
             songList.push({
                 mid: item.mid,
                 name: item.name,
                 time: formatTime(item.interval),
-                img: QQ_URL.MUSIC_IMG.replace("${albummid}", item.album.mid),
+                img: URL.MUSIC_IMG.replace("${albummid}", item.album.mid),
                 album: {
                     mid: item.album.mid,
                     name: item.album.name,
@@ -180,7 +200,7 @@ export const getMusicListDetail = async (id: number, group: string, data: any) =
             disstid: id,  // 歌单的id
             loginUin: 0,
         }
-        const response = await axios.get(QQ_URL.MUSIC_LIST_DETAIL + "?" + qs.stringify(reqBody));
+        const response = await axios.get(URL.MUSIC_LIST_DETAIL + "?" + qs.stringify(reqBody));
         const cdlist = response.data.cdlist[0];
         let songList: Array<music> = []
         cdlist.songlist.forEach((item: any) => {
@@ -188,7 +208,7 @@ export const getMusicListDetail = async (id: number, group: string, data: any) =
                 mid: item.songmid,
                 name: item.songname,
                 time: formatTime(item.interval),
-                img: QQ_URL.MUSIC_IMG.replace("${albummid}", item.albummid),
+                img: URL.MUSIC_IMG.replace("${albummid}", item.albummid),
                 album: {
                     mid: item.albummid,
                     name: item.albumname,
@@ -220,7 +240,7 @@ export const getSongDetail = async (music: music) => {
             }
         })
     }
-    const response = await axios.get(QQ_URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody));
+    const response = await axios.get(URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody));
     const types = [{prefix: 'M800',ext: '.mp3',}, {prefix: 'M500',ext: '.mp3',}, {prefix: 'C400',ext: '.m4a'}]
     let playUrl = "";
     for (let index = 0; index < types.length; index++) {
@@ -258,7 +278,7 @@ export const getSongDetail = async (music: music) => {
                     }
                 })
         }
-        const response2 = await axios.get(QQ_URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody2));
+        const response2 = await axios.get(URL.CATEGORY_DETAIL_URL + "?" + qs.stringify(reqBody2));
         const sip = response2.data.req_1.data.sip[0];
         const purl = response2.data.req_1.data.midurlinfo[0].purl;
         if (sip && purl) {

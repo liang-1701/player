@@ -1,7 +1,10 @@
 import { defineStore } from "pinia";
 import { music } from "@/type/musicTypes";
-import { getSongDetail } from '@/platform/qqmusic'
 import { play, toggleMusic, togglePlay, stop } from "@/common/audioPlay";
+import musicResource from "@/store/modules/musicResource";
+import { importAndExtract } from "@/common/importModule";
+
+let musicStore = musicResource();
 
 let playStore = defineStore("play", {
     state: () => {
@@ -51,8 +54,9 @@ let playStore = defineStore("play", {
         },
         async getSongDetail(music: music) {
             this.currPlayMusic = music;
-            const res = await getSongDetail(music)
-            this.currPlayMusic.playUrl = res.playUrl;
+            const method = await importAndExtract(`/src/platform/${musicStore.currentPlat.file}`, 'getSongDetail');
+            const result = await method(music);
+            this.currPlayMusic.playUrl = result.playUrl;
         },
         async play(music: music) {
             if(!this.currPlayMusic.mid) {
