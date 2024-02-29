@@ -84,7 +84,7 @@ let playStore = defineStore("play", {
             if(++index < this.playQueue.length) {
                 this.play(this.playQueue[index]);
             }
-        }
+        },
     },
     getters: {
 

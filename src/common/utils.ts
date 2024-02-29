@@ -7,6 +7,11 @@ export const formatTime = (seconds: number) => {
     return `${mins}:${secs}`;
 }
 
+export function toSeconds(seconds: string): number {
+    const time = seconds.split(':').map(Number);
+    return time[0] * 60 + time[1];
+  }
+
 export const nextInt = (max:number) => {
     max = max || 1024
     const limit = max < 1024 ? 1024 : max
