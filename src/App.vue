@@ -1,30 +1,29 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+    <Title class="title" />
+    <router-view v-slot="{ Component }" class="main">
+        <KeepAlive>
+            <component :is="Component"/>
+        </KeepAlive>
+    </router-view>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script  lang="ts" setup>
+import Title from "@/components/title/Title.vue";
+
+</script>
+
+<style lang="scss" scoped>
+$layout-title-height: 50px;
+.title {
+    position: fixed;
+    height: $layout-title-height;
+    width: 100%;
+    -webkit-app-region: drag;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+.main {
+    position: fixed;
+    top: $layout-title-height;
+    width: 100%;
+    height: calc(100% - $layout-title-height);
 }
 </style>
