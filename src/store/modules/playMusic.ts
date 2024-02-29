@@ -68,9 +68,6 @@ let playStore = defineStore("play", {
                 toggleMusic(this.currPlayMusic);
             }
         },
-        togglePlay() {
-            togglePlay();
-        },
         // 上一首
         prevMuisc(){
             let index = this.playQueue.findIndex(item => item.mid == this.currPlayMusic.mid);
