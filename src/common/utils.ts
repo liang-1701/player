@@ -12,7 +12,17 @@ export const formatTime = (seconds: number) => {
 export function toSeconds(seconds: string): number {
     const time = seconds.split(':').map(Number);
     return time[0] * 60 + time[1];
-  }
+}
+
+// 分:秒.毫秒 ------ 秒
+export function msToSeconds(seconds: string): number {
+    if(seconds.includes('.')) {
+        const time = seconds.split('.');
+        return toSeconds(time[0]) + Number(`0.${time[1]}`);
+    }else {
+        return toSeconds(seconds);
+    }
+}
 
 // 指定范围的随机数
 export const nextInt = (max:number) => {
