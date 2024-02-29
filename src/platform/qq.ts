@@ -8,6 +8,7 @@ enum QQ_URL {
     CATEGORY_LIST_URL = "https://y.qq.com/n/ryqq/category/",
     CATEGORY_DETAIL_URL = "https://u.y.qq.com/cgi-bin/musicu.fcg",
     MUSIC_LIST_DETAIL = "http://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg",
+    MUSIC_IMG = "https://y.qq.com/music/photo_new/T002R300x300M000${albummid}.jpg?max_age=2592000"
 }
 
 // 全部分类
@@ -153,6 +154,7 @@ export const getMusicListDetail = async (id: number, group: string, data: any) =
                 mid: item.mid,
                 name: item.name,
                 time: formatTime(item.interval),
+                img: QQ_URL.MUSIC_IMG.replace("${albummid}", item.album.mid),
                 album: {
                     mid: item.album.mid,
                     name: item.album.name,
@@ -186,6 +188,7 @@ export const getMusicListDetail = async (id: number, group: string, data: any) =
                 mid: item.songmid,
                 name: item.songname,
                 time: formatTime(item.interval),
+                img: QQ_URL.MUSIC_IMG.replace("${albummid}", item.albummid),
                 album: {
                     mid: item.albummid,
                     name: item.albumname,
@@ -244,7 +247,7 @@ export const getSongDetail = async (music: music) => {
                         module: "vkey.GetVkeyServer",
                         method: "CgiGetVkey",
                         param: {
-                            filename: [`${item.prefix}${response.data.req_1.data.track_info.mid}${item.ext}`],
+                            filename: [`${item.prefix}${response.data.req_1.data.track_info.mid}${response.data.req_1.data.track_info.mid}${item.ext}`],
                             guid: nextInt(10000000).toFixed(0),
                             songmid: [response.data.req_1.data.track_info.mid],
                             songtype: [response.data.req_1.data.track_info.type],

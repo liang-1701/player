@@ -23,6 +23,19 @@ let playStore = defineStore("play", {
             musicList.forEach((item, index) => { item.index = this.playQueue.length + index;});
             this.playQueue.push(...musicList);
         },
+        // 删除播放队列中的某首歌曲
+        removeMusic(music: music) {
+            console.log(music);
+            if (this.playQueue.includes(music)) {
+                this.currPlayMusic = {} as music;
+                this.playQueue.splice(this.playQueue.indexOf(music), 1);
+            }
+            console.log(this.playQueue);
+        },
+        clearQueue() {
+            this.playQueue = [];
+            this.currPlayMusic = {} as music;
+        },
         // 清空当前列表并添加多个
         clearAndAdd(musicList: music[]) {
             this.playQueue = [];
@@ -31,11 +44,10 @@ let playStore = defineStore("play", {
                 item.index = index;
             })
         },
-        getSongDetail(music: music) {
+        async getSongDetail(music: music) {
             this.currPlayMusic = music;
-            getSongDetail(music).then(res => {
-                this.currPlayMusic.playUrl = res.playUrl;
-            })
+            const res = await getSongDetail(music)
+            this.currPlayMusic.playUrl = res.playUrl;
         }
     },
     getters: {

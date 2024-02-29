@@ -34,6 +34,7 @@ export interface music {
     },
     singer: Array<singer>,
     playUrl?: string,  // 播放地址
+    img?: string,  // 封面
     data?: Record<string, any>
 }
 

@@ -1,4 +1,5 @@
 export const formatTime = (seconds: number) => {
+    seconds = Math.floor(seconds);
     let min = Math.floor(seconds / 60);
     let sec = seconds % 60;
     let mins = ("0" + min).slice(-2);
