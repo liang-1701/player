@@ -76,6 +76,18 @@ export interface Singer {
     data?: Record<string, any>
 }
 
+export interface SingerSquare {
+    categories: Array<SingerCategory>,
+    data?: Record<string, any>
+}
+
+export interface SingerCategory {
+    id: string,
+    name: string,
+    default?: boolean,
+    data?: Record<string, any>
+}
+
 export interface SingerDetail {
     id: string,
     name: string,

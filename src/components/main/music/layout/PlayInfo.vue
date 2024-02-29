@@ -159,7 +159,6 @@ const close = () => {
             }
         }
         .lyrics {
-            border: red solid 1px;
             flex: 2;
             height: calc(100vh - 200px);
             margin-right: 10%;
