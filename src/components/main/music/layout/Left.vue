@@ -3,7 +3,7 @@
         <div class="title" @click="changeTitle"> {{ musicStore.menus!.meta.title }}</div>
         <div class="plat-list">
            <el-menu class="plat-menu" style="border-right: none;" :default-active="$router.currentRoute.value.params.id">
-                <el-menu-item class="plat" @click="changePlat(item)" v-for="(item) in musicStore.menus!.meta.platform" :index="item.id">{{item.name}}</el-menu-item>
+                <el-menu-item class="plat" :class="{'is-active':currPlat==item.id}" @click="changePlat(item)" v-for="(item) in musicStore.menus!.meta.platform" :index="item.id">{{item.name}}</el-menu-item>
             </el-menu>
         </div>
     </div>
@@ -12,16 +12,18 @@
 <script  lang="ts" setup>
 import musicResource from "@/store/modules/musicResource";
 import { useRouter } from 'vue-router';
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import { routes } from "@/router/modules/musicRouters";
 
 let $router = useRouter();
 let musicStore = musicResource();
 const musicEnevt:any = inject("music-enevt");
+const currPlat = ref($router.currentRoute.value.params.id);
 
 const changePlat = async (item:any) => {
     await musicStore.setCurrentPlat(item);
     $router.push({path: musicStore.menus!.path.replace(':id', item.id)});
+    currPlat.value = item.id;
     musicEnevt.initDefaultClass();
 }
 

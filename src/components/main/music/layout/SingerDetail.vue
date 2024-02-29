@@ -10,7 +10,7 @@
                     <span :class="{active:active==2}" @click="getAlbums();active=2">专辑</span>
                 </div>
                 <div class="control">
-                    <add-music @click="playMusicStore.addSongList(showList);playMusicStore.play(musicStore.squareDetail.songs[0])" theme="filled" size="24" fill="#333"/>
+                    <add-music @click="playMusicStore.addSongList(showList);playMusicStore.play(showList![0])" theme="filled" size="24" fill="#333"/>
                     <list-add @click="playMusicStore.addSongList(showList)" theme="filled" size="24" fill="#333"/>
                 </div>
             </div>
@@ -26,12 +26,12 @@
                         <plus @click="playMusicStore.addSong(item)" theme="filled" size="24" fill="#333"/>
                     </div>    
                 </div>
-                <div class="album">{{ item.album.name }}</div>
+                <div class="album" @click="musicEnevt.getAlbum(item.album)">{{ item.album.name }}</div>
                 <div class="time">{{ item.time }}</div>
             </li>
         </ul>
         <div class="albums" v-show="active==2">
-            <div class="album" v-for="item in albumsList" @click="">
+            <div class="album" v-for="item in albumsList" @click="musicEnevt.getAlbum(item)">
                 <div class="img" >
                     <img v-lazy="item.img">
                     <div class="cover">
