@@ -192,21 +192,6 @@ export const getMusicListDetail = async (id:string, group: string, data: any) =>
 }
 
 export const getSongDetail = async (music: music) => {
-    console.log(music);
-    // const reqBody = {
-    //     appid: 1014,
-    //     clientver: 20000,
-    //     clienttime: new Date().getTime(),
-    //     dfid: '0jI0v83wGKCQ2PXgTX14074K',
-    //     encode_album_audio_id: '9p37o29c',
-    //     mid: 'caaca808a19636095e2c88dc39577a12',
-    //     platid: 4,
-    //     srcappid: 2919,
-    //     token: '',
-    //     userid: 0,
-    //     uuid: 'caaca808a19636095e2c88dc39577a12',
-    //     signature: '3c16749c6d93170afbb076a5f0cbdc59',
-    // }
     const reqBody:Record<string, any> = {
         srcappid: 2919,
         clientver: 20000,
@@ -226,11 +211,10 @@ export const getSongDetail = async (music: music) => {
     let s = jsonToKeyValueArray(sortedObj);
     s.push('NVPh5oo715z5DIWAeQlhMDsWXXQV4hwt');
     s.unshift("NVPh5oo715z5DIWAeQlhMDsWXXQV4hwt");
-    console.log(s);
     const sign = CryptoJS.MD5(s.join('')).toString();
     reqBody['signature'] =  sign;
     const res = await axios.get(URL.MUSIC_URL + "?" + qs.stringify(reqBody));
-    console.log(res);
+    music.img = res.data.data.img;
     const playUrl = res.data.data.play_url;
     return { playUrl }
 }

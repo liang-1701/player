@@ -20,3 +20,7 @@
     opacity: 0;
     transform:  rotateY(90deg);
 }
+
+.el-loading-text {
+    color: var(--text-color-active) !important;
+}

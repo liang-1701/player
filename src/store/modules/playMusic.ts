@@ -54,8 +54,6 @@ let playStore = defineStore("play", {
         },
         async getSongDetail(music: music) {
             this.currPlayMusic = music;
-            console.log("播放列表");
-            console.log(this.playQueue);
             if (music.playUrl) { return }
             const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == music.data?.chl);
             const method = await importAndExtract(`/src/platform/${plat?.file}`, 'getSongDetail');
