@@ -7,7 +7,7 @@
         <div class="play-content">
             <div class="play-info">
                 <div class="play-cover">
-                    <img :src="playStore.currPlayMusic.img||'/musicbg.png'" alt="" onerror="this.src='/musicbg.png'"/>
+                    <img :src="playStore.currPlayMusic.img||musicbg" alt="" />
                 </div>
                 <div class="info">
                     <div class="info-name">
@@ -95,6 +95,7 @@ import playMusic from "@/store/modules/playMusic";
 import { ref, onMounted } from "vue";
 import { eventBus } from "@/common/eventBus";
 import { formatTime, toSeconds } from '@/common/utils'
+import musicbg from '@/assets/imgs/musicbg.png'
 
 let playStore = playMusic();
 const playQueueOpen = ref(false)
