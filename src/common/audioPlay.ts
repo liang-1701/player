@@ -70,6 +70,13 @@ class AudioPlay {
         }
     }
 
+    // 停止播放
+    stop() {
+        if(this.sound) {
+            this.sound.stop();
+        }
+    }
+
 }
 
 // 播放
@@ -86,6 +93,11 @@ export const togglePlay = () => {
 // 切换歌曲
 export const toggleMusic = (music: music) => {
     audio.toggleMusic(music);
+}
+
+// 停止播放
+export const stop = () => {
+    audio.stop();
 }
 
 eventBus.on("audio-play-change", () => {

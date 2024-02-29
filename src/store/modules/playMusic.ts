@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { music } from "@/type/musicTypes";
 import { getSongDetail } from '@/platform/qq'
-import { play, toggleMusic, togglePlay } from "@/common/audioPlay";
+import { play, toggleMusic, togglePlay, stop } from "@/common/audioPlay";
 
 let playStore = defineStore("play", {
     state: () => {
@@ -26,14 +26,18 @@ let playStore = defineStore("play", {
         },
         // 删除播放队列中的某首歌曲
         removeMusic(music: music) {
-            console.log(music);
             if (this.playQueue.includes(music)) {
-                this.currPlayMusic = {} as music;
                 this.playQueue.splice(this.playQueue.indexOf(music), 1);
             }
-            console.log(this.playQueue);
+            if (this.currPlayMusic === music) {
+                stop();
+                this.currPlayMusic = {} as music;
+            }
         },
         clearQueue() {
+            if(this.currPlayMusic) {
+                stop();
+            }
             this.playQueue = [];
             this.currPlayMusic = {} as music;
         },
@@ -60,7 +64,6 @@ let playStore = defineStore("play", {
             }else {
                 this.addMusic(music);
                 await this.getSongDetail(music);
-                console.log(this.currPlayMusic);
                 // 切换歌曲
                 toggleMusic(this.currPlayMusic);
             }
@@ -70,11 +73,17 @@ let playStore = defineStore("play", {
         },
         // 上一首
         prevMuisc(){
-
+            let index = this.playQueue.findIndex(item => item.mid == this.currPlayMusic.mid);
+            if(--index >= 0) {
+                this.play(this.playQueue[index]);
+            }
         },
         // 下一首
         nextMuisc() {
-
+            let index = this.playQueue.findIndex(item => item.mid == this.currPlayMusic.mid);
+            if(++index < this.playQueue.length) {
+                this.play(this.playQueue[index]);
+            }
         }
     },
     getters: {
