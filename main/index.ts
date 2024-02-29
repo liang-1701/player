@@ -8,7 +8,9 @@ const createWindow = () => {
         defaultWidth: 1020,
         defaultHeight: 630,
     })
-    const win = new BrowserWindow({
+
+    let win: BrowserWindow | null = null;
+    win = new BrowserWindow({
         width: winState.width,
         height: winState.height,
         minWidth: 1020,
@@ -42,29 +44,33 @@ const createWindow = () => {
 
     // 页面准备好了再加载
     win.on("ready-to-show", () => {
-        win.show();
+        win!.show();
     });
 
-    win.webContents.on("did-finish-load", () => {
-        ipcMain.on("on-close-custom-event", () => {
-            win.close();
-        })
-        let winsSize = win.getSize();
-        let winsPosition = win.getPosition();
-        ipcMain.on("on-max-custom-event", (_event, res) => {
-            if (!res.winMax) {
-                winsSize = win.getSize();
-                winsPosition = win.getPosition();
-                win.maximize();
-            }else {
-                win.setSize(winsSize[0], winsSize[1])
-                win.setPosition(winsPosition[0], winsPosition[1])
-            }
-        })
-        ipcMain.on("on-min-custom-event", () => {
-            win.minimize()
-        })
+    win.on("closed", () => {
+        win = null
     });
+
+    ipcMain.on("on-close-custom-event", () => {
+        win!.webContents.removeAllListeners();
+        win!.close();
+        app.quit();
+    })
+    let winsSize = win.getSize();
+    let winsPosition = win.getPosition();
+    ipcMain.on("on-max-custom-event", (_event, res) => {
+        if (!res.winMax) {
+            winsSize = win!.getSize();
+            winsPosition = win!.getPosition();
+            win!.maximize();
+        }else {
+            win!.setSize(winsSize[0], winsSize[1])
+            win!.setPosition(winsPosition[0], winsPosition[1])
+        }
+    })
+    ipcMain.on("on-min-custom-event", () => {
+        win!.minimize();
+    })
 
     // 修改referer
     session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
