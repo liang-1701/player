@@ -191,7 +191,8 @@ export const getMusicListDetail = async (id: number|string, group: string, data:
                     mid: item.album.mid,
                     name: item.album.name,
                 },
-                singer: item.singer.map((s: { mid: any, name: any; }) => ({mid: s.mid, name: s.name}))
+                singer: item.singer.map((s: { mid: any, name: any; }) => ({mid: s.mid, name: s.name})),
+                data: { chl: 3 }
             })
         })
         let topData = response.data.req_1.data.data;
@@ -225,7 +226,8 @@ export const getMusicListDetail = async (id: number|string, group: string, data:
                     mid: item.albummid,
                     name: item.albumname,
                 },
-                singer: item.singer.map((s: { mid: any, name: any; }) => ({mid: s.mid, name: s.name}))
+                singer: item.singer.map((s: { mid: any, name: any; }) => ({mid: s.mid, name: s.name})),
+                data: { chl: 3 }
             })
         })
         let musicListDetail: musicList = {
