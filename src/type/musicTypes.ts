@@ -7,14 +7,19 @@ export interface Category {
 
 export interface CategoryItem {
     categoryName:string,
-    categoryId: number,
+    categoryId: number|string,
     default?: boolean,
 }
 
+export interface CategoriesDetail {
+    categoriesDetailItem: Array<CategoriesDetailItem>,
+    page?: page,
+    data?: Record<string, any>
+}
 export interface CategoriesDetailItem {
     imgUrl: string,
     title: string,
-    tid: number,
+    tid: number|string,
     group: string,
     data?: Record<string, any>
 }
@@ -46,5 +51,12 @@ export interface musicList {
     desc: string,
     updateTime?: string,
     list: Array<music>,
+    data?: Record<string, any>
+}
+
+export interface page {
+    page?: number,
+    size?: number,
+    total?: number,
     data?: Record<string, any>
 }

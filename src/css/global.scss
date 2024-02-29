@@ -6,3 +6,17 @@
     border-radius: 10px; 
     box-shadow: 0 0 5px rgba(0, 0, 0, 1);
 }
+
+.fade-main-enter-active, .fade-main-leave-active {
+    transition: all 0.5s ease-in-out;
+}
+
+.fade-main-leave-to {
+    opacity: 0;
+    transform:  rotateY(-90deg);
+}
+
+.fade-main-enter-from {
+    opacity: 0;
+    transform:  rotateY(90deg);
+}

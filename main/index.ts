@@ -89,6 +89,12 @@ const overrideRequest = (details: Electron.OnBeforeSendHeadersListenerDetails) =
             origin = "https://v.qq.com/"
         }
         referer = origin
+    }else if (url.includes("163.com") || url.includes("126.net")) {
+        origin = "https://music.163.com/"
+        if (url.includes("/cloudsearch/")) {
+            referer = 'https://music.163.com/search/'
+        }
+        if (!referer) referer = origin
     }
     //默认Referer
     if (!referer || referer.includes('localhost')) {

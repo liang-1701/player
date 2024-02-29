@@ -4,13 +4,13 @@
             <div class="tag-span" @click="alltag.musicListOpen.value = true">
                 <svg t="1703842288296" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5091" width="21" height="21"><path d="M409.113 95.852h-299.65c-24.82 0-44.947 20.137-44.947 44.956v299.62c0 24.82 20.127 44.957 44.947 44.957h299.65c24.79 0 44.945-20.137 44.945-44.956V140.808c0-24.82-20.156-44.956-44.945-44.956zM869.771 556.522h-299.66c-24.82 0-44.936 20.116-44.936 44.935v299.64c0 24.821 20.116 44.937 44.937 44.937h299.66c24.8 0 44.936-20.116 44.936-44.936v-299.64c0-24.82-20.137-44.936-44.937-44.936zM937.536 210.565L695.37 82.722c-20.035-10.588-44.876-2.902-55.483 17.114L512.025 342.049c-10.568 20.077-2.892 44.877 17.174 55.505l242.174 127.823c20.056 10.588 44.936 2.902 55.524-17.135L954.72 266.07c10.599-20.076 2.922-44.916-17.184-55.504zM409.113 556.522h-299.65c-24.82 0-44.947 20.116-44.947 44.935v299.64c0 24.821 20.127 44.937 44.947 44.937h299.65c24.79 0 44.945-20.116 44.945-44.936v-299.64c0-24.82-20.156-44.936-44.945-44.936z" fill="" p-id="5092"></path></svg>
             </div>
-            <span class="tag-span" v-for="(item) in musicStore.categoriesDetail" :class="{tagClassActive:alltag.defaultClass.value==item.categoryId}" @click="alltag.getRadio(item.categoryId);alltag.setDefaultClass(item.categoryId);">
+            <span class="tag-span" v-for="(item) in musicStore.categoriesDetail" :class="{tagClassActive:alltag.defaultClass.value==item.categoryId}" @click="alltag.getRadio(item.categoryId, 1);alltag.setDefaultClass(item.categoryId);">
                 {{item.categoryName}}
             </span>
         </div>
         <div class="category">
             <el-row :gutter="20">
-                <div class="grid-img"  v-for="(item) in musicStore.categoriesDetailList">
+                <div class="grid-img"  v-for="(item) in musicStore.categoriesDetailList.categoriesDetailItem">
                     <div class="img-cover">
                         <img v-lazy="item.imgUrl" @load="loadingImg">
                         <div class="img-mask">
@@ -24,6 +24,9 @@
                     <span @click="musicStore.getMusicListDetail(item.tid, item.group, item.data); goCategoryDetail()">{{ item.title }}</span>
                 </div>
             </el-row>
+            <div class="category-page" v-if="musicStore.categoriesDetailList.page">
+                <el-pagination v-model:current-page="currentPage" @current-change="alltag.getRadio(alltag.defaultClass.value, currentPage)" :hide-on-single-page="true" :page-size="musicStore.categoriesDetailList.page?.size" :pager-count="7" layout="prev, pager, next, jumper" :total="musicStore.categoriesDetailList.page?.total" prev-text="上一页" next-text="下一页" />
+            </div>
         </div>
         <div class="all-tag"><ALLtag class="all-tag" /></div>
     </div>
@@ -32,12 +35,13 @@
 <script  lang="ts" setup>
 import ALLtag from '@/components/main/music/layout/Alltag.vue';
 import musicResource from "@/store/modules/musicResource";
-import { inject } from "vue";
+import { inject, ref } from "vue";
 import { useRouter } from 'vue-router';
 
 let $router = useRouter();
 let musicStore = musicResource();
 const alltag:any = inject("all-tag");
+const currentPage = ref(1)
 
 const goCategoryDetail = () => {
     $router.push('/categoryDetail');
@@ -158,6 +162,23 @@ $tag-height: 25px;
     }
     .grid-img:hover span {
         color: var(--text-color-hover);
+    }
+    .category-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        :deep(.el-pagination .el-pager li) {
+            margin: 0 3px;
+        }
+        :deep(.el-pagination .el-pager li), :deep(.el-pagination button) {
+            background-color: var(--bg-color);
+        }
+        :deep(.el-pager li.is-active) {
+            color: var(--text-color-hover);
+        }
+        :deep(.el-pagination button:hover), :deep(.el-pagination li:hover) {
+            color: var(--bg-color-hover);
+        }
     }
 }
 .category::-webkit-scrollbar {
