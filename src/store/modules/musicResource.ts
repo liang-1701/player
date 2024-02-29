@@ -37,6 +37,11 @@ let menuStore = defineStore("menu", {
             const method = await getClassName(this.currentPlat.file, "getSquareDetail");
             const result = await method!(id, group, data);
             this.squareDetail = result!.squareDetail;
+        },
+        // 搜索
+        async searchSongs(keywords: string) {
+            const method = await getClassName(this.currentPlat.file, "searchSongs");
+            const result = await method!(keywords);
         }
     },
     getters: {

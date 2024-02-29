@@ -1,10 +1,10 @@
-import axios from "axios";
 import { Category, CategoryItem, Square, SquareItem, SquareDetail, Song } from "@/type/musicTypes";
 import { formatTime } from '@/common/utils'
 import CryptoJS from 'crypto-js';
 import { post, get } from "@/common/http";
 
 const KEY = 'NVPh5oo715z5DIWAeQlhMDsWXXQV4hwt';
+const CHL = 2
 
 export class KuGouMusicApi {
 
@@ -70,22 +70,21 @@ export class KuGouMusicApi {
         const data = {
             "apiver": 2,
             "appid": 1001,
-            "client_playlist": [],
-            "clienttime": 760222539,
+            "clienttime": 761601648,
             "clientver": 10246,
-            "key": "aeaae8a3a956de5cfd606d719e3317db",
+            "key": "66b8a0753b36ef8e49d366fd1313a216",
             "mid": "d8de2ff0a89da0a2528dc85e66beff07",
             "module_id": 1,
             "page": page,
             "pagesize": pageSize,
             "platform": "pc",
             "req_multi": 1,
-            "session": "1706878396_2",
+            "session": "1708257562_0",
             "special_recommend": {
                 "area_code": "1",
                 "categoryid": id,
                 "is_selected": 0,
-                "sort": 3,
+                "sort": 2,
                 "ugc": 1,
                 "withrecommend": 1,
                 "withsong": 0,
@@ -97,7 +96,7 @@ export class KuGouMusicApi {
         (res as any).data.special_list.forEach((item:any) => {
             const squareItem : SquareItem = {
                 id: item.specialid,
-                imgUrl: item.pic,
+                imgUrl: item.imgurl.replace("{size}", 240),
                 title: item.specialname,
                 group: "other",
             }
@@ -152,7 +151,9 @@ export class KuGouMusicApi {
 
     // 获取当前歌单内容
     static getSquareDetail = async (id: number|string, group: string, data: any) => {
-        console.log(id, group, data);
+        if ("top" == group) {
+            return { squareDetail: (await this.getTopList(id, data)).squareDetail };
+        }
         const url = `https://www.kugou.com/yy/special/single/${id}.html`;
         const res = await get(url, null);
         const parser = new DOMParser();
@@ -167,11 +168,12 @@ export class KuGouMusicApi {
         let songs: Array<Song> = [];
         globalData.data.forEach((item:any) => {
             songs.push({
-                id: item.encode_album_audio_id,
+                id: item.album_audio_id,
                 name: item.songname,
                 time: formatTime(item.duration / 1000),
                 album: {id: item.album_id, name: item.album_name},
                 singers: item.authors.map((s: { author_id: any, author_name: any; }) => ({mid: s.author_id, name: s.author_name})),
+                chl: CHL
             })
         })
         let squareDetail: SquareDetail = {
@@ -181,167 +183,129 @@ export class KuGouMusicApi {
             img: globalData.specialInfo.image,
             songs: songs,
         };
-        console.log(squareDetail);
         return { squareDetail }
     }
 
-    // 分类详情
-    // static getCategoryDetailById = async (id: number|string, page: number) => {
-    //     if("排行榜" == id) return { categoriesDetail: (await this.getTopList()).categoriesDetail }
-    //     const a = await axios.get(URL.BASE_URL + id + `&p=${page}&pagesize=20`);
-    //     const parser = new DOMParser();
-    //     const doc = parser.parseFromString(a.data, "text/html");
-    //     const script = doc.body.querySelectorAll("script");
-    //     let globalData = [] as any;
-    //     script.forEach(s => {
-    //         if(s?.textContent?.includes("global.special =")) {
-    //             globalData = Function(s.textContent + ' return global')();
-    //         }
-    //     })
-    //     let categoriesDetailItem: Array<CategoriesDetailItem> = [];
-    //     globalData.special.forEach((cate: { img: any; specialname: any; specialid: any; }) => {
-    //         categoriesDetailItem.push({
-    //             imgUrl: cate.img,
-    //             title: cate.specialname,
-    //             tid: cate.specialid,
-    //             group: "other",
-    //         })
-    //     })
-    //     let categoriesDetail: CategoriesDetail = {
-    //         categoriesDetailItem,
-    //         page: {
-    //             total: Number(globalData.total),
-    //             size: Number(globalData.pagesize)
-    //         }
-    //     };
-    //     return { categoriesDetail };
-    // }
+    // 获得当前排行榜内容
+    static getTopList = async (id: number|string, _data: any) => {
+        const url = 'https://m.kugou.com/rank/info/';
+        const params = {
+                "rankid": id,
+                "page": 1,
+                "json": true
+            }
+        const res = await get(url, params);
+        const info = (res as any).info;
+        const body = {
+                "appid": 1001,
+                "clientver": "10246",
+                "mid": "d8de2ff0a89da0a2528dc85e66beff07",
+                "clienttime": new Date().getTime(),
+                "key": "33551f4ee99f68a7deb4a384bacb508f",
+                "area_code": "1",
+                "show_video": 1,
+                "page": 1,
+                "pagesize": 500,
+                "rank_id": info.rank_cid,
+                "rank_cid": info.rank_cid,
+                "zone": "tx6_gz_kmr"
+            }
+        const res1 = await post('http://kmr.service.kugou.com/container/v2/rank_audio', body, null);
+        let songs: Array<Song> = [];
+        (res1 as any).data.forEach((item:any) => {
+            songs.push({
+                id: item.album_audio_id,
+                name: item.songname,
+                time: formatTime(item.timelength / 1000),
+                album: {id: item.album_id, name: item.album_name},
+                singers: item.authors.map((s: { author_id: any, author_name: any; }) => ({mid: s.author_id, name: s.author_name})),
+                chl: CHL
+            })
+        })
+        let squareDetail: SquareDetail = {
+            id: info.rank_cid,
+            name: info.rankname,
+            desc: info.intro,
+            updateTime: info.rank_id_publish_date,
+            img: info.imgurl.replace("{size}", 240),
+            songs: songs,
+        };
+        return { squareDetail }
+    }
 
-    // static getTopList = async () => {
-    //     const a = await axios.get(URL.TOP_LIST_URL);
-    //     const parser = new DOMParser();
-    //     const doc = parser.parseFromString(a.data, "text/html");
-    //     const categoryList = doc.body.querySelectorAll(".pc_temp_side li")
-    //     let categoriesDetailItem: Array<CategoriesDetailItem> = [];
-    //     categoryList.forEach(li => {
-    //         categoriesDetailItem.push({
-    //             imgUrl: li.querySelector("span")?.getAttribute("style")?.split('(')[1].split(')')[0]||"",
-    //             title: li.querySelector("a")?.getAttribute("title")||"",
-    //             tid: li.querySelector("a")?.getAttribute("href")||"",
-    //             group: "top",
-    //             data: {
-    //                 imgUrl: li.querySelector("span")?.getAttribute("style")?.split('(')[1].split(')')[0]||"",
-    //                 title: li.querySelector("a")?.getAttribute("title")||"",
-    //                 tid: li.querySelector("a")?.getAttribute("href")||"",
-    //             }
-    //         })
-    //     })
-    //     let categoriesDetail: CategoriesDetail = {
-    //         categoriesDetailItem
-    //     };
-    //     return { categoriesDetail };
-    // }
-
-    // static getMusicListDetail = async (id:string, group: string, data: any) => {
-    //     if("top" == group) {
-    //         const a = await axios.get(id);
-    //         const parser = new DOMParser();
-    //         const doc = parser.parseFromString(a.data, "text/html");
-    //         const songlist = doc.body.querySelectorAll("#rankWrap .pc_temp_songlist li");
-    //         let songList: Array<music> = []
-    //         songlist.forEach(li => {
-    //             const a = li.querySelector("a");
-    //             songList.push({
-    //                 mid: li.getAttribute("data-eid")||'',
-    //                 name: a?.getAttribute("title")?.split("-")[1].trim()||"",
-    //                 time: li.querySelector(".pc_temp_time")?.textContent?.trim()||"",
-    //                 img: '',
-    //                 album: {
-    //                     mid: "",
-    //                     name: "",
-    //                 },
-    //                 singer: [{mid:"", name: a?.getAttribute("title")?.split("-")[0].trim()||""}],
-    //                 data: { chl: 2, html: a?.getAttribute("href") }
-    //             })
-    //         })
-    //         let musicListDetail: musicList = {
-    //             tid: data?.tid||"",
-    //             title: data?.title||"",
-    //             img: data?.imgUrl||"",
-    //             desc: "",
-    //             list: songList
-    //         };
-    //         return { musicListDetail };
-    //     }else {
-    //         const a = await axios.get(URL.MUSIC_LIST_DETAIL.replace("${id}", id));
-    //         const parser = new DOMParser();
-    //         const doc = parser.parseFromString(a.data, "text/html");
-    //         const script = doc.querySelectorAll("script");
-    //         let globalData = {} as any;
-    //         script.forEach(s => {
-    //             if(s?.textContent?.includes("specialInfo")) {
-    //                 globalData = Function(s.textContent + ' return [data, specialInfo]')();
-    //             }
-    //         })
-    //         let songList: Array<music> = []
-    //         globalData[0].forEach((item: any) => {
-    //             songList.push({
-    //                 mid: item.encode_album_audio_id, // album_audio_id
-    //                 name: item.songname,
-    //                 time: formatTime(item.duration / 1000),
-    //                 img: "",
-    //                 album: {
-    //                     mid: item.album_id,
-    //                     name: item.album_name,
-    //                 },
-    //                 singer: item.authors.map((s: { author_id: any, author_name: any; }) => ({mid: s.author_id, name: s.author_name})),
-    //                 data: { chl: 2, html: item.song_url }
-    //             })
-    //         })
-    //         let musicListDetail: musicList = {
-    //             tid: globalData[1]?.id||"",
-    //             title: globalData[1]?.class_name||"",
-    //             img: globalData[1]?.image||"",
-    //             desc: globalData[1]?.intro,
-    //             list: songList
-    //         };
-    //         return { musicListDetail };
-    //     }
-    // }
-
-    // static getSongDetail = async (music: music) => {
-    //     const reqBody:Record<string, any> = {
-    //         srcappid: 2919,
-    //         clientver: 20000,
-    //         clienttime: new Date().getTime(),
-    //         mid: 'caaca808a19636095e2c88dc39577a12',
-    //         uuid: 'caaca808a19636095e2c88dc39577a12',
-    //         dfid: '0jI0v83wGKCQ2PXgTX14074K',
-    //         appid: 1014,
-    //         platid: 4,
-    //         encode_album_audio_id: music.mid,
-    //         token: '',
-    //         userid: 0
-    //     }
-    //     var sortedObj = Object.fromEntries(
-    //         Object.entries(reqBody).sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-    //     );
-    //     let s = jsonToKeyValueArray(sortedObj);
-    //     s.push('NVPh5oo715z5DIWAeQlhMDsWXXQV4hwt');
-    //     s.unshift("NVPh5oo715z5DIWAeQlhMDsWXXQV4hwt");
-    //     const sign = CryptoJS.MD5(s.join('')).toString();
-    //     reqBody['signature'] =  sign;
-    //     const res = await axios.get(URL.MUSIC_URL + "?" + qs.stringify(reqBody));
-    //     music.img = res.data.data.img;
-    //     const playUrl = res.data.data.play_url;
-    //     return { playUrl }
-    // }
+    static getSongDetail = async (song: Song) => {
+        const reqBody:Record<string, any> = {
+            srcappid: 2919,
+            clientver: 20000,
+            clienttime: new Date().getTime(),
+            mid: 'caaca808a19636095e2c88dc39577a12',
+            uuid: 'caaca808a19636095e2c88dc39577a12',
+            dfid: '0jI0v83wGKCQ2PXgTX14074K',
+            appid: 1014,
+            platid: 4,
+            album_audio_id: song.id,
+            token: '',
+            userid: 0
+        }
+        const res = await get('https://wwwapi.kugou.com/play/songinfo', getParamsAndSign(reqBody)) as any;
+        song.img = res.data.img;
+        song.lyrics = parseLyrics(res.data.lyrics);
+        const playUrl = res.data.play_url;
+        return { playUrl }
+    }
     
+    // 歌曲搜索
+    static searchSongs = async (keyword: string) => {
+        console.log(keyword);
+        const reqBody:Record<string, any> = {
+            'srcappid': '2919',
+            'clientver': '1000',
+            'clienttime': '1708433791286',
+            'mid': 'caaca808a19636095e2c88dc39577a12',
+            'uuid': 'caaca808a19636095e2c88dc39577a12',
+            'dfid': '0jI0v83wGKCQ2PXgTX14074K',
+            'keyword': keyword,
+            'page': '1',
+            'pagesize': '300',
+            'bitrate': '0',
+            'isfuzzy': '0',
+            'inputtype': '0',
+            'platform': 'WebFilter',
+            'userid': '0',
+            'iscorrection': '1',
+            'privilege_filter': '0',
+            'filter': '10',
+            'token': '',
+            'appid': '1014',
+        }
+        const res = await get('https://complexsearch.kugou.com/v2/search/song', getParamsAndSign(reqBody)) as any;
+        console.log(res);
+        
+    }
+    
+}
+
+const parseLyrics = (lyrics: string) => {
+    if (!lyrics) return;
+    if (lyrics.includes('[offset:0]')) {
+        lyrics = lyrics.split('[offset:0]')[1]
+    }else if (lyrics.includes('[00:00.00]')) {
+        lyrics = lyrics.split('[00:00.00]')[1]
+    }
+    const lines = lyrics!.split(/\r?\n/);
+    const pattern = /\[\d{2}:\d{2}(?:\.\d{1,3})?\]/g;
+    let lyricsArr = [] as any;
+    lines.forEach((line) => {
+        const time = line.match(pattern);
+        if (!time) return;
+        const txt = line.replace(pattern, '').trim();
+        lyricsArr.push({ time: time[0].replace("[", "").replace("]", ""), txt: txt });
+    })
+    return lyricsArr;
 }
 
 const getParamsAndSign = (obj:any) => {
     obj['signature'] = md5(obj)
-    console.log("object:", obj);
     return obj;
 }
 
@@ -352,7 +316,6 @@ const md5 = (obj:Object) => {
     let s = jsonToKeyValueArray(sortedObj);
     s.push(KEY);
     s.unshift(KEY);
-    console.log("s:", s.join(''));
     const sign = CryptoJS.MD5(s.join('')).toString();
     return sign;
 }
@@ -364,6 +327,5 @@ const jsonToKeyValueArray = (json:any) => {
             keyValuePairs.push(`${key}=${json[key]}`);
       }
     }
-    console.log("keyValuePairs:", keyValuePairs);
     return keyValuePairs;
 }

@@ -56,7 +56,7 @@ export const routes = [
                         {
                             id: '3',
                             name: 'QQ音乐',
-                            file: 'qqmu',
+                            file: 'qq',
                         },
                     ]
                 },

@@ -11,10 +11,16 @@ import Right from "./layout/Right.vue"
 import { provide, ref, onMounted } from "vue";
 import musicResource from "@/store/modules/musicResource";
 import { useRouter } from 'vue-router';
+import { eventBus } from "@/common/eventBus";
 
 let $router = useRouter();
 let musicStore = musicResource();
 const defaultClass = ref();  // 默认平台
+const playState = ref(false);  // 播放状态
+
+eventBus.on("audio-play-state", (data) => {
+    playState.value =  Boolean(data);
+});
 
 const getSquare = (id: number|string, page: number) => {
     musicStore.getSquare(id, page);
@@ -38,6 +44,7 @@ onMounted(async () => {
 
 provide("music-enevt", {
     defaultClass,
+    playState,
     setDefaultClass,
     getSquare,
     initDefaultClass

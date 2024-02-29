@@ -1,58 +1,68 @@
 <template>
     <div class="container-play">
         <!-- 播放进度条 -->
-        <input type="range" class="play-progress" min="0" max="1" step="0.0001" :value="currentTimeVal">
+        <input type="range" class="play-progress" min="0" max="1" step="0.0001" :value="currentTimeVal" @input="changeProgress" @mouseup="changeTime" @mousedown="stopUpdate=true">
         <div class="play-show">
             <div class="play-info">
-                <img :src="musicbg" alt="">
+                <div class="img" @click="playInfoShow = true">
+                    <img :src="playMusicStore.currPlaySong.img || musicbg" alt="">
+                    <double-down class="playInfoShow" theme="filled" size="24" fill="#333"/>
+                </div>
                 <div class="info">
                     <div class="name">
-                        <span>听点什么</span>
+                        <span>{{ playMusicStore.currPlaySong.name||'听点什么' }}</span>
                     </div>
                     <div class="time">
-                        <span class="current-time">00:00</span>
-                        <span>/</span>
-                        <span class="total-time">00:00</span>
+                        <span class="current-time">{{ formatTime(currentTime) }}</span>
+                        /
+                        <span class="total-time">{{ playMusicStore.currPlaySong.time||'00:00' }}</span>
                     </div>
                 </div>
             </div>
             <div class="play-control">
-                <go-start theme="filled" size="24" fill="#333"/>
-                <play :class="{'play-button-hide':playState}" theme="filled" size="34" fill="#333"/>
-                <pause-one :class="{'play-button-hide':!playState}" theme="filled" size="34" fill="#333"/>
-                <go-end theme="filled" size="24" fill="#333"/>
-                <music-list @click.stop="playQueueOpen=!playQueueOpen" theme="filled" size="24" fill="#333"/>
+                <go-start @click="playMusicStore.prevMuisc" theme="filled" size="24" fill="#333"/>
+                <play @click="changePlayState" :class="{'play-button-hide':musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
+                <pause-one @click="changePlayState" :class="{'play-button-hide':!musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
+                <go-end @click="playMusicStore.nextMuisc" theme="filled" size="24" fill="#333"/>
+                <music-list @click.stop="playQueueOpen=!playQueueOpen;scrollPlaying()" theme="filled" size="24" fill="#333"/>
             </div>
             <div class="play-Volume">
-                <volume-mute :class="{hide:!isMute}" theme="filled" size="24" fill="#333"/>
-                <volume-small :class="{hide:isMute || playVolumeVal>0.4}" theme="filled" size="24" fill="#333"/>
-                <volume-notice :class="{hide:isMute || playVolumeVal<=0.4}" theme="filled" size="24" fill="#333"/>
+                <div class="control" @click="mute">
+                    <volume-mute :class="{hide:!isMute}" theme="filled" size="24" fill="#333"/>
+                    <volume-small :class="{hide:isMute || playVolumeVal>0.4}" theme="filled" size="24" fill="#333"/>
+                    <volume-notice :class="{hide:isMute || playVolumeVal<=0.4}" theme="filled" size="24" fill="#333"/>
+                </div>
                 <!-- 声音调节 -->
-                <input type="range" class="volume-progress" min="0" max="1" step="0.0001" :value="playVolumeVal">
+                <input type="range" class="volume-progress" min="0" max="1" step="0.01" :value="playVolumeVal" @input="changeVolume">
             </div>
         </div>
         <!-- 播放列表 -->
         <div class="play-queue" :class="{show:playQueueOpen}"  @click.stop="playQueueOpen==true">
             <div class="header">
-                <span>播放队列({{ playStore.playQueue?.length }})</span>
+                <span>播放队列({{ playMusicStore.playQueue?.length }})</span>
                 <div class="control">
                     <list theme="filled" size="20" fill="#333"/>
-                    <delete theme="outline" size="20" fill="#333"/>
+                    <delete @click="playMusicStore.clearQueue" theme="outline" size="20" fill="#333"/>
                 </div>
             </div>
-            <ul>
-                <li>
+            <ul class="queue-list">
+                <li v-for="(item) in playMusicStore.playQueue" :class="{playing:item.id==playMusicStore.currPlaySong.id}">
                     <div class="info">
-                        <span>歌曲名字test歌曲测试呢同是打算开发12345678</span>
+                        <span>{{ item.name }}</span>
                         <div class="singer-time">
-                            <span class="singer">歌手名字</span>
-                            <span class="time">04:00</span>
+                            <div class="singer">
+                                <span v-for="(singer, i) in item.singers">
+                                    {{ singer.name }}
+                                    <span v-if="i < item.singers.length - 1">, </span>  
+                                </span>
+                            </div>
+                            <span class="time">{{ item.time }}</span>
                         </div>
                     </div>
                     <div class="control">
-                        <play-one theme="filled" size="20" fill="#333"/>
-                        <pause theme="filled" size="20" fill="#333"/>
-                        <delete-one theme="outline" size="17" fill="#333"/>
+                        <play-one @click="playMusicStore.play(item)" :class="{hide:musicEnevt.playState.value&&item.id==playMusicStore.currPlaySong.id}" theme="filled" size="20" fill="#333"/>
+                        <pause @click="playMusicStore.play(item)" :class="{hide:!(musicEnevt.playState.value&&item.id==playMusicStore.currPlaySong.id)}" theme="filled" size="20" fill="#333"/>
+                        <delete-one @click="playMusicStore.removeSong(item)" theme="outline" size="15" fill="#333"/>
                     </div>
                 </li>
             </ul>
@@ -63,29 +73,141 @@
                 </label>
             </div>
         </div>
+        <PlayInfo @changePlayInfoShow="(newVal:boolean)=>{playInfoShow=newVal}" :playInfoShow="playInfoShow"/>
     </div>
 </template>
 
 <script  lang="ts" setup>
-import { Play, PauseOne, GoStart, GoEnd, VolumeMute, VolumeSmall, VolumeNotice, MusicList, PlayOne, Pause, List, Delete, DeleteOne } from '@icon-park/vue-next'
+import { DoubleDown, Play, PauseOne, GoStart, GoEnd, VolumeMute, VolumeSmall, VolumeNotice, MusicList, PlayOne, Pause, List, Delete, DeleteOne } from '@icon-park/vue-next'
 import playMusic from "@/store/modules/playMusic";
-import { ref } from "vue";
-// import { eventBus } from "@/common/eventBus";
-// import { formatTime, toSeconds } from '@/common/utils'
+import { ref, inject, onMounted, provide } from "vue";
+import { eventBus } from "@/common/eventBus";
+import { formatTime, toSeconds } from '@/common/utils'
 import musicbg from '@/assets/imgs/musicbg.png'
+import PlayInfo from './PlayInfo.vue';
 
 const currentTimeVal = ref(0)
 const playVolumeVal = ref(0.2)
 const isMute = ref(false)
-const playState = ref(false)
-const playQueueOpen = ref(true);  // 播放列表控制
-let playStore = playMusic();
-// const playState = ref(false)
-// const currentTime = ref(0)
-// const stopUpdate = ref(false)
-// const isMute = ref(false)
+const playQueueOpen = ref(false);  // 播放列表控制
+const musicEnevt:any = inject("music-enevt");
+const currentTime = ref(0)
+const stopUpdate = ref(false)
+const playInfoShow = ref(false)
+let playMusicStore = playMusic();
 
-document.addEventListener("click", () =>{playQueueOpen.value = false;console.log(playQueueOpen.value);})
+eventBus.on("audio-time-update", (data) => {
+    if(stopUpdate.value) return;
+    const allTime = toSeconds(playMusicStore.currPlaySong.time||'00:00');
+    currentTime.value = Number(data);
+    const percent = currentTime.value / allTime;
+    currentTimeVal.value = percent;
+    upProgress();
+});
+
+const changeTime = () => {
+    upProgress();
+    eventBus.emit("audio-play-seek", currentTimeVal.value);
+    stopUpdate.value = false;
+}
+
+const changeProgress = (payload: Event) => {
+    const event = payload as MouseEvent;
+    const el = event.target as HTMLInputElement;
+    currentTimeVal.value = Number(el.value);
+    if(!playMusicStore.currPlaySong || Object.keys(playMusicStore.currPlaySong).length == 0) {
+        currentTimeVal.value = 0;
+    };
+    upProgress();
+}
+
+const upProgress = () => {
+    const percent = currentTimeVal.value;
+    const playProgress = document.getElementsByClassName("play-progress") as unknown as HTMLInputElement[];
+    for (let i = 0; i < playProgress.length; i++) {
+        let el = playProgress[i];
+        el.style.backgroundSize = `${percent * 100}% 100%`;
+    }
+}
+
+const changePlayState = () => {
+    eventBus.emit("audio-play-change");
+}
+
+document.addEventListener("click", () =>{playQueueOpen.value = false;})
+
+eventBus.on("audio-play-next", playMusicStore.nextMuisc);
+
+//音量改变
+const changeVolume = (payload: Event) => {
+    const event = payload as MouseEvent;
+    const el = event.target as HTMLInputElement;
+    playVolumeVal.value = Number(el.value);
+    setVolume();
+}
+
+const setVolume = () => {
+    const percent = playVolumeVal.value;
+    const playVolume = document.getElementsByClassName("volume-progress") as unknown as HTMLInputElement[];
+    for (let i = 0; i < playVolume.length; i++) {
+        let el = playVolume[i];
+        el.style.backgroundSize = `${percent * 100}% 100%`;;
+    }
+    eventBus.emit("audio-play-volume", playVolumeVal.value);
+    if(playVolumeVal.value == 0) {
+        isMute.value = true;
+    }else {
+        isMute.value = false;
+    }
+    eventBus.emit("audio-play-mute", isMute.value);
+}
+
+// 静音
+const mute = () => {
+    isMute.value = !isMute.value;
+    eventBus.emit("audio-play-mute", isMute.value);
+    const playVolume = document.getElementsByClassName("volume-progress") as unknown as HTMLInputElement[];
+    for (let i = 0; i < playVolume.length; i++) {
+        let el = playVolume[i];
+        el.style.backgroundSize = `${isMute.value ? 0 : playVolumeVal.value * 100}% 100%`;
+    }
+}
+
+// 打开播放队列时滚动到当前播放歌曲
+const scrollPlaying = () => {
+    const queueList = document.getElementsByClassName("queue-list")[0] as HTMLElement;
+    const playing = queueList.getElementsByClassName("playing")[0] as HTMLElement;
+    if(playing){
+        const rect = playing.getBoundingClientRect();
+        const desiredTopOffset = (queueList.clientHeight / 2) - (rect.height / 2);
+        console.log(rect.top + queueList.scrollTop - desiredTopOffset);
+        queueList.scrollTo({
+            top: rect.top + queueList.scrollTop - desiredTopOffset,
+            behavior: "smooth"
+        })
+        
+    }
+}
+
+onMounted(() =>{
+    mute();
+    setVolume();
+})
+
+provide('play-song-event', {
+    currentTimeVal,
+    currentTime,
+    playVolumeVal,
+    stopUpdate,
+    isMute,
+    playQueueOpen,
+    changeTime,
+    changeProgress,
+    mute,
+    changeVolume,
+    changePlayState,
+    scrollPlaying
+})
 </script>
 
 <style lang="scss" scoped>
@@ -119,16 +241,30 @@ document.addEventListener("click", () =>{playQueueOpen.value = false;console.log
         align-items: center;
         .play-info {
             display: flex;
-            img {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                animation: play-img 5s linear infinite;
-                animation-play-state: running;
-            }
-            @keyframes play-img {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
+            .img {
+                position: relative;
+                cursor: pointer;
+                &:hover .playInfoShow {
+                    visibility: visible;
+                }
+                .playInfoShow {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    visibility: hidden;
+                }
+                img {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    animation: play-img 5s linear infinite;
+                    animation-play-state: running;
+                }
+                @keyframes play-img {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
             }
             .info {
                 margin-left: 10px;
@@ -150,6 +286,13 @@ document.addEventListener("click", () =>{playQueueOpen.value = false;console.log
                 }
                 .time {
                     opacity: 0.5;
+                    >* {
+                        margin: 0 2px;
+                    }
+                    .current-time, .total-time{
+                        display: inline-block;
+                        width: 25px;
+                    }
                 }
             }
         }
@@ -179,7 +322,7 @@ document.addEventListener("click", () =>{playQueueOpen.value = false;console.log
         .play-Volume {
             display: flex;
             align-items: center;
-            > *{
+            .control > *{
                 cursor: pointer;
                 &:hover :deep(path) {
                     fill: var(--icon-color-hover);
@@ -224,6 +367,7 @@ document.addEventListener("click", () =>{playQueueOpen.value = false;console.log
         box-shadow: -8px 0 5px -5px #e0e0e0;
         display: flex;
         flex-direction: column;
+        z-index: 1;
         &.show {
             width: 30%;
         }
@@ -259,6 +403,9 @@ document.addEventListener("click", () =>{playQueueOpen.value = false;console.log
                 line-height: 20px;
                 padding: 3px 20px 3px 10px;
                 border-radius: 10px;
+                &.playing {
+                    color: var(--li-active);
+                }
                 .info {
                     flex: 1;
                     display: flex;
@@ -271,16 +418,24 @@ document.addEventListener("click", () =>{playQueueOpen.value = false;console.log
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
+                        opacity: 0.6;
+                        font-size: 12px;
                     }
                 }
                 .control {
-                    flex-shrink: 0;
                     line-height: 100%;
                     cursor: pointer;
                     display: none;
+                    > * {
+                        margin: 0 2px;
+                        vertical-align: middle;
+                    }
                     > *:hover :deep(path) {
                         fill: var(--icon-color-hover);
                         stroke: var(--icon-color-hover);
+                    }
+                    .hide {
+                        display: none;
                     }
                 }
                 &:hover {

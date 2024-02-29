@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { Song } from "@/type/musicTypes";
-import { play, toggleMusic, togglePlay, stop } from "@/common/audioPlay";
+import { play, toggleSong, togglePlay, stop } from "@/common/audioPlay";
 import musicResource from "@/store/modules/musicResource";
 import { getClassName } from "@/common/importModule";
 
@@ -9,64 +9,63 @@ let musicStore = musicResource();
 let playStore = defineStore("play", {
     state: () => {
         return {
-            playState: false,  // 播放状态
             currPlaySong: {} as Song,  // 当前播放歌曲
             playQueue: [] as Song[],  // 播放队列
         };
     },
     actions: {
         // 在播放队列最后添加单首歌曲
-        addMusic(music: Song) {
-            if (!this.playQueue.includes(music)) {
-                this.playQueue.push(music);
+        addSong(song: Song) {
+            if (!this.playQueue.includes(song)) {
+                this.playQueue.push(song);
             }
         },
         // 在播放队列最后添加多首歌曲
-        addMusicList(musicList: Song[]) {
-            this.playQueue.push(...musicList);
+        addSongList(songs: Song[]) {
+            songs.forEach(song => this.addSong(song));
         },
         // 删除播放队列中的某首歌曲
-        removeMusic(music: Song) {
-            if (this.playQueue.includes(music)) {
-                this.playQueue.splice(this.playQueue.indexOf(music), 1);
+        removeSong(song: Song) {
+            if (this.playQueue.includes(song)) {
+                this.playQueue.splice(this.playQueue.indexOf(song), 1);
             }
-            if (this.currPlaySong === music) {
+            if (this.currPlaySong === song) {
                 stop();
                 this.currPlaySong = {} as Song;
             }
         },
         clearQueue() {
-            if(this.currPlaySong) {
+            if(this.currPlaySong && Object.keys(this.currPlaySong).length !== 0) {
                 stop();
             }
             this.playQueue = [];
             this.currPlaySong = {} as Song;
         },
         // 清空当前列表并添加多个
-        clearAndAdd(musicList: Song[]) {
-            this.playQueue = [];
-            this.playQueue = musicList;
+        clearAndAdd(songs: Song[]) {
+            this.clearQueue();
+            this.addSongList(songs);
         },
-        async getSongDetail(music: Song) {
-            this.currPlaySong = music;
-            if (music.playUrl) { return }
-            const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == music.data?.chl);
+        async getSongDetail(song: Song) {
+            this.currPlaySong = song;
+            if (song.playUrl) { return }
+            const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == song.chl);
             const method = await getClassName(plat!.file, "getSongDetail");
-            const result = await method!(music);
+            const result = await method!(song);
             this.currPlaySong.playUrl = result.playUrl;
         },
         async play(song: Song) {
             if(!this.currPlaySong.id) {
-                this.addMusic(song);
+                this.addSong(song);
                 await this.getSongDetail(song);
                 play(this.currPlaySong);
             }else if(this.currPlaySong.id == song.id){
                 togglePlay();
             }else {
-                this.addMusic(song);
+                this.addSong(song);
                 await this.getSongDetail(song);
                 // 切换歌曲
-                toggleMusic(this.currPlaySong);
+                toggleSong(this.currPlaySong);
             }
         },
         // 上一首

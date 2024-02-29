@@ -9,7 +9,27 @@
 
 <script  lang="ts" setup>
 import Title from "@/components/Title.vue";
+import { ref, provide } from "vue";
 
+const winMax = ref(false)
+
+const setMin = () => {
+    window.api.winMin();
+}
+const setMax = () => {
+    window.api.winMax({ winMax: winMax.value});
+    winMax.value = !winMax.value
+}
+const setCls = () => {
+    window.api.winClose();
+}
+
+provide("win-enevt", {
+    winMax,
+    setMin,
+    setMax,
+    setCls,
+})
 </script>
 
 <style lang="scss" scoped>
