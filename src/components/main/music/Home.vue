@@ -10,13 +10,16 @@ import Left from "./layout/Left.vue"
 import Right from "./layout/Right.vue"
 import { provide, ref, onMounted } from "vue";
 import musicResource from "@/store/modules/musicResource";
+import playMusic from "@/store/modules/playMusic";
 import { useRouter } from 'vue-router';
 import { eventBus } from "@/common/eventBus";
 
 let $router = useRouter();
 let musicStore = musicResource();
+let playMusicStore = playMusic();
 const defaultClass = ref();  // 默认平台
 const playState = ref(false);  // 播放状态
+const lyricOpen = ref(false);  // 歌词
 
 const getAlbum = (album: any) => {
     musicStore.getAlbumDetail(album);
@@ -30,6 +33,8 @@ const getSingerDetail = (singer:any) => {
 
 eventBus.on("audio-play-state", (data) => {
     playState.value =  Boolean(data);
+    // 通知歌词面板
+    window.api.playStatetoLyric(JSON.parse(JSON.stringify(playMusicStore.currPlaySong.lyrics||[])));
 });
 
 const getSquare = (id: number|string, page: number) => {
@@ -45,6 +50,15 @@ const initDefaultClass = () => {
     getSquare(defaultClass.value, 1);
 }
 
+const openLyric = () => {
+    window.api.openLyric(lyricOpen.value, playState.value, JSON.parse(JSON.stringify(playMusicStore.currPlaySong.lyrics||[])));
+    lyricOpen.value = !lyricOpen.value;
+}
+
+window.api.changeLyricState(() =>{
+    lyricOpen.value = false;
+});
+
 onMounted(async () => {
     const id = $router.currentRoute.value.params.id;
     const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == id);
@@ -59,7 +73,8 @@ provide("music-enevt", {
     getSquare,
     initDefaultClass,
     getSingerDetail,
-    getAlbum
+    getAlbum,
+    openLyric
 })
 </script>
 

@@ -30,8 +30,8 @@ let playStore = defineStore("play", {
                 this.playQueue.splice(this.playQueue.indexOf(song), 1);
             }
             if (this.currPlaySong === song) {
-                stop();
                 this.currPlaySong = {} as Song;
+                stop();
             }
         },
         clearQueue() {

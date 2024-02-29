@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, session } from "electron";
 import path from "path";
 import windowStateKeeper from "electron-window-state";
 import electronDevtoolsInstaller, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import "./lyric";
 
 const createWindow = () => {
     const winState = windowStateKeeper({
@@ -24,7 +25,7 @@ const createWindow = () => {
         webPreferences: {
             // contextIsolation: false, // 是否开启隔离上下文
             nodeIntegration: true, // 渲染进程使用Node API
-            sandbox: false,
+            sandbox: false,  // 开启沙盒则preload脚本被禁用，所以设为false
             preload: path.join(__dirname, "./preload.js"), // 需要引用js文件
             webSecurity: false
         },
@@ -38,8 +39,8 @@ const createWindow = () => {
         win.loadURL(url);
         // devTools独立窗口
         win.webContents.openDevTools({mode: 'detach'});
-        // 加载vuejs-devtools插件
-        electronDevtoolsInstaller(VUEJS_DEVTOOLS);
+        // // 加载vuejs-devtools插件
+        // electronDevtoolsInstaller(VUEJS_DEVTOOLS);
     }
 
     // 页面准备好了再加载
@@ -70,6 +71,10 @@ const createWindow = () => {
     })
     ipcMain.on("on-min-custom-event", () => {
         win!.minimize();
+    })
+
+    ipcMain.on("on-close-lyric-win-event", () => {
+        win?.webContents.send("on-change-lyric-event");
     })
 
     // 修改referer

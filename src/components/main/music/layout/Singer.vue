@@ -31,11 +31,9 @@
 <script  lang="ts" setup>
 import { Play } from '@icon-park/vue-next'
 import musicResource from "@/store/modules/musicResource";
-import playMusic from "@/store/modules/playMusic";
 import { inject, onMounted, ref } from "vue";
 
 let musicStore = musicResource();
-let playMusicStore = playMusic();
 const musicEnevt:any = inject("music-enevt");
 const current = ref<string[]>([]);
 

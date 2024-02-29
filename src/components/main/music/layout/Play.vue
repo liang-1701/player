@@ -25,6 +25,7 @@
                 <pause-one @click="changePlayState" :class="{'play-button-hide':!musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
                 <go-end @click="playMusicStore.nextMuisc" theme="filled" size="24" fill="#333"/>
                 <music-list @click.stop="playQueueOpen=!playQueueOpen;scrollPlaying()" theme="filled" size="24" fill="#333"/>
+                <span @click="musicEnevt.openLyric" class="lyric">词</span>
             </div>
             <div class="play-Volume">
                 <div class="control" @click="mute">
@@ -103,6 +104,8 @@ eventBus.on("audio-time-update", (data) => {
     const percent = currentTime.value / allTime;
     currentTimeVal.value = percent;
     upProgress();
+    // 通知歌词面板当前播放时间
+    window.api.timetoLyric(currentTime.value, allTime);
 });
 
 const changeTime = () => {
@@ -332,6 +335,12 @@ provide('play-song-event', {
                 }
                 &.play-button-hide {
                     display: none;
+                }
+            }
+            .lyric {
+                font-size: 22px;
+                &:hover {
+                    color: var(--text-color-hover);
                 }
             }
         }

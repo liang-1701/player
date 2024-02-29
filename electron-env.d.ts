@@ -4,6 +4,14 @@ export interface IElectronAPI {
     winClose,
     winMax,
     winMin,
+    openLyric,
+    initDataFromMain,
+    closeLyric,
+    changeLyricState,
+    playStatetoLyric,
+    playStateFromMain,
+    timetoLyric,
+    timeFromMain
 }
 
 declare global {
