@@ -24,7 +24,7 @@
         "@/*": ["src/*"]  // 路径映射, 相当于baseUrl
       }
     },
-    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue","main/**/*.ts"],
+    "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue","main/**/*.ts","electron-env.d.ts"],
     "references": [{ "path": "./tsconfig.node.json" }]
   }
   

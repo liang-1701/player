@@ -31,7 +31,6 @@
 </template>
 
 <script  lang="ts" setup>
-import { ipcRenderer } from 'electron';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -53,16 +52,15 @@ const setting = () => {
     
 }
 const setMin = () => {
-    ipcRenderer.invoke("on-min-custom-event")
+    window.api.winMin();
     
 }
 const setMax = () => {
-    ipcRenderer.invoke("on-max-custom-event", { winMax: winMax.value})
+    window.api.winMax({ winMax: winMax.value});
     winMax.value = !winMax.value
 }
 const setCls = () => {
-    ipcRenderer.invoke("on-close-custom-event")
-
+    window.api.winClose();
 }
 </script>
 
