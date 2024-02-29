@@ -33,8 +33,8 @@ const setDefaultClass = (id: number) => {
 }
 
 const initDefaultClass = () => {
-    defaultClass.value = Number(musicStore.categoriesDetail.find((item) => item.default)?.categoryId);
-    musicStore.getCategoryDetailById(defaultClass.value, 0);
+    defaultClass.value = musicStore.categoriesDetail.find((item) => item.default)?.categoryId;
+    musicStore.getCategoryDetailById(defaultClass.value, 1);
 }
 
 onMounted(async () => {
