@@ -74,12 +74,18 @@ let playStore = defineStore("play", {
             if(--index >= 0) {
                 this.play(this.playQueue[index]);
             }
+            if(index < 0) {
+                this.play(this.playQueue[this.playQueue.length - 1]);
+            }
         },
         // 下一首
         nextMuisc() {
             let index = this.playQueue.findIndex(item => item.mid == this.currPlayMusic.mid);
             if(++index < this.playQueue.length) {
                 this.play(this.playQueue[index]);
+            }
+            if(index == this.playQueue.length) {
+                this.play(this.playQueue[0]);
             }
         },
     },
