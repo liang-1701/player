@@ -8,22 +8,17 @@
 </template>
 
 <script  lang="ts" setup>
-import Title from "@/components/title/Title.vue";
+import Title from "@/components/Title.vue";
 
 </script>
 
 <style lang="scss" scoped>
 $layout-title-height: 50px;
 .title {
-    position: fixed;
-    height: $layout-title-height;
-    width: 100%;
-    -webkit-app-region: drag;
+    min-height: 50px;
 }
 .main {
-    position: fixed;
-    top: $layout-title-height;
-    width: 100%;
-    height: calc(100% - $layout-title-height);
+    flex: 1;
+    overflow: hidden;
 }
 </style>

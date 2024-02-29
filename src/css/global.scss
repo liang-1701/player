@@ -5,6 +5,11 @@
     overflow: hidden;
     border-radius: 10px; 
     box-shadow: 0 0 5px rgba(0, 0, 0, 1);
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-color);
+    font-family: 'xingkai';
 }
 
 .fade-main-enter-active, .fade-main-leave-active {
@@ -18,9 +23,26 @@
 
 .fade-main-enter-from {
     opacity: 0;
-    transform:  rotateY(90deg);
+    transform: --el-message-text-color
 }
 
 .el-loading-text {
     color: var(--text-color-active) !important;
+}
+
+.no-drag {
+    -webkit-app-region: no-drag;
+}
+
+.drag {
+    -webkit-app-region: drag;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-color);
+    border-radius: 6px;
 }

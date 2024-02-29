@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { routes } from "@/router/modules/musicRouters";
-import { Category, CategoryItem, musicList, CategoriesDetail } from "@/type/musicTypes";
+import { Category, CategoryItem, Square, SquareDetail } from "@/type/musicTypes";
 import { getClassName } from "@/common/importModule";
 
 let menuStore = defineStore("menu", {
@@ -10,33 +10,33 @@ let menuStore = defineStore("menu", {
             currentPlat: {} as any,
             categories:Array<Category>(),  // 所有分类
             categoriesDetail: Array<CategoryItem>(),  // 详细类别
-            categoriesDetailList: {} as CategoriesDetail,  // 分类详细展示
-            musicListDetail: <musicList>{},  // 详细歌单
+            square: {} as Square,  // 歌单广场
+            squareDetail: {} as SquareDetail,  // 歌单内容
         };
     },
     actions: {
         // 切换平台
         async setCurrentPlat(plat: any) {
             this.currentPlat = plat;
-            await this.getCategoryList();
+            await this.getCategory();
         },
-        async getCategoryList() {
-            const method = await getClassName(this.currentPlat.file, "getCategoryList");
+        async getCategory() {
+            const method = await getClassName(this.currentPlat.file, "getCategory");
             const result = await method!();
-            this.categories = result!.categoriesArray;
+            this.categories = result!.categories;
             this.categoriesDetail = result!.categoriesDetail;
         },
         // 获取分类详细展示
-        async getCategoryDetailById(id: number|string, page: number) {
-            const method = await getClassName(this.currentPlat.file, "getCategoryDetailById");
+        async getSquare(id: number|string, page: number) {
+            const method = await getClassName(this.currentPlat.file, "getSquare");
             const result = await method!(id, page);
-            this.categoriesDetailList = result!.categoriesDetail;
+            this.square = result!.square;
         },
         // 详细歌单
-        async getMusicListDetail(id: number|string, group: string, data: any) {
-            const method = await getClassName(this.currentPlat.file, "getMusicListDetail");
+        async getSquareDetail(id: number|string, group: string, data: any) {
+            const method = await getClassName(this.currentPlat.file, "getSquareDetail");
             const result = await method!(id, group, data);
-            this.musicListDetail = result!.musicListDetail;
+            this.squareDetail = result!.squareDetail;
         }
     },
     getters: {

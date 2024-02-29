@@ -1,21 +1,21 @@
 import { eventBus } from "./eventBus";
-import { music } from '@/type/musicTypes';
+import { Song } from '@/type/musicTypes';
 import { Howl, Howler } from 'howler';
 
 let audio:any = null;
 
 class AudioPlay {
 
-    currMusic: music;
+    currSong: Song;
     sound: Howl | undefined;
 
-    constructor(music: music) {
-        this.currMusic = music;
+    constructor(song: Song) {
+        this.currSong = song;
     }
 
-    static get(music: music) {
+    static get(song: Song) {
         if(!audio) {
-            audio = new AudioPlay(music)
+            audio = new AudioPlay(song)
         }
         return audio;
     }
@@ -23,7 +23,7 @@ class AudioPlay {
     play() {
         let self = this;
         this.sound = new Howl({
-            src: [this.currMusic.playUrl||''],
+            src: [this.currSong.playUrl||''],
             html5: true,
             loop: false,
             onplay: function() {
@@ -59,12 +59,12 @@ class AudioPlay {
     }
     
     // 切换歌曲
-    toggleMusic(music: music){
+    toggleMusic(song: Song){
         if(this.sound) {
             // 先卸载当前
             this.sound.unload();
             // 加载新的
-            this.currMusic = music;
+            this.currSong = song;
             this.play();
         }
     }
@@ -74,7 +74,7 @@ class AudioPlay {
         if(this.sound) {
             this.sound.stop();
             this.sound.unload();
-            this.currMusic = {} as music;
+            this.currSong = {} as Song;
             this.sound = undefined;
             audio = null;
             // eventBus.emit("audio-play-state", false);
@@ -106,8 +106,8 @@ class AudioPlay {
 }
 
 // 播放
-export const play = (music: music) => {
-    AudioPlay.get(music).play();
+export const play = (song: Song) => {
+    AudioPlay.get(song).play();
 }
 
 // 切换状态
@@ -116,8 +116,8 @@ export const togglePlay = () => {
 }
 
 // 切换歌曲
-export const toggleMusic = (music: music) => {
-    audio.toggleMusic(music);
+export const toggleMusic = (song: Song) => {
+    audio.toggleMusic(song);
 }
 
 // 停止播放

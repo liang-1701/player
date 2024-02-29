@@ -1,31 +1,23 @@
 <template>
-    <div class="container">
+    <div class="container-home">
         <Left class="left" />
-            <router-view  v-slot="{ Component }" class="content">
-                <transition name="fade-main" mode="out-in" >
-                    <KeepAlive>
-                        <component :key="$router.currentRoute.value.fullPath" :is="Component"/>
-                    </KeepAlive>
-                </transition>
-            </router-view>
-        <Play class="play" />
+        <Right class="right" />
     </div>
 </template>
 
 <script  lang="ts" setup>
-import Left from '@/components/main/music/layout/Left.vue'
-import Play from '@/components/main/music/layout/Play.vue';
+import Left from "./layout/Left.vue"
+import Right from "./layout/Right.vue"
 import { provide, ref, onMounted } from "vue";
 import musicResource from "@/store/modules/musicResource";
 import { useRouter } from 'vue-router';
 
 let $router = useRouter();
 let musicStore = musicResource();
-const musicListOpen = ref(false)
-const defaultClass = ref()
+const defaultClass = ref();  // 默认平台
 
-const getRadio = (id: number|string, page: number) => {
-    musicStore.getCategoryDetailById(id, page);
+const getSquare = (id: number|string, page: number) => {
+    musicStore.getSquare(id, page);
 }
 
 const setDefaultClass = (id: number) => {
@@ -34,7 +26,7 @@ const setDefaultClass = (id: number) => {
 
 const initDefaultClass = () => {
     defaultClass.value = musicStore.categoriesDetail.find((item) => item.default)?.categoryId;
-    musicStore.getCategoryDetailById(defaultClass.value, 1);
+    getSquare(defaultClass.value, 1);
 }
 
 onMounted(async () => {
@@ -44,37 +36,23 @@ onMounted(async () => {
     initDefaultClass()
 })
 
-provide("all-tag", {
-    musicListOpen,
+provide("music-enevt", {
     defaultClass,
     setDefaultClass,
-    getRadio,
+    getSquare,
     initDefaultClass
 })
 </script>
 
 <style lang="scss" scoped>
-$left-width: 150px;
-$show-play-height: 70px;
-.left {
-    width: $left-width;
-    height: 100%;
-}
-.content {
-    width: calc(100% - $left-width);
-    left: $left-width;
-    height: calc(100% - $show-play-height);
-}
-.container {
+.container-home {
+    padding-top: 10px;
     display: flex;
-    .play {
-        position: fixed;
-        width: 100%;
-        margin-left: calc($left-width + 10px);
-        height: $show-play-height;
-        width: calc(100% - 180px);
-        bottom: 0;
-        overflow: hidden;
+    .left {
+        width: 150px;
+    }
+    .right {
+        width: calc(100% - 150px);
     }
 }
 </style>

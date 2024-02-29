@@ -1,5 +1,5 @@
 <template>
-    <div>setting1</div>
+    <div class="container">Setting.vue</div>
 </template>
 
 <script  lang="ts" setup>
