@@ -52,7 +52,7 @@ const createWindow = () => {
         })
         let winsSize = win.getSize();
         let winsPosition = win.getPosition();
-        ipcMain.on("on-max-custom-event", (event, res) => {
+        ipcMain.on("on-max-custom-event", (_event, res) => {
             if (!res.winMax) {
                 winsSize = win.getSize();
                 winsPosition = win.getPosition();
