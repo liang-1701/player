@@ -11,7 +11,16 @@ export interface IElectronAPI {
     playStatetoLyric,
     playStateFromMain,
     timetoLyric,
-    timeFromMain
+    timeFromMain,
+    moveLyric,
+    getLyricPos,
+    nextSongToMain,
+    nextSongFromLyric,
+    prevSongToMain,
+    prevSongFromLyric,
+    changePlayStateToMain,
+    changePlayStateFromLyric,
+    setIgnoreMouseEvents
 }
 
 declare global {

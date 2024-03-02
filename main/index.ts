@@ -77,6 +77,16 @@ const createWindow = () => {
         win?.webContents.send("on-change-lyric-event");
     })
 
+    ipcMain.on("on-next-Song-event", () => {
+        win?.webContents.send("on-next-Song-main-event");
+    })
+    ipcMain.on("on-prev-Song-event", () => {
+        win?.webContents.send("on-prev-Song-main-event");
+    })
+    ipcMain.on("on-change-play-state-event", () => {
+        win?.webContents.send("on-change-play-state-main-event");
+    })
+
     // 修改referer
     session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
         const { requestHeaders } = overrideRequest(details)

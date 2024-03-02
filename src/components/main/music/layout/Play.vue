@@ -23,7 +23,7 @@
                 <go-start @click="playMusicStore.prevMuisc" theme="filled" size="24" fill="#333"/>
                 <play @click="changePlayState" :class="{'play-button-hide':musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
                 <pause-one @click="changePlayState" :class="{'play-button-hide':!musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
-                <go-end @click="playMusicStore.nextMuisc" theme="filled" size="24" fill="#333"/>
+                <go-end @click="playMusicStore.nextMusic" theme="filled" size="24" fill="#333"/>
                 <music-list @click.stop="playQueueOpen=!playQueueOpen;scrollPlaying()" theme="filled" size="24" fill="#333"/>
                 <span @click="musicEnevt.openLyric" class="lyric">词</span>
             </div>
@@ -108,6 +108,16 @@ eventBus.on("audio-time-update", (data) => {
     window.api.timetoLyric(currentTime.value, allTime);
 });
 
+window.api.nextSongFromLyric(() => {
+    playMusicStore.nextMusic();
+})
+window.api.prevSongFromLyric(() => {
+    playMusicStore.prevMuisc();
+})
+window.api.changePlayStateFromLyric(() => {
+    changePlayState();
+})
+
 const changeTime = () => {
     upProgress();
     eventBus.emit("audio-play-seek", currentTimeVal.value);
@@ -145,7 +155,7 @@ const changePlayState = () => {
 
 document.addEventListener("click", () =>{playQueueOpen.value = false;})
 
-eventBus.on("audio-play-next", playMusicStore.nextMuisc);
+eventBus.on("audio-play-next", playMusicStore.nextMusic);
 
 //音量改变
 const changeVolume = (payload: Event) => {

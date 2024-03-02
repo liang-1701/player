@@ -79,7 +79,7 @@ let playStore = defineStore("play", {
             }
         },
         // 下一首
-        nextMuisc() {
+        nextMusic() {
             let index = this.playQueue.findIndex(item => item.id == this.currPlaySong.id);
             if(++index < this.playQueue.length) {
                 this.play(this.playQueue[index]);

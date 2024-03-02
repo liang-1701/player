@@ -54,6 +54,43 @@ const timeFromMain = (callback: (currTime:any, allTime:any) => void) => {
     })
 }
 
+// 移动窗口
+const moveLyric = (pos:any) => {
+    ipcRenderer.send('on-move-lyric-event', pos);
+}
+
+// 下一首
+const nextSongToMain = (currTime:any, allTime:any) => {
+    ipcRenderer.send('on-next-Song-event', currTime, allTime);
+}
+const nextSongFromLyric = (callback: () => void) => {
+    ipcRenderer.on('on-next-Song-main-event', () => {
+        callback();
+    })
+}
+// 上一首
+const prevSongToMain = (currTime:any, allTime:any) => {
+    ipcRenderer.send('on-prev-Song-event', currTime, allTime);
+}
+const prevSongFromLyric = (callback: () => void) => {
+    ipcRenderer.on('on-prev-Song-main-event', () => {
+        callback();
+    })
+}
+// 上一首
+const changePlayStateToMain = (currTime:any, allTime:any) => {
+    ipcRenderer.send('on-change-play-state-event', currTime, allTime);
+}
+const changePlayStateFromLyric = (callback: () => void) => {
+    ipcRenderer.on('on-change-play-state-main-event', () => {
+        callback();
+    })
+}
+
+const setIgnoreMouseEvents = (lock:boolean) => {
+    ipcRenderer.send('on-ignore-mouse-event', lock);
+}
+
 contextBridge.exposeInMainWorld('api', {
     winClose,
     winMax,
@@ -65,5 +102,13 @@ contextBridge.exposeInMainWorld('api', {
     playStatetoLyric,
     playStateFromMain,
     timetoLyric,
-    timeFromMain
+    timeFromMain,
+    moveLyric,
+    nextSongToMain,
+    nextSongFromLyric,
+    prevSongToMain,
+    prevSongFromLyric,
+    changePlayStateToMain,
+    changePlayStateFromLyric,
+    setIgnoreMouseEvents
 })

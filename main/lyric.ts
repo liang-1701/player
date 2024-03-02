@@ -1,6 +1,5 @@
-import { BrowserWindow, ipcMain } from "electron";
+import { BrowserWindow, ipcMain, screen } from "electron";
 import path from "path";
-import windowStateKeeper from "electron-window-state";
 
 let lyricWindow: BrowserWindow | null = null;
 
@@ -36,19 +35,40 @@ ipcMain.on("on-play-time-event", (_event, currTime:any, allTime:any) => {
     }
 })
 
+// 移动窗口位置
+ipcMain.on("on-move-lyric-event", (_event, pos) => {
+    if (lyricWindow && !lyricWindow.isDestroyed()) {
+        if(pos.lockState) { return }
+        lyricWindow?.setBounds(
+            {
+                x: pos.dx,
+                y: pos.dy,
+                width: winSize.width,
+                height: winSize.height
+            }
+        )
+    }
+})
+
+// 穿透
+ipcMain.on("on-ignore-mouse-event", (_event, lock) => {
+    if (lyricWindow && !lyricWindow.isDestroyed()) {
+        if(lock) { 
+            lyricWindow.setIgnoreMouseEvents(true, {forward:true});
+        }else {
+             lyricWindow.setIgnoreMouseEvents(false);   
+         }
+    }
+})
+
+const winSize = { width: 1000, height: 100 };
+
 const createLyricWindow = (playState:boolean, lyric:any) => {
-    const lyricWinState = windowStateKeeper({
-        defaultWidth: 1000,
-        defaultHeight: 10,
-    })
-    
     lyricWindow = new BrowserWindow({
-        width: lyricWinState.width,
-        height: lyricWinState.height,
-        minWidth: 1000,
-        minHeight: 130,
-        x: lyricWinState.x,
-        y: lyricWinState.y,
+        width: winSize.width,
+        height: winSize.height,
+        x: (screen.getPrimaryDisplay().workAreaSize.width - winSize.width)/2,
+        y: screen.getPrimaryDisplay().workAreaSize.height - winSize.height - 50,
         resizable: false,
         frame: false,
         show: false,
@@ -60,7 +80,7 @@ const createLyricWindow = (playState:boolean, lyric:any) => {
             nodeIntegration: true, // 渲染进程使用Node API
             sandbox: false,  // 开启沙盒则preload脚本被禁用，所以设为false
             preload: path.join(__dirname, "./preload.js"), // 需要引用js文件
-            webSecurity: false
+            webSecurity: false,
         },
     });
     

@@ -40,7 +40,7 @@
                     <go-start @click="playMusicStore.prevMuisc" theme="filled" size="24" fill="#333"/>
                     <play @click="playSongEvent.changePlayState" :class="{'play-button-hide':musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
                     <pause-one @click="playSongEvent.changePlayState" :class="{'play-button-hide':!musicEnevt.playState.value}" theme="filled" size="34" fill="#333"/>
-                    <go-end @click="playMusicStore.nextMuisc" theme="filled" size="24" fill="#333"/>
+                    <go-end @click="playMusicStore.nextMusic" theme="filled" size="24" fill="#333"/>
                     <music-list @click.stop="playSongEvent.playQueueOpen.value=!playSongEvent.playQueueOpen.value;playSongEvent.scrollPlaying()" theme="filled" size="24" fill="#333"/>
                     <span @click="musicEnevt.openLyric" class="lyric">词</span>
                 </div>
