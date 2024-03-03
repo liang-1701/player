@@ -16,6 +16,7 @@ let menuStore = defineStore("menu", {
             albumDetail: {} as Album, // 歌手详细
             singerSquare : Array<SingerSquare>(), // 歌手广场
             singers: Array<Singer>(), // 所有歌手
+            search: {} as any, // 搜索内容
         };
     },
     actions: {
@@ -41,12 +42,6 @@ let menuStore = defineStore("menu", {
             const method = await getClassName(this.currentPlat.file, "getSquareDetail");
             const result = await method!(id, group, data);
             this.squareDetail = result!.squareDetail;
-        },
-        // 搜索
-        async searchSongs(keywords: string) {
-            const method = await getClassName(this.currentPlat.file, "searchSongs");
-            const result = await method!(keywords);
-            console.log(result);
         },
         // 歌手详情
         async getSingerDetail(singer: Singer, page: number) {
@@ -96,7 +91,13 @@ let menuStore = defineStore("menu", {
             const method = await getClassName(this.currentPlat.file, "getSingersByTypes");
             const result = await method!(data);
             this.singers = result.singers;
-        }
+        },
+        // 搜索
+        async searchSongs(keywords: string) {
+            const method = await getClassName(this.currentPlat.file, "searchSongs");
+            const result = await method!(keywords);
+            this.search.songs = result.songs;
+        },
     },
     getters: {
         

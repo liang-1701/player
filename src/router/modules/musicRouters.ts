@@ -84,6 +84,15 @@ export const routes = [
                 meta: {
                     title: '专辑详情',
                 },
+            },
+            {
+                path: '/searchMusic',
+                name: 'searchMusic',
+                component: () => import('@/components/main/music/layout/SearchMusic.vue'),
+                meta: {
+                    title: '搜索',
+                },
+                
             }
         ]
     }

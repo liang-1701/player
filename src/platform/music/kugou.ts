@@ -266,7 +266,7 @@ export class KuGouMusicApi {
             'dfid': '0jI0v83wGKCQ2PXgTX14074K',
             'keyword': keyword,
             'page': '1',
-            'pagesize': '300',
+            'pagesize': '20',
             'bitrate': '0',
             'isfuzzy': '0',
             'inputtype': '0',
@@ -280,14 +280,24 @@ export class KuGouMusicApi {
         }
         const res = await get('https://complexsearch.kugou.com/v2/search/song', getParamsAndSign(reqBody)) as any;
         console.log(res);
+        let songs: Array<Song> = [];
+        res.data.lists.forEach((item:any) => {
+            songs.push({
+                id: item.ID,
+                name: item.SongName,
+                time: formatTime(item.Duration),
+                album: {id: item.AlbumID , name: item.AlbumName},
+                singers: item.Singers.map((s: { id: any, name: any}) => ({id: s.id, name: s.name})),
+                chl: CHL
+            })
+        });
+        return { songs };
         
     }
     
     // 歌手详情
     static getSingerDetail = async (singer: Singer, page: number) => {
-        console.log(singer);
         if(!singer.id) {
-            console.log("歌手id为空");
             const singerHtml = await get(singer.data!.html, null) as any;
             const parser = new DOMParser();
             const doc = parser.parseFromString(singerHtml, "text/html");
@@ -298,7 +308,6 @@ export class KuGouMusicApi {
                     globalData = Function(s.textContent + ' return {singerID}')();
                 }
             })
-            console.log(globalData);
             singer.id = globalData.singerID;
         }
         const data = {

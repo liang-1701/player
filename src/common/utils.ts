@@ -10,8 +10,11 @@ export const formatTime = (seconds: number) => {
 
 // 分:秒 ------ 秒
 export function toSeconds(seconds: string): number {
-    const time = seconds.split(':').map(Number);
-    return time[0] * 60 + time[1];
+    if(seconds && seconds.includes(':')) {
+        const time = seconds.split(':').map(Number);
+        return time[0] * 60 + time[1];
+    }
+    return 0;
 }
 
 // 分:秒.毫秒 ------ 秒

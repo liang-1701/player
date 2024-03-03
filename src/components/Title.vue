@@ -6,7 +6,7 @@
             <right-c @click="$router.forward()" theme="outline" size="22" fill="#333" :strokeWidth="2" />
         </div>
         <div class="search">
-            <el-input class="search-text no-drag" v-model="searchText" placeholder="搜一搜想听的" clearable @change="musicStore.searchSongs(searchText)"></el-input>
+            <el-input class="search-text no-drag" v-model="searchText" placeholder="搜一搜想听的" clearable @change="musicStore.searchSongs(searchText);$router.push('/searchMusic')"></el-input>
         </div>
         <div class="win-control no-drag">
             <Setting @click="$router.push('/setting')" theme="outline" size="20" fill="#333" :strokeWidth="2"/>

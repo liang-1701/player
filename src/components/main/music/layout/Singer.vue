@@ -39,7 +39,6 @@ const current = ref<string[]>([]);
 
 const getSingersByTypes = async (index:any, val:any) => {
     current.value[index] = val;
-    console.log(current.value);
     musicStore.getSingersByTypes(current.value);
 }
 
