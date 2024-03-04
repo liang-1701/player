@@ -11,6 +11,7 @@
     "dependencies": {
         "@icon-park/vue-next": "^1.4.2",
         "axios": "^1.6.2",
+        "colorthief": "^2.4.0",
         "crypto-js": "^4.1.1",
         "electron-window-state": "^5.0.3",
         "element-plus": "^2.4.2",

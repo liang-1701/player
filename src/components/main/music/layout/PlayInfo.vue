@@ -1,5 +1,5 @@
 <template>
-    <div class="container-info" :class="{show:playInfoShow}">
+    <div ref="bg" class="container-info" :class="{show:playInfoShow}">
         <div class="header">
             <div class="header no-drag">
                 <Up @click="close" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
@@ -19,7 +19,7 @@
                     </span>
                 </div>
                 <span @click="musicEnevt.getAlbum(playMusicStore.currPlaySong.album);close()" class="album"> {{ playMusicStore.currPlaySong.album?.name }} </span>
-                <img :src="playMusicStore.currPlaySong.img||musicbg" alt="">
+                <img ref="img" :src="playMusicStore.currPlaySong.img||musicbg" alt="" @load="loadImg">
             </div>
             <div class="lyrics" v-show="playMusicStore.currPlaySong.name" >
                 <ul>
@@ -60,10 +60,11 @@
 
 <script lang="ts" setup>
 import { Up, Minus, Close, MinusTheTop, Square, Play, PauseOne, GoStart, GoEnd, VolumeMute, VolumeSmall, VolumeNotice, MusicList } from '@icon-park/vue-next'
-import { inject, watch } from 'vue';
+import { inject, watch, ref } from 'vue';
 import playMusic from "@/store/modules/playMusic";
 import musicbg from '@/assets/imgs/musicbg.png'
 import { formatTime, msToSeconds } from '@/common/utils'
+import ColorThief from 'colorthief';
 
 defineProps(['playInfoShow']);
 const emit = defineEmits(['changePlayInfoShow']);
@@ -71,6 +72,19 @@ const winEnevt:any = inject('win-enevt');
 const musicEnevt:any = inject("music-enevt");
 const playSongEvent:any = inject('play-song-event');
 let playMusicStore = playMusic();
+const img = ref();
+const bg = ref();
+const colorThief = new ColorThief();
+
+const loadImg = async () => {
+    if(img.value.src !== playMusicStore.currPlaySong.img) return;
+    const colors = await colorThief.getPalette(img.value, 4);
+    const [c1, c2, c3, c4] = colors.map((e:any) => `rgb(${e[0]}, ${e[1]}, ${e[2]})`);
+    bg.value.style.setProperty('--c1', c1);
+    bg.value.style.setProperty('--c2', c2);
+    bg.value.style.setProperty('--c3', c3);
+    bg.value.style.setProperty('--c4', c4);
+}
 
 watch(
     () => playSongEvent.currentTime.value,
@@ -105,6 +119,7 @@ const close = () => {
     height: 100%;
     width: 100%;
     background-color: var(--bg-color);
+    background-image: linear-gradient(135deg, var(--c1), var(--c2), var(--c3), var(--c4));
     left: 0;
     top: -100%;
     border-radius: 10px;
