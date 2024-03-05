@@ -30,6 +30,7 @@ export class KuGouMusicApi {
                 const categoryItem = {
                     categoryName: el.tag_name,
                     categoryId: el.tag_id,
+                    chl: CHL
                 }
                 categoriesDetail.push(categoryItem);
                 items.push(categoryItem);
@@ -37,7 +38,8 @@ export class KuGouMusicApi {
             categories.push({
                 groupId: item.tag_id,
                 name: item.tag_name,
-                categoryItems: items
+                categoryItems: items,
+                chl: CHL
             })
         });
         let others = [
@@ -45,16 +47,19 @@ export class KuGouMusicApi {
                 categoryId: 0,
                 categoryName: "推荐",
                 default: true,
+                chl: CHL
             },
             {
                 categoryId: "top",
                 categoryName: "排行榜",
+                chl: CHL
             }
         ]
         categories.unshift({
             groupId: -1,
             name: "精选",
-            categoryItems: others
+            categoryItems: others,
+            chl: CHL
         });
         categoriesDetail.unshift(...others);
         return { categories, categoriesDetail };
@@ -99,11 +104,13 @@ export class KuGouMusicApi {
                 imgUrl: item.imgurl.replace("{size}", 240),
                 title: item.specialname,
                 group: "other",
+                chl: CHL
             }
             items.push(squareItem);
         });
         let square: Square = {
             squareItems: items,
+            chl: CHL
         };
         if((res as any).data.total) {
             const page = {
@@ -140,11 +147,13 @@ export class KuGouMusicApi {
                 imgUrl: item.imgurl.replace("{size}", 240),
                 title: item.rankname,
                 group: "top",
+                chl: CHL
             }
             items.push(squareItem);
         });
         let square: Square = {
             squareItems: items,
+            chl: CHL
         };
         return { square };
     }
@@ -171,8 +180,8 @@ export class KuGouMusicApi {
                 id: item.album_audio_id,
                 name: item.songname,
                 time: formatTime(item.duration / 1000),
-                album: {id: item.album_id, name: item.album_name},
-                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240)})),
+                album: {id: item.album_id, name: item.album_name, chl: CHL},
+                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240), chl: CHL})),
                 chl: CHL
             })
         })
@@ -182,6 +191,7 @@ export class KuGouMusicApi {
             desc: globalData.specialInfo.intro,
             img: globalData.specialInfo.image,
             songs: songs,
+            chl: CHL
         };
         return { squareDetail }
     }
@@ -217,8 +227,8 @@ export class KuGouMusicApi {
                 id: item.album_audio_id,
                 name: item.songname,
                 time: formatTime(item.timelength / 1000),
-                album: {id: item.album_id, name: item.album_name, img: item.album_sizable_cover.replace("{size}", 240)},
-                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240)})),
+                album: {id: item.album_id, name: item.album_name, img: item.album_sizable_cover.replace("{size}", 240), chl: CHL},
+                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240), chl: CHL})),
                 chl: CHL
             })
         })
@@ -229,6 +239,7 @@ export class KuGouMusicApi {
             updateTime: info.rank_id_publish_date,
             img: info.imgurl.replace("{size}", 240),
             songs: songs,
+            chl: CHL
         };
         return { squareDetail }
     }
@@ -256,7 +267,6 @@ export class KuGouMusicApi {
     
     // 歌曲搜索
     static searchSongs = async (keyword: string) => {
-        console.log(keyword);
         const reqBody:Record<string, any> = {
             'srcappid': '2919',
             'clientver': '1000',
@@ -279,15 +289,14 @@ export class KuGouMusicApi {
             'appid': '1014',
         }
         const res = await get('https://complexsearch.kugou.com/v2/search/song', getParamsAndSign(reqBody)) as any;
-        console.log(res);
         let songs: Array<Song> = [];
         res.data.lists.forEach((item:any) => {
             songs.push({
                 id: item.ID,
                 name: item.SongName,
                 time: formatTime(item.Duration),
-                album: {id: item.AlbumID , name: item.AlbumName},
-                singers: item.Singers.map((s: { id: any, name: any}) => ({id: s.id, name: s.name})),
+                album: {id: item.AlbumID , name: item.AlbumName, chl: CHL},
+                singers: item.Singers.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
                 chl: CHL
             })
         });
@@ -297,7 +306,7 @@ export class KuGouMusicApi {
     
     // 歌手详情
     static getSingerDetail = async (singer: Singer, page: number) => {
-        if(!singer.id) {
+        if(singer.id === undefined || singer.id === null || singer.id === '') {
             const singerHtml = await get(singer.data!.html, null) as any;
             const parser = new DOMParser();
             const doc = parser.parseFromString(singerHtml, "text/html");
@@ -309,6 +318,13 @@ export class KuGouMusicApi {
                 }
             })
             singer.id = globalData.singerID;
+        }
+        if(!singer.img) {
+            const singerHtml = await get(`https://www.kugou.com/singer/info/${singer.id}/`, null) as any;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(singerHtml, "text/html");
+            const imgUrl = doc.querySelector(".sng_ins_1 .top img")?.getAttribute('_src');
+            singer.img = imgUrl || '';
         }
         const data = {
             "appid": 1001,
@@ -330,8 +346,8 @@ export class KuGouMusicApi {
                 id: item.album_audio_id,
                 name: item.audio_name,
                 time: formatTime(item.timelength / 1000),
-                album: {id: item.album_id, name: item.album_name},
-                singers: [{id: singer.id, name: item.author_name}],
+                album: {id: item.album_id, name: item.album_name, chl: CHL},
+                singers: [{id: singer.id, name: item.author_name, chl: CHL}],
                 chl: CHL
             })
         });
@@ -341,6 +357,7 @@ export class KuGouMusicApi {
             img: singer.img,
             songsTotal: res.total,
             recommend: recommend,
+            chl: CHL
         };
         return { singerDetail };
     }
@@ -367,8 +384,8 @@ export class KuGouMusicApi {
                 id: item.album_audio_id,
                 name: item.audio_name,
                 time: formatTime(item.timelength / 1000),
-                album: {id: item.album_id, name: item.album_name},
-                singers: [{id: singer.id, name: item.author_name}],
+                album: {id: item.album_id, name: item.album_name, chl: CHL},
+                singers: [{id: singer.id, name: item.author_name, chl: CHL}],
                 chl: CHL
             })
         });
@@ -388,7 +405,8 @@ export class KuGouMusicApi {
                 name: item.albumname,
                 img: item.img, // 封面
                 time: item.publish_time,  // 发行时间
-                singer: singer
+                singer: singer,
+                chl: CHL
             })
         });
         return { albums };
@@ -415,8 +433,8 @@ export class KuGouMusicApi {
                 id: item.album_audio_id,
                 name: item.songname,
                 time: formatTime(item.timelength / 1000),
-                album: {id: item.album_id, name: item.album_name},
-                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240)})),
+                album: {id: item.album_id, name: item.album_name, chl: CHL},
+                singers: item.authors.map((s: { author_id: any, author_name: any, sizable_avatar: any}) => ({id: s.author_id, name: s.author_name, img: s.sizable_avatar.replace("{size}", 240), chl: CHL})),
                 chl: CHL,  // 渠道
             })
         });
@@ -428,6 +446,7 @@ export class KuGouMusicApi {
             desc: desc,  // 描述
             singer: album.singer || songs[0].singers[0],  // 歌手
             songs: songs,
+            chl: CHL
         };
         return { albumDetail };
     }
@@ -446,17 +465,19 @@ export class KuGouMusicApi {
                 singerCategory.push({
                     id: match[1],
                     name: item.querySelector("a").textContent,
+                    chl: CHL
                 })
             }else {
                 singerCategory.push({
                     id: "all",
                     name: item.querySelector("a").textContent,
-                    default: true
+                    default: true,
+                    chl: CHL
                 })
             }
         })
         let singerSquare : Array<SingerSquare> = [];
-        singerSquare.push({categories: singerCategory})
+        singerSquare.push({categories: singerCategory, chl: CHL})
         const list = doc.querySelectorAll("#list_head li");
         let singers: Array<Singer> = [];
         list.forEach((item: any) => {
@@ -464,7 +485,8 @@ export class KuGouMusicApi {
                 id: '',
                 name: item.querySelector('.pic').getAttribute("title"),
                 img: item.querySelector('img').getAttribute("_src"),  // 封面
-                data: {html: item.querySelector('.pic').getAttribute("href")}
+                data: {html: item.querySelector('.pic').getAttribute("href")},
+                chl: CHL
             })
         })
         return { singerSquare, singers };
@@ -482,7 +504,8 @@ export class KuGouMusicApi {
                 id: '',
                 name: item.querySelector('.pic').getAttribute("title"),
                 img: item.querySelector('img').getAttribute("_src"),  // 封面
-                data: {html: item.querySelector('.pic').getAttribute("href")}
+                data: {html: item.querySelector('.pic').getAttribute("href")},
+                chl: CHL
             })
         })
         return { singers };

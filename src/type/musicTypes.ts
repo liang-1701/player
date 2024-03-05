@@ -3,6 +3,7 @@ export interface Category {
     groupId: number
     name: string,
     categoryItems: Array<CategoryItem>,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -11,6 +12,7 @@ export interface CategoryItem {
     categoryName:string,
     categoryId: number|string,
     default?: boolean,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -18,6 +20,7 @@ export interface CategoryItem {
 export interface Square {
     squareItems: Array<SquareItem>,
     page?: Page,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -28,6 +31,7 @@ export interface SquareItem {
     imgUrl: string,
     title: string,
     group: string,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -39,6 +43,7 @@ export interface SquareDetail {
     img: string,
     updateTime?: string,
     songs: Array<Song>,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -65,6 +70,7 @@ export interface Album {
     desc?: string,  // 描述
     singer?: Singer,  // 歌手
     songs?: Array<Song>,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -73,11 +79,13 @@ export interface Singer {
     id: string,
     name: string,
     img?: string,  // 封面
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
 export interface SingerSquare {
     categories: Array<SingerCategory>,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -85,6 +93,7 @@ export interface SingerCategory {
     id: string,
     name: string,
     default?: boolean,
+    chl: number,  // 渠道
     data?: Record<string, any>
 }
 
@@ -95,6 +104,7 @@ export interface SingerDetail {
     songsTotal: number,  // 歌曲总数
     recommend?: Array<Song>,
     songs?: Array<Song>,
+    chl: number,  // 渠道
     albums?: Array<Album>,
 }
 

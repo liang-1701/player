@@ -8,6 +8,7 @@ let menuStore = defineStore("menu", {
         return {
             menus: routes.find(item => item.name=='music')?.children.filter(item => item.show)[0],
             currentPlat: {} as any,
+            currSearchPlat: {} as any,
             categories:Array<Category>(),  // 所有分类
             categoriesDetail: Array<CategoryItem>(),  // 详细类别
             square: {} as Square,  // 歌单广场
@@ -45,7 +46,9 @@ let menuStore = defineStore("menu", {
         },
         // 歌手详情
         async getSingerDetail(singer: Singer, page: number) {
-            const method = await getClassName(this.currentPlat.file, "getSingerDetail");
+            console.log('getSingerDetail', singer);
+            const plat = this.menus!.meta.platform!.find((item:any) => item.id == singer.chl);
+            const method = await getClassName(plat!.file, "getSingerDetail");
             const result = await method!(singer, page);
             if (page === 1) {
                 this.singerDetail = result.singerDetail;
@@ -55,7 +58,8 @@ let menuStore = defineStore("menu", {
         },
         // 通过歌手获得歌曲
         async getSongsBySinger(singer: Singer, page: number) {
-            const method = await getClassName(this.currentPlat.file, "getSongsBySinger");
+            const plat = this.menus!.meta.platform!.find((item:any) => item.id == singer.chl);
+            const method = await getClassName(plat!.file, "getSongsBySinger");
             const result = await method!(singer, page);
             if (page === 1) {
                 this.singerDetail.songs = result.songs;
@@ -65,7 +69,8 @@ let menuStore = defineStore("menu", {
         },
         // 通过歌手获得专辑
         async getAlbumsBySinger(singer: Singer, page: number) {
-            const method = await getClassName(this.currentPlat.file, "getAlbumsBySinger");
+            const plat = this.menus!.meta.platform!.find((item:any) => item.id == singer.chl);
+            const method = await getClassName(plat!.file, "getAlbumsBySinger");
             const result = await method!(singer, page);
             if (page === 1) {
                 this.singerDetail.albums = result.albums;
@@ -75,7 +80,8 @@ let menuStore = defineStore("menu", {
         },
         // 专辑详情
         async getAlbumDetail(album: Album) {
-            const method = await getClassName(this.currentPlat.file, "getAlbumDetail");
+            const plat = this.menus!.meta.platform!.find((item:any) => item.id == album.chl);
+            const method = await getClassName(plat!.file, "getAlbumDetail");
             const result = await method!(album);
             this.albumDetail = result.albumDetail;
         },
@@ -94,7 +100,7 @@ let menuStore = defineStore("menu", {
         },
         // 搜索
         async searchSongs(keywords: string) {
-            const method = await getClassName(this.currentPlat.file, "searchSongs");
+            const method = await getClassName(this.currSearchPlat.file, "searchSongs");
             const result = await method!(keywords);
             this.search.songs = result.songs;
         },

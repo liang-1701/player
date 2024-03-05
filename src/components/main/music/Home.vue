@@ -27,6 +27,7 @@ const getAlbum = (album: any) => {
 }
 
 const getSingerDetail = (singer:any) => {
+    console.log("getSingerDetail1111111", singer);
     musicStore.getSingerDetail(singer, 1);
     $router.push('/singerDetail')
 }

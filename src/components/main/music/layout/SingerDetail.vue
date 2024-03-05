@@ -66,7 +66,8 @@ const loader = ref(true);
 const getAlbums = async () => {
     const singer = {
             id: musicStore.singerDetail.id,
-            name: musicStore.singerDetail.name
+            name: musicStore.singerDetail.name,
+            chl: musicStore.singerDetail.chl
     }
     page.value = 1;
     await musicStore.getAlbumsBySinger(singer, page.value);
@@ -78,7 +79,8 @@ const getAlbums = async () => {
 const getSongsBySinger = async () => {
     const singer = {
             id: musicStore.singerDetail.id,
-            name: musicStore.singerDetail.name
+            name: musicStore.singerDetail.name,
+            chl: musicStore.singerDetail.chl
     }
     page.value = 1;
     await musicStore.getSongsBySinger(singer, page.value);
@@ -91,7 +93,8 @@ const ob = new IntersectionObserver(async (entries) => {
         if(entries[0].isIntersecting) {
             const singer = {
                 id: musicStore.singerDetail.id,
-                name: musicStore.singerDetail.name
+                name: musicStore.singerDetail.name,
+                chl: musicStore.singerDetail.chl
             }
             page.value += 1;
             if(active.value == 0) {
