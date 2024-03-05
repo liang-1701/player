@@ -266,7 +266,7 @@ export class KuGouMusicApi {
     }
     
     // 歌曲搜索
-    static searchSongs = async (keyword: string) => {
+    static searchSongs = async (keyword: string, page: number) => {
         const reqBody:Record<string, any> = {
             'srcappid': '2919',
             'clientver': '1000',
@@ -275,7 +275,7 @@ export class KuGouMusicApi {
             'uuid': 'caaca808a19636095e2c88dc39577a12',
             'dfid': '0jI0v83wGKCQ2PXgTX14074K',
             'keyword': keyword,
-            'page': '1',
+            'page': page,
             'pagesize': '20',
             'bitrate': '0',
             'isfuzzy': '0',
@@ -301,6 +301,46 @@ export class KuGouMusicApi {
             })
         });
         return { songs };
+        
+    }
+
+    // 专辑搜索
+    static searchSpecials = async (keyword: string, page: number) => {
+        const reqBody:Record<string, any> = {
+            'srcappid': '2919',
+            'clientver': '1000',
+            'clienttime': '1708433791286',
+            'mid': 'caaca808a19636095e2c88dc39577a12',
+            'uuid': 'caaca808a19636095e2c88dc39577a12',
+            'dfid': '0jI0v83wGKCQ2PXgTX14074K',
+            'keyword': keyword,
+            'page': page,
+            'pagesize': '20',
+            'bitrate': '0',
+            'isfuzzy': '0',
+            'inputtype': '0',
+            'platform': 'WebFilter',
+            'userid': '0',
+            'iscorrection': '1',
+            'privilege_filter': '0',
+            'filter': '10',
+            'token': '',
+            'appid': '1014',
+        }
+        const res = await get('https://complexsearch.kugou.com/v1/search/special', getParamsAndSign(reqBody)) as any;
+        console.log(res);
+        let specials: Array<SquareItem> = [];
+        res.data.lists.forEach((item:any) => {
+            const squareItem : SquareItem = {
+                id: item.specialid,
+                imgUrl: item.img,
+                title: item.specialname,
+                group: "other",
+                chl: CHL
+            }
+            specials.push(squareItem);
+        });
+        return { specials };
         
     }
     

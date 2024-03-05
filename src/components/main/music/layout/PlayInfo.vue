@@ -78,12 +78,13 @@ const colorThief = new ColorThief();
 
 const loadImg = async () => {
     if(img.value.src !== playMusicStore.currPlaySong.img) return;
-    const colors = await colorThief.getPalette(img.value, 4);
-    const [c1, c2, c3, c4] = colors.map((e:any) => `rgb(${e[0]}, ${e[1]}, ${e[2]})`);
+    const colors = await colorThief.getPalette(img.value, 5);
+    const [c1, c2, c3, c4, c5] = colors.map((e:any) => `rgb(${e[0]}, ${e[1]}, ${e[2]})`);
     bg.value.style.setProperty('--c1', c1);
     bg.value.style.setProperty('--c2', c2);
     bg.value.style.setProperty('--c3', c3);
     bg.value.style.setProperty('--c4', c4);
+    bg.value.style.setProperty('--c5', c5);
 }
 
 watch(
@@ -119,7 +120,7 @@ const close = () => {
     height: 100%;
     width: 100%;
     background-color: var(--bg-color);
-    background-image: linear-gradient(135deg, var(--c1), var(--c2), var(--c3), var(--c4));
+    background-image: linear-gradient(135deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5));
     left: 0;
     top: -100%;
     border-radius: 10px;

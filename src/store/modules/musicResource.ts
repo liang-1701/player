@@ -98,11 +98,49 @@ let menuStore = defineStore("menu", {
             const result = await method!(data);
             this.singers = result.singers;
         },
-        // 搜索
-        async searchSongs(keywords: string) {
+        // 搜索歌曲
+        async searchSongs(keywords: string, page: number) {
             const method = await getClassName(this.currSearchPlat.file, "searchSongs");
-            const result = await method!(keywords);
-            this.search.songs = result.songs;
+            const result = await method!(keywords, page);
+            this.search.keywords = keywords;
+            if (page === 1) {
+                this.search.songs = result.songs;
+            }else {
+                this.search.songs?.push(...result.songs);
+            }
+        },
+        // 搜索歌单
+        async searchSpecials(keywords: string, page: number) {
+            const method = await getClassName(this.currSearchPlat.file, "searchSpecials");
+            const result = await method!(keywords, page);
+            this.search.keywords = keywords;
+            if (page === 1) {
+                this.search.specials = result.specials;
+            }else {
+                this.search.specials?.push(...result.specials);
+            }
+        },
+        // 搜索歌手
+        async searchSingers(keywords: string, page: number) {
+            const method = await getClassName(this.currSearchPlat.file, "searchSingers");
+            const result = await method!(keywords, page);
+            this.search.keywords = keywords;
+            if (page === 1) {
+                this.search.singers = result.singers;
+            }else {
+                this.search.singers?.push(...result.singers);
+            }
+        },
+        // 搜索专辑
+        async searchAlbums(keywords: string, page: number) {
+            const method = await getClassName(this.currSearchPlat.file, "searchAlbums");
+            const result = await method!(keywords, page);
+            this.search.keywords = keywords;
+            if (page === 1) {
+                this.search.albums = result.albums;
+            }else {
+                this.search.albums?.push(...result.albums);
+            }
         },
     },
     getters: {

@@ -32,7 +32,7 @@ const winEnevt:any = inject('win-enevt')
 const search = () => { // 搜索
     if(searchText.value) {
         musicStore.currSearchPlat=musicStore.currentPlat;
-        musicStore.searchSongs(searchText.value);
+        musicStore.searchSongs(searchText.value, 1);
         $router.push('/searchMusic');
     }
 }

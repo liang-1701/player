@@ -5,10 +5,10 @@
             {{ item.name }}</span>
         </div>
         <div class="category">
-            <span @click="showCategory=0" :class="{'active':showCategory==0}">歌曲</span>
-            <span @click="showCategory=1" :class="{'active':showCategory==1}">歌单</span>
-            <span @click="showCategory=2" :class="{'active':showCategory==2}">歌手</span>
-            <span @click="showCategory=3" :class="{'active':showCategory==3}">专辑</span>
+            <span @click="showCategory=0;musicStore.searchSongs(musicStore.search.keywords, page);" :class="{'active':showCategory==0}">歌曲</span>
+            <span @click="showCategory=1;musicStore.searchSpecials(musicStore.search.keywords, page);" :class="{'active':showCategory==1}">歌单</span>
+            <span @click="showCategory=2;musicStore.searchSingers(musicStore.search.keywords, page);" :class="{'active':showCategory==2}">歌手</span>
+            <span @click="showCategory=3;musicStore.searchAlbums(musicStore.search.keywords, page);" :class="{'active':showCategory==3}">专辑</span>
         </div>
         <ul class="songs" v-show="showCategory==0">
             <li v-for="(item, index) in musicStore.search.songs" :key="item.id" :class="{playing:item.id==playMusicStore.currPlaySong.id}">
@@ -31,9 +31,17 @@
                 <div class="time">{{ item.time }}</div>
             </li>
         </ul>
-        <ul class="squares" v-show="showCategory==1">
-            歌单
-        </ul>
+        <div class="squares" v-show="showCategory==1">
+            <div class="special" v-for="item in musicStore.search.specials" @click="musicStore.getSquareDetail(item.id, item.group, item.data);$router.push('/squareDetail');">
+                <div class="img" >
+                    <img v-lazy="item.imgUrl" @load="">
+                    <div class="cover">
+                        <play theme="filled" size="40" fill="#333"/>
+                    </div>
+                </div>
+                <div class="title">{{ item.title }}</div>
+            </div>
+        </div>
         <ul class="singers" v-show="showCategory==2">
             歌手
         </ul>
@@ -44,7 +52,7 @@
 </template>
 
 <script  lang="ts" setup>
-import { PlayOne, Pause, Plus } from '@icon-park/vue-next'
+import { PlayOne, Pause, Plus, Play } from '@icon-park/vue-next'
 import musicResource from "@/store/modules/musicResource";
 import playMusic from "@/store/modules/playMusic";
 import { inject, ref } from "vue";
@@ -53,6 +61,7 @@ let musicStore = musicResource();
 let playMusicStore = playMusic();
 const musicEnevt:any = inject("music-enevt");
 const showCategory = ref(0);
+const page = ref(1);
 
 const changePlat = (id:string) => {
     const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == id);
@@ -178,6 +187,56 @@ const changePlat = (id:string) => {
             .time {
                 width: 60px;
             }
+        }
+    }
+    .special {
+        display: inline-block;
+        margin: 20px;
+        width: 125px;
+        height: 170px;
+        border-radius: 5px;
+        box-shadow:  0 0 6px #c5c5c5, 0 0 6px #ffffff;
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+        &:hover {
+            transform: scale(1.1);
+        }
+        .img {
+            position: relative;
+            width: 125px;
+            height: 125px;
+            .cover {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: rgba(#a9a6a6, 0.6);
+                visibility: hidden;
+            }
+            &:hover .cover {
+                visibility: visible;
+            }
+            .cover > *:hover :deep(path:first-child) {
+                fill: var(--icon-color-hover);
+                stroke: var(--icon-color-hover);
+            }
+            img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .title {
+            overflow: hidden;
+            font-size: 12px;
+            margin: 5px 2px 0 2px;
+        }
+        .title:hover {
+            color: var(--text-color-hover);
         }
     }
 }
