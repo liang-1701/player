@@ -79,7 +79,9 @@ const colorThief = new ColorThief();
 const loadImg = async () => {
     if(img.value.src !== playMusicStore.currPlaySong.img) return;
     const colors = await colorThief.getPalette(img.value, 5);
-    const [c1, c2, c3, c4, c5] = colors.map((e:any) => `rgb(${e[0]}, ${e[1]}, ${e[2]})`);
+    // const [c1, c2, c3, c4, c5] = colors.map((e:any) => `rgb(${e[0]}, ${e[1]}, ${e[2]})`);
+    const [c1, c2, c3, c4, c5] = colors.map((e:any) => `${e[0]}, ${e[1]}, ${e[2]}`);
+    console.log(c1);
     bg.value.style.setProperty('--c1', c1);
     bg.value.style.setProperty('--c2', c2);
     bg.value.style.setProperty('--c3', c3);
@@ -120,13 +122,45 @@ const close = () => {
     height: 100%;
     width: 100%;
     background-color: var(--bg-color);
-    background-image: linear-gradient(135deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5));
+    // background-image: linear-gradient(135deg, var(--c1), var(--c2), var(--c3), var(--c4), var(--c5));
     left: 0;
     top: -100%;
     border-radius: 10px;
     transition: all 0.3s;
     display: flex;
     flex-direction: column;
+    & {
+        background-image: 
+                radial-gradient(closest-side, rgba(var(--c1), 1), rgba(var(--c1), 0)),
+                radial-gradient(closest-side, rgba(var(--c2), 1), rgba(var(--c2), 0)),
+                radial-gradient(closest-side, rgba(var(--c3), 1), rgba(var(--c3), 0)),
+                radial-gradient(closest-side, rgba(var(--c4), 1), rgba(var(--c4), 0)),
+                radial-gradient(closest-side, rgba(var(--c5), 1), rgba(var(--c5), 0));
+            background-size: 
+                130vmax 130vmax,
+                80vmax 80vmax,
+                90vmax 90vmax,
+                110vmax 110vmax,
+                90vmax 90vmax;
+            background-position:
+                -80vmax -80vmax,
+                60vmax -30vmax,
+                10vmax 10vmax,
+                -30vmax -10vmax,
+                50vmax 50vmax;
+            background-repeat: no-repeat;
+    }
+    &::after {
+            content: '';
+            display: block;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: -100%;
+            left: 0;
+            backdrop-filter: blur(490px);
+            z-index: -1;
+    }
     .header {
         height: 50px;
         display: flex;
@@ -141,6 +175,9 @@ const close = () => {
         }
     }
     &.show {
+        top: 0;
+    }
+    &.show::after {
         top: 0;
     }
     > * {
