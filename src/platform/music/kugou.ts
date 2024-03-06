@@ -328,7 +328,6 @@ export class KuGouMusicApi {
             'appid': '1014',
         }
         const res = await get('https://complexsearch.kugou.com/v1/search/special', getParamsAndSign(reqBody)) as any;
-        console.log(res);
         let specials: Array<SquareItem> = [];
         res.data.lists.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -341,6 +340,84 @@ export class KuGouMusicApi {
             specials.push(squareItem);
         });
         return { specials };
+        
+    }
+
+    // 歌手搜索
+    static searchSingers = async (keyword: string, page: number) => {
+        const reqBody:Record<string, any> = {
+            'srcappid': '2919',
+            'clientver': '1000',
+            'clienttime': '1708433791286',
+            'mid': 'caaca808a19636095e2c88dc39577a12',
+            'uuid': 'caaca808a19636095e2c88dc39577a12',
+            'dfid': '0jI0v83wGKCQ2PXgTX14074K',
+            'keyword': keyword,
+            'page': page,
+            'pagesize': '20',
+            'bitrate': '0',
+            'isfuzzy': '0',
+            'inputtype': '0',
+            'platform': 'WebFilter',
+            'userid': '0',
+            'iscorrection': '1',
+            'privilege_filter': '0',
+            'filter': '10',
+            'token': '',
+            'appid': '1014',
+        }
+        const res = await get('https://complexsearch.kugou.com/v1/search/author', getParamsAndSign(reqBody)) as any;
+        let singers: Array<Singer> = [];
+        res.data.lists.forEach((item:any) => {
+            const singer : Singer = {
+                id: item.AuthorId,
+                name: item.AuthorName,
+                img: item.Avatar,  // 封面
+                chl: CHL
+            }
+            singers.push(singer);
+        });
+        return { singers };
+        
+    }
+
+    // 专辑搜索
+    static searchAlbums = async (keyword: string, page: number) => {
+        const reqBody:Record<string, any> = {
+            'srcappid': '2919',
+            'clientver': '1000',
+            'clienttime': '1708433791286',
+            'mid': 'caaca808a19636095e2c88dc39577a12',
+            'uuid': 'caaca808a19636095e2c88dc39577a12',
+            'dfid': '0jI0v83wGKCQ2PXgTX14074K',
+            'keyword': keyword,
+            'page': page,
+            'pagesize': '20',
+            'bitrate': '0',
+            'isfuzzy': '0',
+            'inputtype': '0',
+            'platform': 'WebFilter',
+            'userid': '0',
+            'iscorrection': '1',
+            'privilege_filter': '0',
+            'filter': '10',
+            'token': '',
+            'appid': '1014',
+        }
+        const res = await get('https://complexsearch.kugou.com/v1/search/album', getParamsAndSign(reqBody)) as any;
+        let albums: Array<Album> = [];
+        res.data.lists.forEach((item:any) => {
+            const album : Album = {
+                id: item.albumid,
+                name: item.albumname,
+                img: item.img, // 封面
+                time: item.publish_time,  // 发行时间
+                singer: item.singers.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
+                chl: CHL
+            }
+            albums.push(album);
+        });
+        return { albums };
         
     }
     

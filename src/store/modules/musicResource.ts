@@ -46,7 +46,6 @@ let menuStore = defineStore("menu", {
         },
         // 歌手详情
         async getSingerDetail(singer: Singer, page: number) {
-            console.log('getSingerDetail', singer);
             const plat = this.menus!.meta.platform!.find((item:any) => item.id == singer.chl);
             const method = await getClassName(plat!.file, "getSingerDetail");
             const result = await method!(singer, page);
