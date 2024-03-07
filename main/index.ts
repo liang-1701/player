@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session } from "electron";
+import { app, BrowserWindow, ipcMain, session, Menu } from "electron";
 import path from "path";
 import windowStateKeeper from "electron-window-state";
 import electronDevtoolsInstaller, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -145,6 +145,8 @@ const overrideRequest = (details: Electron.OnBeforeSendHeadersListenerDetails) =
 
 // Electron会在初始化完成并且准备好创建浏览器窗口时调用这个方法
 app.on("ready", () => {
+    const mainMenu = Menu.buildFromTemplate([]);
+    Menu.setApplicationMenu(mainMenu);
     createWindow();
 });
 
