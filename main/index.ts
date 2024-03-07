@@ -47,11 +47,8 @@ const createWindow = () => {
 
     // 页面准备好了再加载
     win.on("ready-to-show", () => {
-        win!.show();
-    });
-
-    win.webContents.on('did-finish-load', () => {
         win!.webContents.send('platform-event', process.platform);
+        win!.show();
     });
 
     win.on("closed", () => {
