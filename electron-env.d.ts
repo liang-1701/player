@@ -4,6 +4,7 @@ export interface IElectronAPI {
     winClose,
     winMax,
     winMin,
+    getPlatform,
     openLyric,
     initDataFromMain,
     closeLyric,

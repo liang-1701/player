@@ -1,12 +1,16 @@
 <template>
     <div ref="bg" class="container-info" :class="{show:playInfoShow}">
         <div class="header">
-            <div class="header no-drag">
+            <div class="header-win no-drag" v-if="winEnevt.plat.value!='darwin'">
                 <Up @click="close" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
                 <Minus @click="winEnevt.setMin()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
                 <Square @click="winEnevt.setMax()" v-if="!winEnevt.winMax.value" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
                 <MinusTheTop @click="winEnevt.setMax()" v-else theme="outline" size="20" fill="#333" :strokeWidth="2"/>
                 <Close  @click="winEnevt.setCls()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+            </div>
+            <div class="header-mac no-drag" v-else>
+                <TrafficLight></TrafficLight>
+                <Up @click="close" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
             </div>
         </div>
         <div class="body">
@@ -65,6 +69,7 @@ import playMusic from "@/store/modules/playMusic";
 import musicbg from '@/assets/imgs/musicbg.png'
 import { formatTime, msToSeconds } from '@/common/utils'
 import ColorThief from 'colorthief';
+import TrafficLight from "@/components/title/TrafficLight.vue";
 
 defineProps(['playInfoShow']);
 const emit = defineEmits(['changePlayInfoShow']);
@@ -81,7 +86,6 @@ const loadImg = async () => {
     const colors = await colorThief.getPalette(img.value, 5);
     // const [c1, c2, c3, c4, c5] = colors.map((e:any) => `rgb(${e[0]}, ${e[1]}, ${e[2]})`);
     const [c1, c2, c3, c4, c5] = colors.map((e:any) => `${e[0]}, ${e[1]}, ${e[2]}`);
-    console.log(c1);
     bg.value.style.setProperty('--c1', c1);
     bg.value.style.setProperty('--c2', c2);
     bg.value.style.setProperty('--c3', c3);
@@ -163,15 +167,24 @@ const close = () => {
     }
     .header {
         height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: end;
         padding: 0 20px;
-        div > * {
-            padding: 3px 5px;
-            &:hover {
-                background-color: var(--header-bg-color-hover);
+        .header-win {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            > * {
+                padding: 3px 5px;
+                &:hover {
+                    background-color: var(--header-bg-color-hover);
+                }
             }
+        }
+        .header-mac {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: start;
         }
     }
     &.show {

@@ -12,6 +12,11 @@ const winMax = (value: any) => {
 const winMin = () => {
     ipcRenderer.send('on-min-custom-event');
 }
+const getPlatform = (callback: (platform:any) => void) => {
+    ipcRenderer.on('platform-event', (_event, platform:any) => {
+        callback(platform);
+    })
+}
 
 // 打开歌词面板
 const openLyric = (lyricOpen:boolean, playState:boolean, lyric:any) => {
@@ -95,6 +100,7 @@ contextBridge.exposeInMainWorld('api', {
     winClose,
     winMax,
     winMin,
+    getPlatform,
     openLyric,
     initDataFromMain,
     closeLyric,

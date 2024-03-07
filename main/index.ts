@@ -48,6 +48,10 @@ const createWindow = () => {
         win!.show();
     });
 
+    win.webContents.on('did-finish-load', () => {
+        win!.webContents.send('platform-event', process.platform);
+    });
+
     win.on("closed", () => {
         win = null
     });
