@@ -21,6 +21,8 @@ const createWindow = () => {
         show: false,
         frame: false,
         transparent: true,
+        titleBarStyle: 'hiddenInset',
+        trafficLightPosition: { x: 50, y: 20 },
         hasShadow: false,
         webPreferences: {
             // contextIsolation: false, // 是否开启隔离上下文

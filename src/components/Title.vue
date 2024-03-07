@@ -19,7 +19,6 @@
         </div>
         <div class="mac-platform drag" v-else>
             <div class="win-control no-drag">
-                <TrafficLight></TrafficLight>
             </div>
             <div class="opt no-drag">
                 <left-c @click="$router.back()" theme="outline" size="22" fill="#333" :strokeWidth="2" />
@@ -41,7 +40,6 @@ import { Setting, Minus, Close, MinusTheTop, Square, RightC, LeftC } from '@icon
 import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import musicResource from "@/store/modules/musicResource";
-import TrafficLight from "@/components/title/TrafficLight.vue";
 
 let musicStore = musicResource();
 let $router = useRouter();

@@ -9,7 +9,6 @@
                 <Close  @click="winEnevt.setCls()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
             </div>
             <div class="header-mac no-drag" v-else>
-                <TrafficLight></TrafficLight>
                 <Up @click="close" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
             </div>
         </div>
@@ -69,7 +68,6 @@ import playMusic from "@/store/modules/playMusic";
 import musicbg from '@/assets/imgs/musicbg.png'
 import { formatTime, msToSeconds } from '@/common/utils'
 import ColorThief from 'colorthief';
-import TrafficLight from "@/components/title/TrafficLight.vue";
 
 defineProps(['playInfoShow']);
 const emit = defineEmits(['changePlayInfoShow']);
@@ -170,6 +168,7 @@ const close = () => {
         padding: 0 20px;
         .header-win {
             height: 100%;
+            float: right;
             display: flex;
             align-items: center;
             justify-content: end;
@@ -181,7 +180,9 @@ const close = () => {
             }
         }
         .header-mac {
+            margin-left: 100px;
             height: 100%;
+            float: left;
             display: flex;
             align-items: center;
             justify-content: start;
