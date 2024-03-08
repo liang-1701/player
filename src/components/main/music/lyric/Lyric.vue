@@ -5,7 +5,7 @@
         <pause  v-show="playState&&!lockState" @click="changePlayState" theme="filled" size="20" fill="#333"/>
         <go-end v-show="!lockState" @click="nextSong" theme="filled" size="20" fill="#333"/>
         <span v-show="!lockState" class="split">|</span>
-        <home v-show="!lockState" theme="multi-color" size="20" :fill="['#333' ,'#333' ,'#333' ,'#333']"/>
+        <home @click="showMainWindow" v-show="!lockState" theme="multi-color" size="20" :fill="['#333' ,'#333' ,'#333' ,'#333']"/>
         <lock id="lock" @click="lockState=false;" v-show="lockState" theme="multi-color" size="20" :fill="['#333' ,'#333' ,'#333' ,'#333']"/>
         <unlock @click="lockState=true;" v-show="!lockState" theme="multi-color" size="20" :fill="['#333' ,'#333' ,'#333' ,'#333']"/>    
         <Close v-show="!lockState" @click="close" theme="outline" size="20" fill="#333"/>
@@ -38,6 +38,10 @@ const changePlayState = () => {
 window.api.timeFromMain((currTime:any, _allTime:any)=>{
     updateLyric(currTime);
 })
+
+const showMainWindow = () => {
+    window.api.showMainWindow();
+}
 
 const updateLyric = (currTime:number) => {
     for (let i = 0; i < lyrics.value.length; i++) {

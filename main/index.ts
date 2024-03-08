@@ -3,6 +3,7 @@ import path from "path";
 import windowStateKeeper from "electron-window-state";
 import electronDevtoolsInstaller, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import "./lyric";
+import { createTyay } from "./tary";
 
 const createWindow = () => {
     const winState = windowStateKeeper({
@@ -24,6 +25,7 @@ const createWindow = () => {
         titleBarStyle: 'hiddenInset',
         trafficLightPosition: { x: 50, y: 20 },
         hasShadow: false,
+        icon: path.join(__dirname, "/tary.png"),
         webPreferences: {
             // contextIsolation: false, // 是否开启隔离上下文
             nodeIntegration: true, // 渲染进程使用Node API
@@ -55,6 +57,9 @@ const createWindow = () => {
         win = null
     });
 
+    // 托盘图标
+    createTyay(app, win);
+
     ipcMain.on("on-close-custom-event", () => {
         win!.webContents.removeAllListeners();
         win!.close();
@@ -68,8 +73,15 @@ const createWindow = () => {
             winsPosition = win!.getPosition();
             win!.maximize();
         }else {
-            win!.setSize(winsSize[0], winsSize[1])
-            win!.setPosition(winsPosition[0], winsPosition[1])
+            win!.unmaximize();
+            win!.setBounds(
+                {
+                    x: winsPosition[0],
+                    y: winsPosition[1],
+                    width: winsSize[0],
+                    height: winsSize[1]
+                }
+            )
         }
     })
     ipcMain.on("on-min-custom-event", () => {
@@ -88,6 +100,9 @@ const createWindow = () => {
     })
     ipcMain.on("on-change-play-state-event", () => {
         win?.webContents.send("on-change-play-state-main-event");
+    })
+    ipcMain.on("on-show-win-event", () => {
+        win?.show();
     })
 
     // 修改referer

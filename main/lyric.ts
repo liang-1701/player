@@ -86,9 +86,9 @@ const createLyricWindow = (playState:boolean, lyric:any) => {
     
     // 如果打包了，渲染index.html
     if (process.env.NODE_ENV !== "development") {
-        lyricWindow.loadFile(path.join(__dirname, "./lyric.html"));
+        lyricWindow.loadFile(path.join(__dirname, "./page/lyric.html"));
     } else {
-        let url = "http://localhost:3000/lyric.html";
+        let url = "http://localhost:3000/page/lyric.html";
         lyricWindow.loadURL(url);
         // devTools独立窗口
         lyricWindow.webContents.openDevTools({mode: 'detach'});

@@ -21,7 +21,8 @@ export interface IElectronAPI {
     prevSongFromLyric,
     changePlayStateToMain,
     changePlayStateFromLyric,
-    setIgnoreMouseEvents
+    setIgnoreMouseEvents,
+    showMainWindow
 }
 
 declare global {

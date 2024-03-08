@@ -1,5 +1,5 @@
 import { createApp } from "vue";
-import Lyric from "./components/main/music/lyric/Lyric.vue";
+import Lyric from "@/components/main/music/lyric/Lyric.vue";
 import "normalize.css";
 import "@/css/font.scss";
 import '@/css/theme.scss'

@@ -96,6 +96,10 @@ const setIgnoreMouseEvents = (lock:boolean) => {
     ipcRenderer.send('on-ignore-mouse-event', lock);
 }
 
+const showMainWindow = () => {
+    ipcRenderer.send('on-show-win-event');
+}
+
 contextBridge.exposeInMainWorld('api', {
     winClose,
     winMax,
@@ -116,5 +120,6 @@ contextBridge.exposeInMainWorld('api', {
     prevSongFromLyric,
     changePlayStateToMain,
     changePlayStateFromLyric,
-    setIgnoreMouseEvents
+    setIgnoreMouseEvents,
+    showMainWindow
 })

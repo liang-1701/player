@@ -30,6 +30,10 @@ export default defineConfig({
         // vue
         chunkSizeWarningLimit: 1500, // 加大限制的大小将500kb改成1500kb或者更大
         rollupOptions: {
+            input: {
+                index: './index.html',
+                lyric: './page/lyric.html',
+            },
             output: {
                 // manualChunks(id) {
                 //   if (id.includes('node_modules')) {
