@@ -1,9 +1,11 @@
-import { app, BrowserWindow, ipcMain, session, Menu } from "electron";
+import { app, BrowserWindow, ipcMain, session, Menu, nativeImage } from "electron";
 import path from "path";
 import windowStateKeeper from "electron-window-state";
 import electronDevtoolsInstaller, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import "./lyric";
 import { createTyay } from "./tary";
+
+let icon = nativeImage.createFromPath(path.join(__dirname, '/tary.png'));
 
 const createWindow = () => {
     const winState = windowStateKeeper({
@@ -25,7 +27,7 @@ const createWindow = () => {
         titleBarStyle: 'hiddenInset',
         trafficLightPosition: { x: 50, y: 20 },
         hasShadow: false,
-        icon: path.join(__dirname, process.platform == 'darwin'? '/trayTemplate@2x.png' : '/tary.png'),
+        icon: icon,
         webPreferences: {
             // contextIsolation: false, // 是否开启隔离上下文
             nodeIntegration: true, // 渲染进程使用Node API
@@ -57,6 +59,10 @@ const createWindow = () => {
         win = null
     });
 
+    // 或者在主进程（如：main.js）中全局设置应用程序图标（仅 macOS）
+    if (process.platform === 'darwin') {
+        app.dock.setIcon(icon);
+    }
     // 托盘图标
     createTyay(app, win);
 

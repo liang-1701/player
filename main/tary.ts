@@ -3,7 +3,7 @@ import path from 'path'
 
 export const createTyay = (app:any, win:any) => {
     const tray = new Tray(path.join(__dirname, 
-        process.platform == 'darwin'? '/trayTemplate@2x.png' : '/tary.png'));
+        process.platform == 'darwin'? '/taryTemplate@2x.png' : '/tary.png'));
     let trayMenuTemplate = [
         {
             label: "显示/隐藏",
