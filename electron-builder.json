@@ -34,6 +34,7 @@
         "icon": "./public/tary.png",
         "artifactName": "${productName}_${version}.${ext}",
         "category": "Utility",
+        "maintainer": "electron@test.com",
         "target": [
             "deb",
             "AppImage",
