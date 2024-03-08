@@ -1,0 +1,60 @@
+{
+    "appId": "com.electron.desktop",
+    "productName": "player",
+    "asar": true,
+    "copyright": "Copyright © 2022 electron",
+    "directories": {
+        "output": "release/${version}"
+    },
+    "files": [
+        "./dist",
+        "./package.json",
+        "./dist-electron"
+    ],
+    "mac": {
+        "artifactName": "${productName}_${version}.${ext}",
+        "icon": "./public/tary.png",
+        "target": [
+            "dmg"
+        ]
+    },
+    "win": {
+        "icon": "./public/tary.png",
+        "artifactName": "${productName}_${version}.${ext}",
+        "target": [
+            {
+                "target": "nsis",
+                "arch": [
+                    "x64"
+                ]
+            }
+        ]
+    },
+    "linux": {
+        "icon": "./public/tary.png",
+        "artifactName": "${productName}_${version}.${ext}",
+        "category": "Utility",
+        "target": [
+            "deb",
+            "AppImage",
+            "rpm",
+            "snap"
+        ]
+    },
+    "nsis": {
+        "oneClick": false,
+        "perMachine": false,
+        "allowToChangeInstallationDirectory": true,
+        "deleteAppDataOnUninstall": false,
+        "createDesktopShortcut": true
+    },
+    "publish": [
+        {
+            "provider": "generic",
+            "url": "http://127.0.0.1:8080"
+        }
+    ],
+    "releaseInfo": {
+        "releaseNotes": "基础功能"
+    }
+}
