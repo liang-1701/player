@@ -25,7 +25,7 @@ const createWindow = () => {
         titleBarStyle: 'hiddenInset',
         trafficLightPosition: { x: 50, y: 20 },
         hasShadow: false,
-        icon: path.join(__dirname, "/tary.png"),
+        icon: path.join(__dirname, process.platform == 'darwin'? '/trayTemplate@2x.png' : '/tary.png'),
         webPreferences: {
             // contextIsolation: false, // 是否开启隔离上下文
             nodeIntegration: true, // 渲染进程使用Node API

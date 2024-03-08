@@ -2,7 +2,8 @@ import { Tray, Menu } from 'electron'
 import path from 'path'
 
 export const createTyay = (app:any, win:any) => {
-    const tray = new Tray(path.join(__dirname, "/tary.png"))
+    const tray = new Tray(path.join(__dirname, 
+        process.platform == 'darwin'? '/trayTemplate@2x.png' : '/tary.png'));
     let trayMenuTemplate = [
         {
             label: "显示/隐藏",
@@ -18,6 +19,6 @@ export const createTyay = (app:any, win:any) => {
         }
     ];
     const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
-    tray.setToolTip('electron-test')
-    tray.setContextMenu(contextMenu)
+    tray.setToolTip('播放器');
+    tray.setContextMenu(contextMenu);
 }
