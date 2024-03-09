@@ -28,6 +28,10 @@ const initDataFromMain = (callback: (playState:boolean, lyric:any) => void) => {
     })
 }
 
+ipcRenderer.on('on-close-lyric-from-main-event', () => {
+    closeLyric();
+})
+
 // 歌词面板关闭
 const closeLyric = () => {
     ipcRenderer.send('on-close-lyric-event');

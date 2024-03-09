@@ -2,9 +2,11 @@ import { BrowserWindow, ipcMain, screen } from "electron";
 import path from "path";
 
 let lyricWindow: BrowserWindow | null = null;
+let closeState: boolean = false;
 
 ipcMain.on('on-open-lyric-event', (_event, lyricOpen:boolean, playState:boolean, lyric:any) => {
     if (lyricWindow === null) {
+        closeState = false;
         createLyricWindow(playState, lyric);
     }else {
         if (!lyricOpen) {
@@ -17,8 +19,10 @@ ipcMain.on('on-open-lyric-event', (_event, lyricOpen:boolean, playState:boolean,
 
 // 关闭歌词面板
 ipcMain.on("on-close-lyric-event", () => {
-    lyricWindow!.close();
-    lyricWindow = null;
+    closeState = true;
+    if (lyricWindow && !lyricWindow.isDestroyed()) {
+        lyricWindow!.close();
+    }
 })
 
 // 同步主界面的歌词播放状态
@@ -101,5 +105,15 @@ const createLyricWindow = (playState:boolean, lyric:any) => {
 
     lyricWindow.webContents.on('did-finish-load', () => {
         lyricWindow!.webContents.send('init-data-lyric-event', playState, lyric);
+    });
+
+    lyricWindow!.on("close", (event) => {
+        if(!closeState) {
+            event.preventDefault(); // 阻止窗口关闭
+        }
+    });
+    
+    lyricWindow!.on("closed", () => {
+        lyricWindow = null;
     });
 }

@@ -1,8 +1,11 @@
 import { Tray, Menu } from 'electron'
 import path from 'path'
 
-export const createTyay = (app:any, win:any) => {
-    const tray = new Tray(path.join(__dirname, 
+export let tray: Tray ;
+export let flag = false;
+
+export const createTyay = (_app:any, win:any) => {
+    tray = new Tray(path.join(__dirname, 
         // process.platform == 'darwin'? '/taryTemplate@2x.png' : '/tary.png'));  // mac模板适应
         process.platform == 'darwin'? '/tary@2x.png' : '/tary.png'));  // mac原图
     let trayMenuTemplate = [
@@ -15,6 +18,7 @@ export const createTyay = (app:any, win:any) => {
         {
             label: "退出",
             click: function() {
+                flag = true;
                 win.close();
             }
         }

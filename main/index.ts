@@ -1,11 +1,17 @@
-import { app, BrowserWindow, ipcMain, session, Menu, nativeImage } from "electron";
+import { app, BrowserWindow, ipcMain, session, Menu, nativeImage, dialog } from "electron";
 import path from "path";
 import windowStateKeeper from "electron-window-state";
 import electronDevtoolsInstaller, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import "./lyric";
-import { createTyay } from "./tary";
+import { createTyay, tray, flag } from "./tary";
 
 let icon = nativeImage.createFromPath(path.join(__dirname, '/tary.png'));
+let dialogClose = {
+    id: 0,
+    checked: false,
+    close: false,
+    open: false
+}
 
 const createWindow = () => {
     const winState = windowStateKeeper({
@@ -28,6 +34,7 @@ const createWindow = () => {
         trafficLightPosition: { x: 50, y: 20 },
         hasShadow: false,
         icon: icon,
+        modal: true,
         webPreferences: {
             // contextIsolation: false, // 是否开启隔离上下文
             nodeIntegration: true, // 渲染进程使用Node API
@@ -55,11 +62,46 @@ const createWindow = () => {
         win!.show();
     });
 
-    win.on("closed", () => {
-        win = null
+    win.on("close", async (event) => {
+        if(dialogClose.id !== 1 && !flag) {
+            event.preventDefault();
+        }else {
+            win!.webContents.send('on-close-lyric-from-main-event');
+            tray.destroy();
+        }
+        if(!dialogClose.open && !dialogClose.checked && !flag) {
+            dialogClose.open = true;
+            const { response, checkboxChecked } = await dialog.showMessageBox(win!, {
+                type: 'question',
+                title: '是否退出',
+                message: '',
+                buttons: [
+                  '最小化到托盘',
+                  '退出'
+                ],
+                defaultId: 0,
+                cancelId: 0,
+                checkboxLabel: '不再询问',
+                checkboxChecked: false
+            })
+            dialogClose.id = response;
+            dialogClose.checked = checkboxChecked;
+            dialogClose.open = false;
+            if(dialogClose.id === 0) {
+                win!.hide();
+            }else if(dialogClose.id === 1) {
+                win!.close();
+            }
+        }
     });
+    
+    // win.on("closed", () => {
+    //     const allWindows = BrowserWindow.getAllWindows();
+    //     console.log(allWindows);
+    //     allWindows.every((window) => window.close())
+    // });
 
-    // 或者在主进程（如：main.js）中全局设置应用程序图标（仅 macOS）
+    // 全局设置应用程序图标（仅 macOS）
     if (process.platform === 'darwin') {
         app.dock.setIcon(icon);
     }
@@ -67,7 +109,6 @@ const createWindow = () => {
     createTyay(app, win);
 
     ipcMain.on("on-close-custom-event", () => {
-        win!.webContents.removeAllListeners();
         win!.close();
         app.quit();
     })
