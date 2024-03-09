@@ -5,6 +5,7 @@ import electronDevtoolsInstaller, { VUEJS_DEVTOOLS } from 'electron-devtools-ins
 import "./lyric";
 import { createTyay, tray, flag } from "./tary";
 
+let win: BrowserWindow | null = null;
 let icon = nativeImage.createFromPath(path.join(__dirname, '/tary.png'));
 let dialogClose = {
     id: 0,
@@ -19,7 +20,6 @@ const createWindow = () => {
         defaultHeight: 630,
     })
 
-    let win: BrowserWindow | null = null;
     win = new BrowserWindow({
         width: winState.width,
         height: winState.height,
@@ -207,9 +207,21 @@ const overrideRequest = (details: Electron.OnBeforeSendHeadersListenerDetails) =
 
 // Electron会在初始化完成并且准备好创建浏览器窗口时调用这个方法
 app.on("ready", () => {
-    const mainMenu = Menu.buildFromTemplate([]);
-    Menu.setApplicationMenu(mainMenu);
-    createWindow();
+    const gotTheLock = app.requestSingleInstanceLock();
+    if (!gotTheLock) {
+        app.quit();
+    }else {
+        app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
+            // 唤醒已存在的窗口
+            if (win) {
+                if (win.isMinimized()) win.restore();
+                win.focus();
+            }
+        });
+        const mainMenu = Menu.buildFromTemplate([]);
+        Menu.setApplicationMenu(mainMenu);
+        createWindow();
+    }
 });
 
 //当所有窗口都被关闭后退出
