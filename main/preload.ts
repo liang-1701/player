@@ -29,7 +29,7 @@ const initDataFromMain = (callback: (playState:boolean, lyric:any) => void) => {
 }
 
 ipcRenderer.on('on-close-lyric-from-main-event', () => {
-    closeLyric();
+    ipcRenderer.send('on-close-lyric-event');
 })
 
 // 歌词面板关闭
