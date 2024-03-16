@@ -108,6 +108,9 @@ eventBus.on("audio-time-update", (data) => {
     window.api.timeUpdate(currentTime.value, allTime);
 });
 
+window.api.playSongFromMain((data:any) => {
+    playMusicStore.play(data);
+})
 window.api.nextSongFromMain(() => {
     playMusicStore.nextMusic();
 })

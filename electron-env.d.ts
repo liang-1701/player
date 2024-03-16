@@ -33,7 +33,9 @@ export interface IElectronAPI {
     sendPlayStateFromMicro,
     sendSongFromMicro,
     sendPlayList,
-    sendPlayListFromMicro
+    sendPlayListFromMicro,
+    playSong,
+    playSongFromMain
 }
 
 declare global {

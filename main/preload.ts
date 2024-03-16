@@ -31,6 +31,10 @@ const togglePlayState = () => {
 const showMainWindow = () => {
     ipcRenderer.send('showMainWindowToMain');
 }
+// 播放指定歌曲
+const playSong = (data:any) => {
+    ipcRenderer.send('playSongToMain', data);
+}
 // 关闭子窗口
 ipcRenderer.on('closeAllWindows', () => {
     ipcRenderer.send('closeLyricToLyric');
@@ -119,6 +123,12 @@ const prevSongFromMain = (callback: () => void) => {
 const togglePlayStateFromMain = (callback: () => void) => {
     ipcRenderer.on('togglePlayStateFromMain', () => {
         callback();
+    })
+}
+// 播放指定歌曲
+const playSongFromMain = (callback: (data:any) => void) => {
+    ipcRenderer.on('playSongFromMain', (_event, data:any) => {
+        callback(data);
     })
 }
 
@@ -213,5 +223,7 @@ contextBridge.exposeInMainWorld('api', {
     sendPlayStateFromMicro,
     sendSongFromMicro,
     sendPlayList,
-    sendPlayListFromMicro
+    sendPlayListFromMicro,
+    playSong,
+    playSongFromMain
 })

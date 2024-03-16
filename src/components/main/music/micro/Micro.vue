@@ -29,8 +29,8 @@
                 <li v-for="item in playList" :class="{playing:item.id==song.id}">
                     <span class="name">{{ item.name }}</span>
                     <div class="control">
-                        <play-one @click="" v-show="!(!playState&&item.id==song.id)" theme="filled" size="24" fill="#706363"/>
-                        <pause @click="" v-show="!playState&&item.id==song.id" theme="filled" size="24" fill="#706363"/>
+                        <play-one @click="playSong(item)" v-show="!(playState&&item.id==song.id)" theme="filled" size="24" fill="#706363"/>
+                        <pause @click="playSong(item)" v-show="playState&&item.id==song.id" theme="filled" size="24" fill="#706363"/>
                     </div>
                 </li>
             </ul>
@@ -50,6 +50,10 @@ let song = reactive<any>({});
 const currLyric = ref('暂无歌曲');
 const playState = ref(false);
 const playList = ref<Record<string, any>[]>([]);
+
+const playSong = (item:any) => {
+    window.api.playSong(JSON.parse(JSON.stringify(item)));
+}
 
 window.api.sendPlayListFromMicro((data:any) => {
     playList.value = data;
@@ -82,7 +86,7 @@ const updateLyric = (currTime:number) => {
     const lyrics = song.lyrics;
     for (let i = 0; i < lyrics.length; i++) {
         if (lyrics.length === 1) {
-            currLyric.value = lyrics.value[0].txt;
+            currLyric.value = lyrics[0].txt;
         }
         if (msToSeconds(lyrics[i].time) <= currTime && lyrics[i + 1] && msToSeconds(lyrics[i + 1].time) > currTime) {
             currLyric.value = lyrics[i].txt;

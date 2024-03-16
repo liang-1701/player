@@ -158,6 +158,9 @@ const createWindow = () => {
     ipcMain.on("showMainWindowToMain", () => {
         win?.show();
     })
+    ipcMain.on("playSongToMain", (_event, data) => {
+        win?.webContents.send("playSongFromMain", data);
+    })
 
     // 修改referer
     session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
