@@ -1,8 +1,8 @@
 <template>
     <div class="control">
         <go-start v-show="!lockState" @click="prevSong" theme="filled" size="20" fill="#333"/>
-        <play-one v-show="!playState&&!lockState" @click="changePlayState"  theme="filled" size="20" fill="#333"/>
-        <pause  v-show="playState&&!lockState" @click="changePlayState" theme="filled" size="20" fill="#333"/>
+        <play-one v-show="!playState&&!lockState" @click="togglePlayState"  theme="filled" size="20" fill="#333"/>
+        <pause  v-show="playState&&!lockState" @click="togglePlayState" theme="filled" size="20" fill="#333"/>
         <go-end v-show="!lockState" @click="nextSong" theme="filled" size="20" fill="#333"/>
         <span v-show="!lockState" class="split">|</span>
         <home @click="showMainWindow" v-show="!lockState" theme="multi-color" size="20" :fill="['#333' ,'#333' ,'#333' ,'#333']"/>
@@ -26,16 +26,16 @@ const currLyric = ref('暂无歌词');
 const lockState = ref(false);
 
 const nextSong = () => {
-    window.api.nextSongToMain();
+    window.api.nextSong();
 }
 const prevSong = () => {
-    window.api.prevSongToMain();
+    window.api.prevSong();
 }
-const changePlayState = () => {
-    window.api.changePlayStateToMain();
+const togglePlayState = () => {
+    window.api.togglePlayState();
 }
 
-window.api.timeFromMain((currTime:any, _allTime:any)=>{
+window.api.timeUpdateFromLyric((currTime:any, _allTime:any)=>{
     updateLyric(currTime);
 })
 
@@ -55,26 +55,31 @@ const updateLyric = (currTime:number) => {
     }
 }
 
-window.api.playStateFromMain((data:any)=>{
-    playState.value = !playState.value;
-    lyrics.value = data;
-    if (data.length == 0) {
+window.api.sendPlayStateFromLyric((data:boolean) => {
+    playState.value = data;
+
+})
+
+window.api.sendSongFromLyric((data:any)=>{
+    lyrics.value = data.lyrics;
+    if (lyrics.value.length == 0) {
         lyrics.value = [{time:'00:00',txt:'暂无歌词'}];
         updateLyric(0);
     }
 })
 
-document.addEventListener('mouseenter', () => {
+document.addEventListener('mouseover', (event:MouseEvent) => {
+    const lockEl = document.querySelector('#lock') as HTMLElement;
+    if(lockEl.contains(event.target as HTMLElement)) {
+        window.api.setIgnoreMouseEventsToLyric(false);
+    }else {
+        window.api.setIgnoreMouseEventsToLyric(lockState.value);
+    }
     if(!lockState.value) {
         document.querySelector('#lyric')?.classList.add('unlock');
     }else {
         document.querySelector('#lyric')?.classList.remove('unlock');
     }
-    const lockEl = document.querySelector('#lock') as HTMLElement;
-    lockEl.addEventListener('mouseenter', () => {
-        window.api.setIgnoreMouseEvents(false);
-    })
-    window.api.setIgnoreMouseEvents(lockState.value);
 })
 
 document.addEventListener('mousedown', (event: MouseEvent) => {
@@ -96,9 +101,9 @@ const close = () => {
     window.api.closeLyric();
 }
 
-window.api.initDataFromMain((state:boolean, lyric:any) =>{
+window.api.initDataFromLyric((state:boolean, data:any) =>{
     playState.value = state;
-    lyrics.value = lyric;
+    lyrics.value = data.lyrics;
 })
 </script>
 

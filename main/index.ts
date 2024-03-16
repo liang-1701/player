@@ -3,6 +3,7 @@ import path from "path";
 import windowStateKeeper from "electron-window-state";
 import electronDevtoolsInstaller, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import "./lyric";
+import "./micro";
 import { createTyay, tray, flag } from "./tary";
 
 let win: BrowserWindow | null = null;
@@ -58,48 +59,54 @@ const createWindow = () => {
 
     // 页面准备好了再加载
     win.on("ready-to-show", () => {
-        win!.webContents.send('platform-event', process.platform);
+        win!.webContents.send('getPlatform', process.platform);
         win!.show();
     });
 
     win.on("close", async (event) => {
-        if(dialogClose.id !== 1 && !flag) {
-            event.preventDefault();
-        }else {
-            win!.webContents.send('on-close-lyric-from-main-event');
-            tray.destroy();
-        }
-        if(!dialogClose.open && !dialogClose.checked && !flag) {
-            dialogClose.open = true;
-            const { response, checkboxChecked } = await dialog.showMessageBox(win!, {
-                type: 'question',
-                title: '是否退出',
-                message: '',
-                buttons: [
-                  '最小化到托盘',
-                  '退出'
-                ],
-                defaultId: 0,
-                cancelId: 0,
-                checkboxLabel: '不再询问',
-                checkboxChecked: false
-            })
-            dialogClose.id = response;
-            dialogClose.checked = checkboxChecked;
-            dialogClose.open = false;
-            if(dialogClose.id === 0) {
-                win!.hide();
-            }else if(dialogClose.id === 1) {
-                win!.close();
-            }
-        }
+        win!.webContents.send('closeAllWindows');
+        tray.destroy();
+        // if(dialogClose.id !== 1 && !flag) {
+        //     event.preventDefault();
+        //     if(dialogClose.checked) {
+        //         if(dialogClose.id === 0) {
+        //             win!.hide();
+        //         }
+        //     }
+        // }else {
+        //     win!.webContents.send('closeAllWindows');
+        //     tray.destroy();
+        // }
+        // if(!dialogClose.open && !dialogClose.checked && !flag) {
+        //     dialogClose.open = true;
+        //     const { response, checkboxChecked } = await dialog.showMessageBox(win!, {
+        //         type: 'question',
+        //         title: '是否退出',
+        //         message: '',
+        //         buttons: [
+        //           '最小化到托盘',
+        //           '退出'
+        //         ],
+        //         defaultId: 0,
+        //         cancelId: 0,
+        //         checkboxLabel: '不再询问',
+        //         checkboxChecked: false
+        //     })
+        //     dialogClose.id = response;
+        //     dialogClose.checked = checkboxChecked;
+        //     dialogClose.open = false;
+        //     if(dialogClose.id === 0) {
+        //         win!.hide();
+        //     }else if(dialogClose.id === 1) {
+        //         win!.close();
+        //     }
+        // }
     });
     
-    // win.on("closed", () => {
-    //     const allWindows = BrowserWindow.getAllWindows();
-    //     console.log(allWindows);
-    //     allWindows.every((window) => window.close())
-    // });
+    win.on("closed", () => {
+        // const allWindows = BrowserWindow.getAllWindows();
+        // allWindows.every((window) => window.close())
+    });
 
     // 全局设置应用程序图标（仅 macOS）
     if (process.platform === 'darwin') {
@@ -108,13 +115,13 @@ const createWindow = () => {
     // 托盘图标
     createTyay(app, win);
 
-    ipcMain.on("on-close-custom-event", () => {
+    ipcMain.on("closeMainToMain", () => {
         win!.close();
         app.quit();
     })
     let winsSize = win.getSize();
     let winsPosition = win.getPosition();
-    ipcMain.on("on-max-custom-event", (_event, res) => {
+    ipcMain.on("maxMainToMain", (_event, res) => {
         if (!res.winMax) {
             winsSize = win!.getSize();
             winsPosition = win!.getPosition();
@@ -131,24 +138,24 @@ const createWindow = () => {
             )
         }
     })
-    ipcMain.on("on-min-custom-event", () => {
+    ipcMain.on("minMainToMain", () => {
         win!.minimize();
     })
 
-    ipcMain.on("on-close-lyric-win-event", () => {
-        win?.webContents.send("on-change-lyric-event");
+    ipcMain.on("changeLyricStateToMain", () => {
+        win?.webContents.send("changeLyricStateFromMain");
     })
 
-    ipcMain.on("on-next-Song-event", () => {
-        win?.webContents.send("on-next-Song-main-event");
+    ipcMain.on("nextSongToMain", () => {
+        win?.webContents.send("nextSongFromMain");
     })
-    ipcMain.on("on-prev-Song-event", () => {
-        win?.webContents.send("on-prev-Song-main-event");
+    ipcMain.on("prevSongToMain", () => {
+        win?.webContents.send("prevSongFromMain");
     })
-    ipcMain.on("on-change-play-state-event", () => {
-        win?.webContents.send("on-change-play-state-main-event");
+    ipcMain.on("togglePlayStateToMain", () => {
+        win?.webContents.send("togglePlayStateFromMain");
     })
-    ipcMain.on("on-show-win-event", () => {
+    ipcMain.on("showMainWindowToMain", () => {
         win?.show();
     })
 

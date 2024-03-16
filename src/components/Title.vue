@@ -11,6 +11,7 @@
             </div>
             <div class="win-control no-drag">
                 <Setting @click="$router.push('/setting')" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+                <full-screen-play @click="openMicro" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
                 <Minus @click="winEnevt.setMin()" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
                 <Square @click="winEnevt.setMax()" v-if="!winEnevt.winMax.value" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
                 <MinusTheTop @click="winEnevt.setMax()" v-else theme="outline" size="20" fill="#333" :strokeWidth="2"/>
@@ -29,6 +30,7 @@
             </div>
             <div class="control no-drag">
                 <Setting @click="$router.push('/setting')" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+                <full-screen-play theme="outline" size="20" fill="#333" :strokeWidth="2"/>
             </div>
             <div class="name">PLAYER</div>
         </div>
@@ -36,10 +38,11 @@
 </template>
 
 <script  lang="ts" setup>
-import { Setting, Minus, Close, MinusTheTop, Square, RightC, LeftC } from '@icon-park/vue-next'
+import { Setting, Minus, Close, MinusTheTop, Square, RightC, LeftC, FullScreenPlay } from '@icon-park/vue-next'
 import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import musicResource from "@/store/modules/musicResource";
+import { eventBus } from "@/common/eventBus";
 
 let musicStore = musicResource();
 let $router = useRouter();
@@ -52,6 +55,10 @@ const search = () => { // 搜索
         musicStore.searchSongs(searchText.value, 1);
         $router.push('/searchMusic');
     }
+}
+
+const openMicro = () => { 
+    eventBus.emit("open-micro");
 }
 
 </script>
@@ -88,6 +95,7 @@ const search = () => { // 搜索
         }
         .win-control > * {
             padding: 3px 5px;
+            cursor: pointer;
             &:hover {
                 background-color: var(--header-bg-color-hover);
             }
@@ -103,6 +111,9 @@ const search = () => { // 搜索
             align-items: center;
             justify-content: center;
             width: 150px;
+            >* {
+                cursor: pointer;
+            }
         }
         .name {
             font-size: 20px;

@@ -1,10 +1,8 @@
 import { defineStore } from "pinia";
 import { Song } from "@/type/musicTypes";
 import { play, toggleSong, togglePlay, stop } from "@/common/audioPlay";
-import musicResource from "@/store/modules/musicResource";
 import { getClassName } from "@/common/importModule";
-
-let musicStore = musicResource();
+import { routes } from "@/router/modules/musicRouters";
 
 let playStore = defineStore("play", {
     state: () => {
@@ -19,6 +17,7 @@ let playStore = defineStore("play", {
             if (!this.playQueue.includes(song)) {
                 this.playQueue.push(song);
             }
+            window.api.sendPlayList(JSON.parse(JSON.stringify(this.playQueue)));
         },
         // 在播放队列最后添加多首歌曲
         addSongList(songs: any) {
@@ -49,7 +48,8 @@ let playStore = defineStore("play", {
         async getSongDetail(song: Song) {
             this.currPlaySong = song;
             if (song.playUrl) { return }
-            const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == song.chl);
+            const menus = routes.find(item => item.name=='music')?.children.filter(item => item.show)[0];
+            const plat = menus!.meta.platform!.find((item:any) => item.id == song.chl);
             const method = await getClassName(plat!.file, "getSongDetail");
             const result = await method!(song);
             this.currPlaySong.playUrl = result.playUrl;

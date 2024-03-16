@@ -105,16 +105,16 @@ eventBus.on("audio-time-update", (data) => {
     currentTimeVal.value = percent;
     upProgress();
     // 通知歌词面板当前播放时间
-    window.api.timetoLyric(currentTime.value, allTime);
+    window.api.timeUpdate(currentTime.value, allTime);
 });
 
-window.api.nextSongFromLyric(() => {
+window.api.nextSongFromMain(() => {
     playMusicStore.nextMusic();
 })
-window.api.prevSongFromLyric(() => {
+window.api.prevSongFromMain(() => {
     playMusicStore.prevMuisc();
 })
-window.api.changePlayStateFromLyric(() => {
+window.api.togglePlayStateFromMain(() => {
     changePlayState();
 })
 
@@ -481,7 +481,7 @@ provide('play-song-event', {
                     .singer-time .time {
                         display: none;
                     }
-            }
+                }
             }
         }
         .foot {

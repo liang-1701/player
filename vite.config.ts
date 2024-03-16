@@ -33,6 +33,7 @@ export default defineConfig({
             input: {
                 index: './index.html',
                 lyric: './page/lyric.html',
+                micro: './page/micro.html',
             },
             output: {
                 // manualChunks(id) {

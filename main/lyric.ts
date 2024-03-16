@@ -4,10 +4,10 @@ import path from "path";
 let lyricWindow: BrowserWindow | null = null;
 let closeState: boolean = false;
 
-ipcMain.on('on-open-lyric-event', (_event, lyricOpen:boolean, playState:boolean, lyric:any) => {
+ipcMain.on('openLyricToLyric', (_event, lyricOpen:boolean, playState:boolean, song:any) => {
     if (lyricWindow === null) {
         closeState = false;
-        createLyricWindow(playState, lyric);
+        createLyricWindow(playState, song);
     }else {
         if (!lyricOpen) {
             lyricWindow?.show();
@@ -18,29 +18,35 @@ ipcMain.on('on-open-lyric-event', (_event, lyricOpen:boolean, playState:boolean,
 })
 
 // 关闭歌词面板
-ipcMain.on("on-close-lyric-event", () => {
+ipcMain.on("closeLyricToLyric", () => {
     closeState = true;
     if (lyricWindow && !lyricWindow.isDestroyed()) {
         lyricWindow!.close();
     }
 })
 
-// 同步主界面的歌词播放状态
-ipcMain.on("on-play-state-event", (_event, data: any) => {
+// 同步主界面的播放状态
+ipcMain.on("sendPlayStateToLyric", (_event, data: boolean) => {
     if (lyricWindow && !lyricWindow.isDestroyed()) {
-        lyricWindow?.webContents.send("on-play-state-lyric-event", data);
+        lyricWindow?.webContents.send("sendPlayStateFromLyric", data);
+    }
+})
+// 同步主界面的歌曲信息
+ipcMain.on("sendSongToLyric", (_event, data: any) => {
+    if (lyricWindow && !lyricWindow.isDestroyed()) {
+        lyricWindow?.webContents.send("sendSongFromLyric", data);
     }
 })
 
 // 播放时间同步
-ipcMain.on("on-play-time-event", (_event, currTime:any, allTime:any) => {
+ipcMain.on("timeUpdateToLyric", (_event, currTime:any, allTime:any) => {
     if (lyricWindow && !lyricWindow.isDestroyed()) {
-        lyricWindow?.webContents.send("on-play-time-lyric-event", currTime, allTime);
+        lyricWindow?.webContents.send("timeUpdateFromLyric", currTime, allTime);
     }
 })
 
 // 移动窗口位置
-ipcMain.on("on-move-lyric-event", (_event, pos) => {
+ipcMain.on("moveLyricToLyric", (_event, pos) => {
     if (lyricWindow && !lyricWindow.isDestroyed()) {
         if(pos.lockState) { return }
         lyricWindow?.setBounds(
@@ -55,7 +61,7 @@ ipcMain.on("on-move-lyric-event", (_event, pos) => {
 })
 
 // 穿透
-ipcMain.on("on-ignore-mouse-event", (_event, lock) => {
+ipcMain.on("setIgnoreMouseEventsToLyric", (_event, lock) => {
     if (lyricWindow && !lyricWindow.isDestroyed()) {
         if(lock) { 
             lyricWindow.setIgnoreMouseEvents(true, {forward:true});
@@ -67,7 +73,7 @@ ipcMain.on("on-ignore-mouse-event", (_event, lock) => {
 
 const winSize = { width: 1000, height: 100 };
 
-const createLyricWindow = (playState:boolean, lyric:any) => {
+const createLyricWindow = (playState:boolean, song:any) => {
     lyricWindow = new BrowserWindow({
         width: winSize.width,
         height: winSize.height,
@@ -104,7 +110,7 @@ const createLyricWindow = (playState:boolean, lyric:any) => {
     });
 
     lyricWindow.webContents.on('did-finish-load', () => {
-        lyricWindow!.webContents.send('init-data-lyric-event', playState, lyric);
+        lyricWindow!.webContents.send('initDataFromLyric', playState, song);
     });
 
     lyricWindow!.on("close", (event) => {

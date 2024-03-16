@@ -8,6 +8,7 @@ class AudioPlay {
 
     currSong: Song;
     sound: Howl | undefined;
+    taskId:NodeJS.Timeout | null = null;
 
     constructor(song: Song) {
         this.currSong = song;
@@ -28,7 +29,8 @@ class AudioPlay {
             loop: false,
             onplay: function() {
                 eventBus.emit("audio-play-state", true);
-                requestAnimationFrame(self.timeupdate.bind(self))
+                // requestAnimationFrame(self.timeupdate.bind(self))
+                self.startTask();
             },
             onpause: function() {
                 eventBus.emit("audio-play-state", false);
@@ -96,10 +98,16 @@ class AudioPlay {
     timeupdate() {
         if(this.sound) {
             eventBus.emit("audio-time-update", this.sound.seek());
-            if(this.sound.playing()) {
-                requestAnimationFrame(this.timeupdate.bind(this))
+            if(!this.sound.playing()) {
+                clearInterval(this.taskId!);
             }
+        }else {
+            clearInterval(this.taskId!);
         }
+    }
+
+    startTask() {
+        this.taskId = setInterval(this.timeupdate.bind(this), 1000/100);
     }
 
 }

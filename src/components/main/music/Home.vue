@@ -31,10 +31,16 @@ const getSingerDetail = (singer:any) => {
     $router.push('/singerDetail')
 }
 
+eventBus.on("open-micro", () => {
+    window.api.openMicro(playState.value, {currPlaySong:JSON.parse(JSON.stringify(playMusicStore.currPlaySong)), playQueue:JSON.parse(JSON.stringify(playMusicStore.playQueue))});
+});
+
 eventBus.on("audio-play-state", (data) => {
     playState.value =  Boolean(data);
-    // 通知歌词面板
-    window.api.playStatetoLyric(JSON.parse(JSON.stringify(playMusicStore.currPlaySong.lyrics||[])));
+    // 发送当前播放状态
+    window.api.sendPlayState(playState.value);
+    // 发送当前播放歌曲信息
+    window.api.sendSong(JSON.parse(JSON.stringify(playMusicStore.currPlaySong)));
 });
 
 const getSquare = (id: number|string, page: number) => {
@@ -51,11 +57,11 @@ const initDefaultClass = () => {
 }
 
 const openLyric = () => {
-    window.api.openLyric(lyricOpen.value, playState.value, JSON.parse(JSON.stringify(playMusicStore.currPlaySong.lyrics||[])));
+    window.api.openLyric(lyricOpen.value, playState.value, JSON.parse(JSON.stringify(playMusicStore.currPlaySong)));
     lyricOpen.value = !lyricOpen.value;
 }
 
-window.api.changeLyricState(() =>{
+window.api.changeLyricStateFromMain(() =>{
     lyricOpen.value = false;
 });
 
