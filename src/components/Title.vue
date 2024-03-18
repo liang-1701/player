@@ -30,7 +30,7 @@
             </div>
             <div class="control no-drag">
                 <Setting @click="$router.push('/setting')" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
-                <full-screen-play theme="outline" size="20" fill="#333" :strokeWidth="2"/>
+                <full-screen-play @click="openMicro" theme="outline" size="20" fill="#333" :strokeWidth="2"/>
             </div>
             <div class="name">PLAYER</div>
         </div>
@@ -132,8 +132,9 @@ const openMicro = () => {
                 stroke:var(--icon-color-hover);
             }
         }
-        .control {
+        .control > *{
             cursor: pointer;
+            padding: 3px 5px;
         }
         .search {
             flex: 1;
