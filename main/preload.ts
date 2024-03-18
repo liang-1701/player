@@ -31,6 +31,10 @@ const togglePlayState = () => {
 const showMainWindow = () => {
     ipcRenderer.send('showMainWindowToMain');
 }
+// 隐藏主界面
+const hideMainWindow = () => {
+    ipcRenderer.send('hideMainWindowToMain');
+}
 // 播放指定歌曲
 const playSong = (data:any) => {
     ipcRenderer.send('playSongToMain', data);
@@ -99,6 +103,12 @@ const sendPlayList = (data:any) => {
 const getPlatform = (callback: (platform:any) => void) => {
     ipcRenderer.on('getPlatform', (_event, platform:any) => {
         callback(platform);
+    })
+}
+// 弹出退出询问窗口
+const quitAskFromMain = (callback: () => void) => {
+    ipcRenderer.on('quitAskFromMain', () => {
+        callback();
     })
 }
 // 同步歌词面板状态
@@ -198,6 +208,7 @@ contextBridge.exposeInMainWorld('api', {
     prevSong,
     togglePlayState,
     showMainWindow,
+    hideMainWindow,
     openLyric,
     closeLyric,
     timeUpdate,
@@ -225,5 +236,6 @@ contextBridge.exposeInMainWorld('api', {
     sendPlayList,
     sendPlayListFromMicro,
     playSong,
-    playSongFromMain
+    playSongFromMain,
+    quitAskFromMain
 })

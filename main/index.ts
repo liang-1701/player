@@ -9,10 +9,7 @@ import { createTyay, tray, flag } from "./tary";
 let win: BrowserWindow | null = null;
 let icon = nativeImage.createFromPath(path.join(__dirname, '/tary.png'));
 let dialogClose = {
-    id: 0,
-    checked: false,
-    close: false,
-    open: false
+    isClose: false,  // 是否关闭
 }
 
 const createWindow = () => {
@@ -64,43 +61,16 @@ const createWindow = () => {
     });
 
     win.on("close", async (event) => {
-        win!.webContents.send('closeAllWindows');
-        tray.destroy();
-        // if(dialogClose.id !== 1 && !flag) {
-        //     event.preventDefault();
-        //     if(dialogClose.checked) {
-        //         if(dialogClose.id === 0) {
-        //             win!.hide();
-        //         }
-        //     }
-        // }else {
-        //     win!.webContents.send('closeAllWindows');
-        //     tray.destroy();
-        // }
-        // if(!dialogClose.open && !dialogClose.checked && !flag) {
-        //     dialogClose.open = true;
-        //     const { response, checkboxChecked } = await dialog.showMessageBox(win!, {
-        //         type: 'question',
-        //         title: '是否退出',
-        //         message: '',
-        //         buttons: [
-        //           '最小化到托盘',
-        //           '退出'
-        //         ],
-        //         defaultId: 0,
-        //         cancelId: 0,
-        //         checkboxLabel: '不再询问',
-        //         checkboxChecked: false
-        //     })
-        //     dialogClose.id = response;
-        //     dialogClose.checked = checkboxChecked;
-        //     dialogClose.open = false;
-        //     if(dialogClose.id === 0) {
-        //         win!.hide();
-        //     }else if(dialogClose.id === 1) {
-        //         win!.close();
-        //     }
-        // }
+        if(flag) {
+            dialogClose.isClose = true;
+        }
+        if(!dialogClose.isClose) {
+            event.preventDefault();
+            win!.webContents.send('quitAskFromMain');
+        }else {
+            win!.webContents.send('closeAllWindows');
+            tray.destroy();
+        }
     });
     
     win.on("closed", () => {
@@ -116,8 +86,9 @@ const createWindow = () => {
     createTyay(app, win);
 
     ipcMain.on("closeMainToMain", () => {
+        dialogClose.isClose = true;
         win!.close();
-        app.quit();
+        // app.quit();
     })
     let winsSize = win.getSize();
     let winsPosition = win.getPosition();
@@ -141,7 +112,6 @@ const createWindow = () => {
     ipcMain.on("minMainToMain", () => {
         win!.minimize();
     })
-
     ipcMain.on("changeLyricStateToMain", () => {
         win?.webContents.send("changeLyricStateFromMain");
     })
@@ -157,6 +127,9 @@ const createWindow = () => {
     })
     ipcMain.on("showMainWindowToMain", () => {
         win?.show();
+    })
+    ipcMain.on("hideMainWindowToMain", () => {
+        win?.hide();
     })
     ipcMain.on("playSongToMain", (_event, data) => {
         win?.webContents.send("playSongFromMain", data);

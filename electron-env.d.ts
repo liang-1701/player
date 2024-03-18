@@ -8,6 +8,7 @@ export interface IElectronAPI {
     prevSong,
     togglePlayState,
     showMainWindow,
+    hideMainWindow,
     openLyric,
     closeLyric,
     timeUpdate,
@@ -35,7 +36,8 @@ export interface IElectronAPI {
     sendPlayList,
     sendPlayListFromMicro,
     playSong,
-    playSongFromMain
+    playSongFromMain,
+    quitAskFromMain
 }
 
 declare global {
