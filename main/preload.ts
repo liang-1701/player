@@ -1,5 +1,5 @@
-import { Sync } from "@icon-park/vue-next";
 import { contextBridge, ipcRenderer } from "electron";
+import "./common";
 
 // 去除安全警告
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = "true"
@@ -44,6 +44,7 @@ ipcRenderer.on('closeAllWindows', () => {
     ipcRenderer.send('closeLyricToLyric');
     ipcRenderer.send('closeMicroToMicro');
 })
+
 /**----------- lyric.ts ------------- */
 // 打开歌词面板
 const openLyric = (lyricOpen:boolean, playState:boolean, song:any) => {

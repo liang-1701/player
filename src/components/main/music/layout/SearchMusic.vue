@@ -93,6 +93,7 @@ const loader = ref(true);
 const changePlat = (id:string) => {
     const plat = musicStore.menus!.meta.platform!.find((item:any) => item.id == id);
     musicStore.currSearchPlat = plat;
+    search();
 }
 
 const search = async () => {

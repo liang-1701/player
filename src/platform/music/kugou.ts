@@ -304,7 +304,7 @@ export class KuGouMusicApi {
         
     }
 
-    // 专辑搜索
+    // 歌单搜索
     static searchSpecials = async (keyword: string, page: number) => {
         const reqBody:Record<string, any> = {
             'srcappid': '2919',

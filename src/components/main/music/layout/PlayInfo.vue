@@ -91,6 +91,8 @@ const loadImg = async () => {
     bg.value.style.setProperty('--c5', c5);
 }
 
+const lyricPos = ref(-1);
+
 watch(
     () => playSongEvent.currentTime.value,
     (newVal) => {
@@ -102,17 +104,34 @@ watch(
                 const el = document.querySelector(`[data-time='${lyrics[i].time}']`) as HTMLLIElement;
                 el.classList.add('active');
                 // 调整位置
-                const lyricsList = document.querySelector('.lyrics ul') as HTMLElement;
-                const scrollTop = -i * el.offsetHeight + 200;
-                lyricsList.style.top = `${scrollTop}px`;
+                // const lyricsList = document.querySelector('.lyrics ul') as HTMLElement;
+                // const scrollTop = -i * el.offsetHeight + 200;
+                // lyricsList.style.top = `${scrollTop}px`;
+                scrollPlaying(i)
                 break;
             }
         }
     }, {
         immediate: true
     }
-)
-
+    )
+    
+    // 歌词滚动
+const scrollPlaying = (i:number) => {
+    if(i==lyricPos.value) return;
+    lyricPos.value = i;
+    const queueList = document.querySelector(".lyrics") as HTMLElement;
+    const playing = queueList.querySelector(".lyrics .active") as HTMLElement;
+    if(playing){
+        const rect = playing.getBoundingClientRect();
+        const desiredTopOffset = (queueList.clientHeight / 2) - (rect.height / 2);
+        queueList.scrollTo({
+            top: rect.top + queueList.scrollTop - desiredTopOffset - 100,
+            behavior: "smooth"
+        })
+        
+    }
+}
 const close = () => {
     emit('changePlayInfoShow', false)
 }
@@ -173,6 +192,7 @@ const close = () => {
             align-items: center;
             justify-content: end;
             > * {
+                cursor: pointer;
                 padding: 3px 5px;
                 &:hover {
                     background-color: var(--header-bg-color-hover);
@@ -242,6 +262,7 @@ const close = () => {
                 margin: 0;
                 position: relative;
                 transition: all 0.3s;
+                top: 200px;
                 li {
                     font-size: 18px;
                     line-height: 30px;
@@ -251,6 +272,7 @@ const close = () => {
                     white-space: nowrap;
                     &.active {
                         color: var(--text-color-active);
+                        mix-blend-mode: multiply;
                     }
                 }
             }

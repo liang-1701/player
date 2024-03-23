@@ -43,5 +43,6 @@ export interface IElectronAPI {
 declare global {
   interface Window {
     api: IElectronAPI;
+    c: any;
   }
 }

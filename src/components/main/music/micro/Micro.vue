@@ -13,7 +13,7 @@
                     <play @click="togglePlayState" v-show="!playState" theme="multi-color" size="34" :fill="['#333' ,'#cfc4c4' ,'#333' ,'#333']" />
                     <pause-one @click="togglePlayState" v-show="playState" theme="multi-color" size="34" :fill="['#333' ,'#cfc4c4' ,'#333' ,'#333']"/>
                     <go-end @click="nextSong" theme="filled" size="24" fill="#706363"/>
-                    <music-menu @click.stop="listShow = !listShow" theme="filled" size="20" fill="#706363"/>
+                    <music-menu @click.stop="listShow = !listShow;scrollPlaying()" theme="filled" size="20" fill="#706363"/>
                 </div>
                 <div class="close">
                     <Close @click="closeMicro" theme="outline" size="16" fill="#706363" :strokeWidth="2"/>
@@ -125,6 +125,21 @@ const move = (event:MouseEvent) => {
 
 const showMainWindow = () => {
     window.api.showMainWindow();
+}
+
+// 打开播放队列时滚动到当前播放歌曲
+const scrollPlaying = () => {
+    const queueList = document.querySelector(".list") as HTMLElement;
+    const playing = queueList.getElementsByClassName("playing")[0] as HTMLElement;
+    if(playing){
+        const rect = playing.getBoundingClientRect();
+        const desiredTopOffset = (queueList.clientHeight / 2) - (rect.height / 2);
+        queueList.scrollTo({
+            top: rect.top + queueList.scrollTop - desiredTopOffset,
+            behavior: "smooth"
+        })
+        
+    }
 }
 
 const closeMicro = () => {
