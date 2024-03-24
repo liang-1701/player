@@ -1,7 +1,7 @@
 <template>
     <div class="container-square">
         <Tag class="tag" />
-        <div class="square">
+        <div ref="square" class="square">
             <div class="category" v-for="item in musicStore.square.squareItems" @click="musicStore.getSquareDetail(item.id, item.group, item.data);goSquareDetail();">
                 <div class="img" >
                     <img v-lazy="item.imgUrl" @load="">
@@ -12,7 +12,7 @@
                 <div class="title">{{ item.title }}</div>
             </div>
             <div class="category-page" v-if="musicStore.square.page">
-                <el-pagination v-model:current-page="currentPage" @current-change="musicEnevt.getSquare(musicEnevt.defaultClass.value, currentPage)" :hide-on-single-page="true" :page-size="musicStore.square.page?.size" :pager-count="7" layout="prev, pager, next, jumper" :total="musicStore.square.page?.total" :page-count="musicStore.square.page?.totalPage" prev-text="上一页" next-text="下一页" />
+                <el-pagination v-model:current-page="currentPage" @current-change="musicEnevt.getSquare(musicEnevt.defaultClass.value, currentPage);scrolling()" :hide-on-single-page="true" :page-size="musicStore.square.page?.size" :pager-count="7" layout="prev, pager, next, jumper" :total="musicStore.square.page?.total" :page-count="musicStore.square.page?.totalPage" prev-text="上一页" next-text="下一页" />
             </div>
         </div>
     </div>
@@ -29,9 +29,14 @@ let $router = useRouter();
 const currentPage = ref(1);
 const musicEnevt:any = inject("music-enevt");
 let musicStore = musicResource();
+const square = ref<HTMLElement>();
 
 const goSquareDetail = () => {
     $router.push('/squareDetail');
+}
+
+const scrolling = () => {
+    square.value!.scrollTo(0, 0);
 }
 </script>
 

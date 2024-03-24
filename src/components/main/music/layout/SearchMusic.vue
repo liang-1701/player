@@ -100,15 +100,27 @@ const search = async () => {
     page.value = 1;
     if(showCategory.value == 0) {
         await musicStore.searchSongs(musicStore.search.keywords, page.value);
+        const el = document.querySelector(".container-search-music .songs") as HTMLElement;
+        scrolling(el);
     } else if(showCategory.value == 1) {
         await musicStore.searchSpecials(musicStore.search.keywords, page.value);
+        const el = document.querySelector(".container-search-music .specials") as HTMLElement;
+        scrolling(el);
     } else if(showCategory.value == 2) {
         await musicStore.searchSingers(musicStore.search.keywords, page.value);
+        const el = document.querySelector(".container-search-music .singers") as HTMLElement;
+        scrolling(el);
     } else if(showCategory.value == 3) {
         await musicStore.searchAlbums(musicStore.search.keywords, page.value);
+        const el = document.querySelector(".container-search-music .albums") as HTMLElement;
+        scrolling(el);
     }
     showListLenth.value = 0;
     loader.value = true;
+}
+
+const scrolling = (el: HTMLElement) => {
+    el.scrollTo(0, 0);
 }
 
 const ob = new IntersectionObserver(async (entries) => {
