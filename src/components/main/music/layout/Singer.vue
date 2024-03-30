@@ -1,17 +1,10 @@
 <template>
     <div class="container-singer">
         <div class="categories">
-            <div class="category" v-for="(category, index) in musicStore.singerSquare">
-                <span class="cate" :data-id="item.id" :data-id2="current[index]" @click="getSingersByTypes(index, item.id);" :class="{active:item.id==current[index]}" v-for="item in category.categories">
+            <div class="category" v-for="(value, key) in musicStore.singerSquare.categories">
+                <span class="cate" v-for="item in value" :class="{active:item.id==current[key]}" @click="getSingersByTypes(key, item)">
                     {{ item.name }}
                 </span>
-            </div>
-            <div class="category">
-                <span class="cate"  @click="getSingersByTypes(current.length - 1, 'all');" :class="{active:'all'==current[current.length - 1]}">全部</span>
-                <span class="cate"  @click="getSingersByTypes(current.length - 1, item);" :class="{active:item==current[current.length - 1]}" v-for="item in Array.from('abcdefghijklmnopqrstuvwxyz')">
-                    {{ item.toUpperCase() }}
-                </span>
-                <span class="cate"  @click="getSingersByTypes(current.length - 1, '#');" :class="{active:'#'==current[current.length - 1]}">#</span>
             </div>
         </div>
         <div class="singers">
@@ -24,6 +17,7 @@
                 </div>
                 <span class="name">{{ singer.name }}</span>
             </div>
+            <div class="loader"></div>
         </div>
     </div>
 </template>
@@ -31,24 +25,55 @@
 <script  lang="ts" setup>
 import { Play } from '@icon-park/vue-next'
 import musicResource from "@/store/modules/musicResource";
-import { inject, onMounted, ref } from "vue";
+import { inject, onMounted, reactive, ref, onUnmounted, onActivated } from "vue";
 
 let musicStore = musicResource();
 const musicEnevt:any = inject("music-enevt");
-const current = ref<string[]>([]);
+const current: Record<string, any> = reactive({});
+const page = ref(1);
+const singersCount = ref(0);
 
-const getSingersByTypes = async (index:any, val:any) => {
-    current.value[index] = val;
-    musicStore.getSingersByTypes(current.value);
+const getSingersByTypes = async (key:any, val:any) => {
+    current[key] = val.id;
+    page.value = 1;
+    musicStore.getSingersByTypes(current, page.value);
 }
+
+const ob = new IntersectionObserver(async (entries) => {
+    if(entries[0].isIntersecting) {
+        page.value += 1;
+        await musicStore.getSingersByTypes(current, page.value);
+        singersCount.value = musicStore.singers.length;
+    }
+}, 
+{
+    root: null,
+    threshold: 0.1
+}
+)
 
 onMounted(async () => {
     await musicStore.getAllSingers();
-    musicStore.singerSquare.forEach((item:any) => {
-        current.value.push(item.categories[0].id);
-    })
-    current.value.push('all');
+    Object.entries(musicStore.singerSquare.categories).forEach(([key, value]) => {
+        current[key] = value.find((item:any) => item.default)?.id;
+    });
+    ob.observe(document.querySelector(".loader") as HTMLElement);
 })
+
+onUnmounted(() => {
+    ob.disconnect();
+})
+
+onActivated(async () => {
+    await musicStore.getAllSingers();
+    page.value = 1;
+    if(musicStore.singerSquare.categories) {
+        Object.entries(musicStore.singerSquare.categories).forEach(([key, value]) => {
+            current[key] = value.find((item:any) => item.default)?.id;
+        });
+    }
+})
+
 </script>
 
 <style lang="scss" scoped>

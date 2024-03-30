@@ -246,6 +246,10 @@ onActivated(() => {
             }
             .album {
                 flex: 2;
+                &:hover {
+                    cursor: pointer;
+                    color: var(--text-color-hover);
+                }
             }
             .time {
                 width: 60px;

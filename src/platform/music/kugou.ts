@@ -559,7 +559,7 @@ export class KuGouMusicApi {
             id: album.id,
             name: album.name,
             img: album.img || img, // 封面
-            time: album.time || detailItems.item(12).textContent,  // 发行时间
+            time: album.time || detailItems.item(12)?.textContent,  // 发行时间
             desc: desc,  // 描述
             singer: album.singer || songs[0].singers[0],  // 歌手
             songs: songs,
@@ -573,12 +573,14 @@ export class KuGouMusicApi {
         const allSingersHtml = await get('https://www.kugou.com/yy/html/singer.html', null) as any;
         const parser = new DOMParser();
         const doc = parser.parseFromString(allSingersHtml, "text/html");
-        const category = doc.querySelectorAll(".sng .l li");
+        let categories: Record<string, Array<SingerCategory>> = {};
+        // 组合分类
         let singerCategory: Array<SingerCategory> = [];
+        const category = doc.querySelectorAll(".sng .l li");
         category.forEach((item: any) => {
+            const regex = new RegExp(`all-(.*?){1}.html`);
+            const match = item.querySelector("a").href.match(regex);
             if(item.querySelector("a").href.includes("all")) {
-                const regex = new RegExp(`all-(.*?){1}.html`);
-                const match = item.querySelector("a").href.match(regex);
                 singerCategory.push({
                     id: match[1],
                     name: item.querySelector("a").textContent,
@@ -586,15 +588,37 @@ export class KuGouMusicApi {
                 })
             }else {
                 singerCategory.push({
-                    id: "all",
+                    id: '1',
                     name: item.querySelector("a").textContent,
                     default: true,
                     chl: CHL
                 })
             }
         })
-        let singerSquare : Array<SingerSquare> = [];
-        singerSquare.push({categories: singerCategory, chl: CHL})
+        categories['category'] = singerCategory;
+        // 字母分类
+        let singerLetter: Array<SingerCategory> = [];
+        const letter = doc.querySelectorAll(".num a");
+        letter.forEach((item: any) => {
+            const regex = new RegExp(`1-(.*?){1}-1.html`);
+            const match = item.href.match(regex);
+            if(item.href.includes("all")) {
+                singerLetter.push({
+                    id: match[1],
+                    name: item.textContent,
+                    default: true,
+                    chl: CHL
+                })
+            }else {
+                singerLetter.push({
+                    id: match[1],
+                    name: item.textContent,
+                    chl: CHL
+                })
+            }
+        })
+        categories['letter'] = singerLetter;
+        let singerSquare : SingerSquare = {categories: categories, chl: CHL};
         const list = doc.querySelectorAll("#list_head li");
         let singers: Array<Singer> = [];
         list.forEach((item: any) => {
@@ -610,8 +634,9 @@ export class KuGouMusicApi {
     }
 
     // 查询歌手
-    static getSingersByTypes = async (data:string[]) => {
-        const allSingersHtml = await get(`https://www.kugou.com/yy/singer/index/1-${data[1]}-${data[0]=='all'?'1':data[0]}.html`, null) as any;
+    static getSingersByTypes = async (data:any, page:number) => {
+        if(page != 1) return { singers: []};
+        const allSingersHtml = await get(`https://www.kugou.com/yy/singer/index/1-${data['letter']}-${data['category']}.html`, null) as any;
         const parser = new DOMParser();
         const doc = parser.parseFromString(allSingersHtml, "text/html");
         const list = doc.querySelectorAll("#list_head li");

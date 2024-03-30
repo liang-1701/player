@@ -15,7 +15,7 @@ let menuStore = defineStore("menu", {
             squareDetail: {} as SquareDetail,  // 歌单内容
             singerDetail: {} as SingerDetail, // 歌手详细
             albumDetail: {} as Album, // 歌手详细
-            singerSquare : Array<SingerSquare>(), // 歌手广场
+            singerSquare : {} as SingerSquare, // 歌手广场
             singers: Array<Singer>(), // 所有歌手
             search: {} as any, // 搜索内容
         };
@@ -92,10 +92,14 @@ let menuStore = defineStore("menu", {
             this.singers = result.singers;
         },
         // 查询歌手
-        async getSingersByTypes(data:string[]) {
+        async getSingersByTypes(data:any, page:number) {
             const method = await getClassName(this.currentPlat.file, "getSingersByTypes");
-            const result = await method!(data);
-            this.singers = result.singers;
+            const result = await method!(data, page);
+            if (page === 1) {
+                this.singers = result.singers;
+            }else {
+                this.singers.push(...result.singers);
+            }
         },
         // 搜索歌曲
         async searchSongs(keywords: string, page: number) {

@@ -84,7 +84,7 @@ export interface Singer {
 }
 
 export interface SingerSquare {
-    categories: Array<SingerCategory>,
+    categories: Record<string, Array<SingerCategory>>,
     chl: number,  // 渠道
     data?: Record<string, any>
 }
