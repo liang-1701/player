@@ -23,7 +23,7 @@ export class KuGouMusicApi {
             'dfid': '1nhI9M0MVRfK2uTtUl4EF7yN',
             'signature': '19a9dd8c692db28479854841516c88de'
         } 
-        const res = await post(url, data, params, null);
+        const res = await post(url, data, {params});
         (res as any).data.forEach((item: any) => {
             const items: Array<CategoryItem> = [];
             item.son.forEach((el:any) => {
@@ -96,7 +96,7 @@ export class KuGouMusicApi {
                 "withtag": 1
             }
         }
-        const res = await post(url, data, null, null);
+        const res = await post(url, data, null);
         let items: SquareItem[] = [];
         (res as any).data.special_list.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -139,7 +139,7 @@ export class KuGouMusicApi {
               'area_code': '1',
               'signature': 'e7b4a1a07fd3979b9883d678ef818b00'
             }
-        const res = await post(url, null, params, null);
+        const res = await post(url, null, {params});
         let items: SquareItem[] = [];
         (res as any).data.info.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -164,7 +164,7 @@ export class KuGouMusicApi {
             return { squareDetail: (await this.getTopList(id, data)).squareDetail };
         }
         const url = `https://www.kugou.com/yy/special/single/${id}.html`;
-        const res = await get(url, null);
+        const res = await get(url, null, null);
         const parser = new DOMParser();
         const doc = parser.parseFromString(res as any, "text/html");
         const script = doc.querySelectorAll("script");
@@ -204,7 +204,7 @@ export class KuGouMusicApi {
                 "page": 1,
                 "json": true
             }
-        const res = await get(url, params);
+        const res = await get(url, params, null);
         const info = (res as any).info;
         const body = {
                 "appid": 1001,
@@ -220,7 +220,7 @@ export class KuGouMusicApi {
                 "rank_cid": info.rank_cid,
                 "zone": "tx6_gz_kmr"
             }
-        const res1 = await post('http://kmr.service.kugou.com/container/v2/rank_audio', body, null, null);
+        const res1 = await post('http://kmr.service.kugou.com/container/v2/rank_audio', body, null);
         let songs: Array<Song> = [];
         (res1 as any).data.forEach((item:any) => {
             songs.push({
@@ -258,7 +258,7 @@ export class KuGouMusicApi {
             token: '',
             userid: 0
         }
-        const res = await get('https://wwwapi.kugou.com/play/songinfo', getParamsAndSign(reqBody)) as any;
+        const res = await get('https://wwwapi.kugou.com/play/songinfo', getParamsAndSign(reqBody), null) as any;
         song.img = res.data.img;
         song.lyrics = parseLyrics(res.data.lyrics);
         const playUrl = res.data.play_url;
@@ -288,7 +288,7 @@ export class KuGouMusicApi {
             'token': '',
             'appid': '1014',
         }
-        const res = await get('https://complexsearch.kugou.com/v2/search/song', getParamsAndSign(reqBody)) as any;
+        const res = await get('https://complexsearch.kugou.com/v2/search/song', getParamsAndSign(reqBody), null) as any;
         let songs: Array<Song> = [];
         res.data.lists.forEach((item:any) => {
             songs.push({
@@ -327,7 +327,7 @@ export class KuGouMusicApi {
             'token': '',
             'appid': '1014',
         }
-        const res = await get('https://complexsearch.kugou.com/v1/search/special', getParamsAndSign(reqBody)) as any;
+        const res = await get('https://complexsearch.kugou.com/v1/search/special', getParamsAndSign(reqBody), null) as any;
         let specials: Array<SquareItem> = [];
         res.data.lists.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -366,7 +366,7 @@ export class KuGouMusicApi {
             'token': '',
             'appid': '1014',
         }
-        const res = await get('https://complexsearch.kugou.com/v1/search/author', getParamsAndSign(reqBody)) as any;
+        const res = await get('https://complexsearch.kugou.com/v1/search/author', getParamsAndSign(reqBody), null) as any;
         let singers: Array<Singer> = [];
         res.data.lists.forEach((item:any) => {
             const singer : Singer = {
@@ -404,7 +404,7 @@ export class KuGouMusicApi {
             'token': '',
             'appid': '1014',
         }
-        const res = await get('https://complexsearch.kugou.com/v1/search/album', getParamsAndSign(reqBody)) as any;
+        const res = await get('https://complexsearch.kugou.com/v1/search/album', getParamsAndSign(reqBody), null) as any;
         let albums: Array<Album> = [];
         res.data.lists.forEach((item:any) => {
             const album : Album = {
@@ -424,7 +424,7 @@ export class KuGouMusicApi {
     // 歌手详情
     static getSingerDetail = async (singer: Singer, page: number) => {
         if(singer.id === undefined || singer.id === null || singer.id === '') {
-            const singerHtml = await get(singer.data!.html, null) as any;
+            const singerHtml = await get(singer.data!.html, null, null) as any;
             const parser = new DOMParser();
             const doc = parser.parseFromString(singerHtml, "text/html");
             const script = doc.querySelectorAll("script");
@@ -437,7 +437,7 @@ export class KuGouMusicApi {
             singer.id = globalData.singerID;
         }
         if(!singer.img) {
-            const singerHtml = await get(`https://www.kugou.com/singer/info/${singer.id}/`, null) as any;
+            const singerHtml = await get(`https://www.kugou.com/singer/info/${singer.id}/`, null, null) as any;
             const parser = new DOMParser();
             const doc = parser.parseFromString(singerHtml, "text/html");
             const imgUrl = doc.querySelector(".sng_ins_1 .top img")?.getAttribute('_src');
@@ -456,7 +456,7 @@ export class KuGouMusicApi {
             "area_code": "all"
         }
         // 推荐
-        const res = await post('http://kmr.service.kugou.com/container/v2/audio_group/author', data, null, null) as any;
+        const res = await post('http://kmr.service.kugou.com/container/v2/audio_group/author', data, null) as any;
         let recommend: Array<Song> = [];
         res.data.forEach((item:any) => {
             recommend.push({
@@ -494,7 +494,7 @@ export class KuGouMusicApi {
             "area_code": "all"
         }
         // 推荐
-        const res = await post('http://kmr.service.kugou.com/container/v2/audio_group/author', data, null, null) as any;
+        const res = await post('http://kmr.service.kugou.com/container/v2/audio_group/author', data, null) as any;
         let songs: Array<Song> = [];
         res.data.forEach((item:any) => {
             songs.push({
@@ -514,7 +514,7 @@ export class KuGouMusicApi {
         if (page !=1) {
             return { albums: [] }
         }
-        const res = await get(`https://www.kugou.com/yy/?r=singer/album&sid=${singer.id}&p=1&t=1708780593820`, null) as any;
+        const res = await get(`https://www.kugou.com/yy/?r=singer/album&sid=${singer.id}&p=1&t=1708780593820`, null, null) as any;
         let albums: Array<Album> = [];
         res.data.forEach((item:any) => {
             albums.push({
@@ -531,7 +531,7 @@ export class KuGouMusicApi {
 
     // 专辑详情
     static getAlbumDetail = async (album: Album) => {
-        const res = await get(`https://www.kugou.com/album/${album.id}.html`, null) as any;
+        const res = await get(`https://www.kugou.com/album/${album.id}.html`, null, null) as any;
         const parser = new DOMParser();
         const doc = parser.parseFromString(res, "text/html");
         const desc = doc.querySelector(".more_intro")?.textContent;
@@ -570,7 +570,7 @@ export class KuGouMusicApi {
 
     // 所有歌手
     static getAllSingers = async () => {
-        const allSingersHtml = await get('https://www.kugou.com/yy/html/singer.html', null) as any;
+        const allSingersHtml = await get('https://www.kugou.com/yy/html/singer.html', null, null) as any;
         const parser = new DOMParser();
         const doc = parser.parseFromString(allSingersHtml, "text/html");
         let categories: Record<string, Array<SingerCategory>> = {};
@@ -636,7 +636,7 @@ export class KuGouMusicApi {
     // 查询歌手
     static getSingersByTypes = async (data:any, page:number) => {
         if(page != 1) return { singers: []};
-        const allSingersHtml = await get(`https://www.kugou.com/yy/singer/index/1-${data['letter']}-${data['category']}.html`, null) as any;
+        const allSingersHtml = await get(`https://www.kugou.com/yy/singer/index/1-${data['letter']}-${data['category']}.html`, null, null) as any;
         const parser = new DOMParser();
         const doc = parser.parseFromString(allSingersHtml, "text/html");
         const list = doc.querySelectorAll("#list_head li");

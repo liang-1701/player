@@ -36,7 +36,7 @@ export class QQMusicApi {
                 }
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let items: SquareItem[] = [];
         (res as any).req_1.data.FeedRsp.List.forEach((item:any) => {
             const el = item.Playlist.basic;
@@ -80,7 +80,7 @@ export class QQMusicApi {
                 "mesh_devops": "DevopsBase"
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         res.req_1.data.v_group.forEach((item: any) => {
             const items: Array<CategoryItem> = [];
             item.v_item.forEach((el:any) => {
@@ -145,7 +145,7 @@ export class QQMusicApi {
                 }
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let items: SquareItem[] = [];
         res.req_1.data.content.v_item.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -195,7 +195,7 @@ export class QQMusicApi {
                 }
             })
         };
-        const res = await get(BASE_URL, params) as any;
+        const res = await get(BASE_URL, params, null) as any;
         let items: SquareItem[] = [];
         res.req_1.data.group.forEach((item:any) => {
             item.toplist.forEach((el:any) => {
@@ -247,7 +247,7 @@ export class QQMusicApi {
                 "guid": "AE5C5AFDB0D1F69DC4D50AF54E2054B6"
             }
         }
-        const res = await post(BASE_URL, reqBody, null, null) as any;
+        const res = await post(BASE_URL, reqBody, null) as any;
         let songs: Array<Song> = [];
         res.req_0.data.songlist.forEach((item:any) => {
             songs.push({
@@ -292,7 +292,7 @@ export class QQMusicApi {
                 }
             })
         }
-        const res = await get(BASE_URL, params) as any;
+        const res = await get(BASE_URL, params, null) as any;
         let songs: Array<Song> = [];
         res.req_1.data.songInfoList.forEach((item:any) => {
             songs.push({
@@ -361,7 +361,7 @@ export class QQMusicApi {
                 }
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         const sip = res.req_2.data.sip[0];
         const purl = res.req_2.data.midurlinfo[0].purl;
         const playUrl = `${sip}${purl}`;
@@ -389,7 +389,7 @@ export class QQMusicApi {
                 }
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let songs: Array<Song> = [];
         res.req_1.data.body.song.list.forEach((item:any) => {
             songs.push({
@@ -426,7 +426,7 @@ export class QQMusicApi {
                 }
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let specials: Array<SquareItem> = [];
         res.req_1.data.body.songlist.list.forEach((item:any) => {
             const squareItem : SquareItem = {
@@ -462,7 +462,7 @@ export class QQMusicApi {
                 }
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let singers: Array<Singer> = [];
         res.req_1.data.body.singer.list.forEach((item:any) => {
             const singer : Singer = {
@@ -497,7 +497,7 @@ export class QQMusicApi {
                 }
             }
         }
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let albums: Array<Album> = [];
         res.req_1.data.body.album.list.forEach((item:any) => {
             const album : Album = {
@@ -555,7 +555,7 @@ export class QQMusicApi {
                 }
             }
         }       
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         singer.img = res.req_0.data.singer_list[0].pic.pic;
         let recommend: Array<Song> = [];
         res.req_1.data.songList.forEach((item:any) => {
@@ -608,7 +608,7 @@ export class QQMusicApi {
                 }
             }
         }       
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let songs: Array<Song> = [];
         res.req_1.data.songList.forEach((item:any) => {
             const songInfo = item.songInfo;
@@ -652,7 +652,7 @@ export class QQMusicApi {
                 }
             }
         }       
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let albums: Array<Album> = [];
         res.req_1.data.albumList.forEach((item:any) => {
             albums.push({
@@ -701,7 +701,7 @@ export class QQMusicApi {
                 }
             }
         }       
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let songs: Array<Song> = [];
         res.req_2.data.songList.forEach((item:any) => {
             const songInfo = item.songInfo;
@@ -754,7 +754,7 @@ export class QQMusicApi {
                 "guid": "AE5C5AFDB0D1F69DC4D50AF54E2054B6"
             }
         }     
-        const res = await post(BASE_URL, data, null, null) as any;
+        const res = await post(BASE_URL, data, null) as any;
         let categories: Record<string, Array<SingerCategory>> = {};
         Object.entries(res.req_0.data.tags).forEach(([key, value]) => {
             let singerCategory: Array<SingerCategory> = [];
@@ -815,7 +815,7 @@ export class QQMusicApi {
                 "guid": "AE5C5AFDB0D1F69DC4D50AF54E2054B6"
             }
         }     
-        const res = await post(BASE_URL, reqBody, null, null) as any;
+        const res = await post(BASE_URL, reqBody, null) as any;
         let singers: Array<Singer> = [];
         res.req_0.data.singerlist.forEach((item: any) => {
             singers.push({
