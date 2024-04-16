@@ -77,7 +77,6 @@ export class WangYiYunMusicApi {
 
     // 获取当前分类内容
     static getSquare = async (id: number|string, page: number) => {
-        console.log(id, page);
         const pageSize = 35;
         if ("top" == id) {
             return { square: (await this.getTop()).square };
@@ -136,7 +135,6 @@ export class WangYiYunMusicApi {
                 totalPage: totalEl,  // 总页数
             }
         }
-        console.log(square);
         return { square };
     }
 
@@ -146,7 +144,6 @@ export class WangYiYunMusicApi {
             "e_r": true,
         }
         const res = await postApi('api/toplist/detail/v2', data) as any;
-        console.log(res);
         let items: SquareItem[] = [];
         res.data.forEach((item:any) => {
             item.list.forEach((el:any) => {
@@ -169,154 +166,61 @@ export class WangYiYunMusicApi {
     }
 
     // 获取当前歌单内容
-    // static getSquareDetail = async (id: number|string, group: string, data: any) => {
-    //     if ("top" == group) {
-    //         return { squareDetail: (await this.getTopList(id, data)).squareDetail };
-    //     }
-    //     const reqBody = {
-    //         "req_0": {
-    //             "module": "music.srfDissInfo.aiDissInfo",
-    //             "method": "uniform_get_Dissinfo",
-    //             "param": {
-    //             "disstid": id,
-    //             "userinfo": 1,
-    //             "tag": 1,
-    //             "is_pc": 1,
-    //             "guid": "AE5C5AFDB0D1F69DC4D50AF54E2054B6"
-    //             }
-    //         },
-    //         "comm": {
-    //             "g_tk": 5381,
-    //             "uin": 0,
-    //             "format": "json",
-    //             "ct": 20,
-    //             "cv": 1957,
-    //             "platform": "wk_v17",
-    //             "uid": "5238907661",
-    //             "guid": "AE5C5AFDB0D1F69DC4D50AF54E2054B6"
-    //         }
-    //     }
-    //     const res = await post(BASE_URL, reqBody, null, null) as any;
-    //     let songs: Array<Song> = [];
-    //     res.req_0.data.songlist.forEach((item:any) => {
-    //         songs.push({
-    //             id: item.mid,
-    //             name: item.name,
-    //             time: formatTime(item.interval),
-    //             album: {id: item.album.mid, name: item.album.name, chl: CHL},
-    //             singers: item.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
-    //             img: `https://y.qq.com/music/photo_new/T002R300x300M000${item.album.mid}.jpg?max_age=2592000`,
-    //             chl: CHL
-    //         })
-    //     })
-    //     let squareDetail: SquareDetail = {
-    //         id: res.req_0.data.dirinfo.id,
-    //         name: res.req_0.data.dirinfo.title,
-    //         desc: res.req_0.data.dirinfo.desc,
-    //         img: res.req_0.data.dirinfo.picurl,
-    //         songs: songs,
-    //         chl: CHL
-    //     };
-    //     return { squareDetail }
-    // }
+    static getSquareDetail = async (id: number|string, group: string, data: any) => {
+        const params = {
+            id: id,
+            offset: 0,
+            total: true,
+            limit: 1000,
+            n: 1000,
+            csrf_token: ''
+        };
+        const res = await post('https://music.163.com/weapi/v3/playlist/detail', qs.stringify(weapi(params)), null) as any;
+        const c = res.playlist.trackIds.map((s: { id: any}) => ({id: String(s.id)}));
+        const ids = res.playlist.trackIds.map((s: { id: any}) => (String(s.id)));
+        const res1 = await post('https://music.163.com/weapi/v3/song/detail', qs.stringify(weapi({c:JSON.stringify(c), ids:JSON.stringify(ids)})), null) as any;
+        let songs: Array<Song> = [];
+        res1.songs.forEach((item:any) => {
+            songs.push({
+                id: item.id,
+                name: item.name,
+                time: formatTime(item.dt/1000),
+                album: {id: item.al.id, name: item.al.name, chl: CHL},
+                singers: item.ar.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
+                img: item.al.picUrl,
+                chl: CHL
+            })
+        })
+        let squareDetail: SquareDetail = {
+            id: res.playlist.id,
+            name: res.playlist.name,
+            desc: res.playlist.description,
+            img: res.playlist.coverImgUrl,
+            songs: songs,
+            chl: CHL
+        };
+        return { squareDetail }
+    }
     
-    // // 获得当前排行榜内容
-    // static getTopList = async (id: number|string, data: any) => {
-    //     const params = {
-    //         g_tk: 5381,
-    //         data: JSON.stringify({
-    //             comm: {
-    //                 ct: 24,
-    //                 cv: 0
-    //             },
-    //             req_1: {
-    //                 module: "musicToplist.ToplistInfoServer",
-    //                 method: "GetDetail",
-    //                 param: {
-    //                     "topid": id, 
-    //                     "offset": 0, 
-    //                     "num": 100, 
-    //                     "period": data.period
-    //                 }
-    //             }
-    //         })
-    //     }
-    //     const res = await get(BASE_URL, params) as any;
-    //     let songs: Array<Song> = [];
-    //     res.req_1.data.songInfoList.forEach((item:any) => {
-    //         songs.push({
-    //             id: item.mid,
-    //             name: item.name,
-    //             time: formatTime(item.interval),
-    //             album: {id: item.album.mid, name: item.album.name, chl: CHL},
-    //             singers: item.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
-    //             img: `https://y.qq.com/music/photo_new/T002R300x300M000${item.album.mid}.jpg?max_age=2592000`,
-    //             chl: CHL
-    //         })
-    //     })
-    //     let squareDetail: SquareDetail = {
-    //         id: res.req_1.data.data.topId,
-    //         name: res.req_1.data.data.title,
-    //         desc: res.req_1.data.data.intro,
-    //         updateTime: res.req_1.data.data.updateTime,
-    //         img: res.req_1.data.data.frontPicUrl || res.req_1.data.data.headPicUrl,
-    //         songs: songs,
-    //         chl: CHL
-    //     };
-    //     return { squareDetail }
-    // }
-
-    // static getSongDetail = async (song: Song) => {
-    //     const data = {
-    //         "comm": {
-    //             "cv": 4747474,
-    //             "ct": 24,
-    //             "format": "json",
-    //             "inCharset": "utf-8",
-    //             "outCharset": "utf-8",
-    //             "notice": 0,
-    //             "platform": "yqq.json",
-    //             "needNewCode": 1,
-    //             "uin": 0,
-    //             "g_tk_new_20200303": 5381,
-    //             "g_tk": 5381
-    //         },
-    //         "req_1": {
-    //             "module": "music.musichallSong.PlayLyricInfo",
-    //             "method": "GetPlayLyricInfo",
-    //             "param": {
-    //             "songMID": song.id,
-    //             // "songID": 473931353
-    //             }
-    //         },
-    //         "req_2": {
-    //             "module": "vkey.GetVkeyServer",
-    //             "method": "CgiGetVkey",
-    //             "param": {
-    //                 guid: nextInt(10000000).toFixed(0),
-    //                 "songmid": [
-    //                     song.id
-    //                 ],
-    //                 "songtype": [
-    //                     0
-    //                 ],
-    //                 "uin": "0",
-    //                 "loginflag": 1,
-    //                 "platform": "20",
-    //                 "filename": [
-    //                     `RS02${song.id}.mp3`
-    //                     // filename: [`${item.prefix}${res.req_1.data.track_info.mid}${res.req_1.data.track_info.mid}${item.ext}`],
-    //                 ]
-    //             }
-    //         }
-    //     }
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     const sip = res.req_2.data.sip[0];
-    //     const purl = res.req_2.data.midurlinfo[0].purl;
-    //     const playUrl = `${sip}${purl}`;
-    //     song.lyrics = parseLyrics(res.req_1.data.lyric);
-    //     return { playUrl }
-    // }
+    static getSongDetail = async (song: Song) => {
+        let params = {
+            ids: [song.id],
+            level: 'standard',
+            encodeType: 'flac', //aac
+            csrf_token: ''
+        };
+        const res = await post('https://music.163.com/weapi/song/enhance/player/url/v1', qs.stringify(weapi(params)), null) as any;
+        let lyricsParams = {
+            id: song.id,
+            lv: -1,
+            tv: -1,
+            csrf_token: ''
+        };
+        const res1 = await post('https://music.163.com/weapi/song/lyric', qs.stringify(weapi(lyricsParams)), null) as any;
+        let playUrl = res.data[0].url;
+        song.lyrics = parseLyrics(res1.lrc.lyric);
+        return { playUrl }
+    }
     
     // // 歌曲搜索
     // static searchSongs = async (keyword: string, page: number) => {
@@ -778,14 +682,8 @@ export class WangYiYunMusicApi {
     // }
 }
 
-const parseLyrics = (data: string) => {
-    if (!data) return;
-    let lyrics = CryptoJS.enc.Base64.parse(data).toString(CryptoJS.enc.Utf8);
-    if (lyrics.includes('[offset:0]')) {
-        lyrics = lyrics.split('[offset:0]')[1]
-    }else if (lyrics.includes('[00:00.00]')) {
-        lyrics = lyrics.split('[00:00.00]')[1]
-    }
+const parseLyrics = (lyrics: string) => {
+    if (!lyrics) return;
     const lines = lyrics!.split(/\r?\n/);
     const pattern = /\[\d{2}:\d{2}(?:\.\d{1,3})?\]/g;
     let lyricsArr = [] as any;
@@ -811,6 +709,7 @@ const decrypt = (text: any) => {
     const decryptedWordArray = CryptoJS.AES.decrypt(cipherParams, keyWordArray, { mode: CryptoJS.mode.ECB });
     try {
         let decryptedText = CryptoJS.enc.Utf8.stringify(decryptedWordArray);
+        console.log(decryptedText);
         return decryptedText;
     } catch (error) {
         console.error('解密失败:', error);
@@ -859,19 +758,4 @@ const rsaEncrypt = (src:any, publicKey:any, modulus:any) => {
     const k = new forge.jsbn.BigInteger(publicKey, 16);
     const s = new forge.jsbn.BigInteger(forge.util.bytesToHex(src), 16);
     return s.modPow(k, m).toString(16).padStart(256, '0');
-}
-
-// 获取歌单中歌曲的id
-const getSongIds = async (id: any) => {
-    const data = {
-        id: id,
-        offset: 0,
-        total: true,
-        limit: 1000,
-        n: 1000,
-        csrf_token: ''
-    };
-    const result = await post('https://music.163.com/weapi/v3/playlist/detail', qs.stringify(weapi(data)), null) as any;
-    console.log(result);
-    return result;
 }
