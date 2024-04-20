@@ -1,7 +1,7 @@
 import { Category, CategoryItem, Square, SquareItem, SquareDetail, Song, SingerDetail, Album, Singer, SingerSquare, SingerCategory } from "@/type/musicTypes";
 import { post, get } from "@/common/http";
 import CryptoJS from 'crypto-js';
-import { formatTime, randomText, toTrimString } from '@/common/utils'
+import { formatTime, randomText, toTrimString, timestampToDate } from '@/common/utils'
 import forge from "node-forge";
 import qs from "qs";
 
@@ -222,150 +222,108 @@ export class WangYiYunMusicApi {
         return { playUrl }
     }
     
-    // // 歌曲搜索
-    // static searchSongs = async (keyword: string, page: number) => {
-    //     const pageSize = 30;
-    //     const data = {
-    //         "comm": {
-    //             "ct": "6",
-    //             "cv": "80500"
-    //         },
-    //         "req_1": {
-    //             "module": "music.search.SearchCgiService",
-    //             "method": "DoSearchForQQMusicDesktop",
-    //             "param": {
-    //                 "num_per_page": pageSize,
-    //                 "page_num": page,
-    //                 "query": keyword,
-    //                 "search_type": 0,
-    //                 "grp": 1
-    //             }
-    //         }
-    //     }
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let songs: Array<Song> = [];
-    //     res.req_1.data.body.song.list.forEach((item:any) => {
-    //         songs.push({
-    //             id: item.mid,
-    //             name: item.name,
-    //             time: formatTime(item.interval),
-    //             album: {id: item.album.mid, name: item.album.name, chl: CHL},
-    //             singers: item.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
-    //             img: `https://y.qq.com/music/photo_new/T002R300x300M000${item.album.mid}.jpg?max_age=2592000`,
-    //             chl: CHL
-    //         })
-    //     });
-    //     return { songs };
-        
-    // }
+    // 歌曲搜索
+    static searchSongs = async (keyword: string, page: number) => {
+        const pageSize = 20;
+        const data = {
+            keyword: keyword,
+            scene: 'NORMAL',
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            needCorrect: 'true',
+            e_r: true,
+        }
+        const res = await postApi('api/search/song/page', data)
+        let songs: Array<Song> = [];
+        res.data.resources.forEach((item:any) => {
+            songs.push({
+                id: item.baseInfo.id,
+                name: item.baseInfo.name,
+                time: formatTime(item.baseInfo.dt/1000),
+                album: {id: item.baseInfo.al.id, name: item.baseInfo.al.name, chl: CHL},
+                singers: item.baseInfo.ar.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
+                img: item.baseInfo.al.picUrl,
+                chl: CHL
+            })
+        });
+        return { songs };
+    }
 
-    // // 歌单搜索
-    // static searchSpecials = async (keyword: string, page: number) => {
-    //     const pageSize = 30;
-    //     const data = {
-    //         "comm": {
-    //             "ct": "6",
-    //             "cv": "80500"
-    //         },
-    //         "req_1": {
-    //             "module": "music.search.SearchCgiService",
-    //             "method": "DoSearchForQQMusicDesktop",
-    //             "param": {
-    //                 "num_per_page": pageSize,
-    //                 "page_num": page,
-    //                 "query": keyword,
-    //                 "search_type": 3,
-    //                 "grp": 1
-    //             }
-    //         }
-    //     }
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let specials: Array<SquareItem> = [];
-    //     res.req_1.data.body.songlist.list.forEach((item:any) => {
-    //         const squareItem : SquareItem = {
-    //             id: Number(item.dissid),
-    //             imgUrl: item.imgurl,
-    //             title: item.dissname,
-    //             group: "other",
-    //             chl: CHL
-    //         }
-    //         specials.push(squareItem);
-    //     });
-    //     return { specials };
-        
-    // }
+    // 歌单搜索
+    static searchSpecials = async (keyword: string, page: number) => {
+        const pageSize = 20;
+        const data = {
+            s: keyword,
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            queryCorrect: 'true',
+            e_r: true,
+        }
+        const res = await postApi('api/v1/search/playlist/get', data)
+        let specials: Array<SquareItem> = [];
+        res.result.playlists.forEach((item:any) => {
+            const squareItem : SquareItem = {
+                id: Number(item.id),
+                imgUrl: item.coverImgUrl,
+                title: item.name,
+                group: "other",
+                chl: CHL
+            }
+            specials.push(squareItem);
+        });
+        return { specials };
+    }
 
-    // // 歌手搜索
-    // static searchSingers = async (keyword: string, page: number) => {
-    //     const pageSize = 30;
-    //     const data = {
-    //         "comm": {
-    //             "ct": "6",
-    //             "cv": "80500"
-    //         },
-    //         "req_1": {
-    //             "module": "music.search.SearchCgiService",
-    //             "method": "DoSearchForQQMusicDesktop",
-    //             "param": {
-    //                 "num_per_page": pageSize,
-    //                 "page_num": page,
-    //                 "query": keyword,
-    //                 "search_type": 1,
-    //                 "grp": 1
-    //             }
-    //         }
-    //     }
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let singers: Array<Singer> = [];
-    //     res.req_1.data.body.singer.list.forEach((item:any) => {
-    //         const singer : Singer = {
-    //             id: item.singerMid,
-    //             name: item.singerName,
-    //             img: item.singerPic,  // 封面
-    //             chl: CHL
-    //         }
-    //         singers.push(singer);
-    //     });
-    //     return { singers };
-        
-    // }
+    // 歌手搜索
+    static searchSingers = async (keyword: string, page: number) => {
+        const pageSize = 20;
+        const data = {
+            s: keyword,
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            queryCorrect: 'true',
+            e_r: true,
+        }
+        const res = await postApi('api/v1/search/artist/get', data)
+        let singers: Array<Singer> = [];
+        res.result.artists.forEach((item:any) => {
+            const singer : Singer = {
+                id: item.id,
+                name: item.name,
+                img: item.picUrl,  // 封面
+                chl: CHL
+            }
+            singers.push(singer);
+        });
+        return { singers };
+    }
 
-    // // 专辑搜索
-    // static searchAlbums = async (keyword: string, page: number) => {
-    //     const pageSize = 30;
-    //     const data = {
-    //         "comm": {
-    //             "ct": "6",
-    //             "cv": "80500"
-    //         },
-    //         "req_1": {
-    //             "module": "music.search.SearchCgiService",
-    //             "method": "DoSearchForQQMusicDesktop",
-    //             "param": {
-    //                 "num_per_page": pageSize,
-    //                 "page_num": page,
-    //                 "query": keyword,
-    //                 "search_type": 2,
-    //                 "grp": 1
-    //             }
-    //         }
-    //     }
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let albums: Array<Album> = [];
-    //     res.req_1.data.body.album.list.forEach((item:any) => {
-    //         const album : Album = {
-    //             id: item.albumMid,
-    //             name: item.albumName,
-    //             img: item.albumPic, // 封面
-    //             time: item.publicTime,  // 发行时间
-    //             singer: item.singer_list.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
-    //             chl: CHL
-    //         }
-    //         albums.push(album);
-    //     });
-    //     return { albums };
+    // 专辑搜索
+    static searchAlbums = async (keyword: string, page: number) => {
+        const pageSize = 20;
+        const data = {
+            s: keyword,
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            queryCorrect: 'true',
+            e_r: true,
+        }
+        const res = await postApi('api/v1/search/album/get', data)
+        let albums: Array<Album> = [];
+        res.result.albums.forEach((item:any) => {
+            const album : Album = {
+                id: item.id,
+                name: item.name,
+                img: item.picUrl, // 封面
+                time: timestampToDate(item.publishTime),  // 发行时间
+                singer: item.artists.map((s: { id: any, name: any, picUrl: any}) => ({id: s.id, name: s.name, img: s.picUrl, chl: CHL})),
+                chl: CHL
+            }
+            albums.push(album);
+        });
+        return { albums };
         
-    // }
+    }
     
     // // 歌手详情
     // static getSingerDetail = async (singer: Singer, page: number) => {
@@ -709,7 +667,6 @@ const decrypt = (text: any) => {
     const decryptedWordArray = CryptoJS.AES.decrypt(cipherParams, keyWordArray, { mode: CryptoJS.mode.ECB });
     try {
         let decryptedText = CryptoJS.enc.Utf8.stringify(decryptedWordArray);
-        console.log(decryptedText);
         return decryptedText;
     } catch (error) {
         console.error('解密失败:', error);

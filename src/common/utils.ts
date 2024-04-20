@@ -27,6 +27,19 @@ export function msToSeconds(seconds: string): number {
     }
 }
 
+// 毫秒----------年-月-日
+export function timestampToDate(timestamp: any) {
+    var date = new Date(timestamp);
+    var year = date.getFullYear();
+    var month = ("0" + (date.getMonth() + 1)).slice(-2); // 月从0开始，所以需要加1
+    var day = ("0" + date.getDate()).slice(-2); // 对于不满两位的月份或日期前面补0
+    return year + "-" + month + "-" + day;
+  }
+  
+  // 使用示例
+  var timestamp = Date.now(); // 获取当前时间戳
+  console.log(timestampToDate(timestamp)); // 输出格式化的当前日期
+
 // 指定范围的随机数
 export const nextInt = (max:number) => {
     max = max || 1024
