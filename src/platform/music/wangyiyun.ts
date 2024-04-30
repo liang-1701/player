@@ -325,319 +325,183 @@ export class WangYiYunMusicApi {
         
     }
     
-    // // 歌手详情
-    // static getSingerDetail = async (singer: Singer, page: number) => {
-    //     const pageSize = 30;
-    //     const data = {
-    //         "comm": {
-    //             "cv": 4747474,
-    //             "ct": 24,
-    //             "format": "json",
-    //             "inCharset": "utf-8",
-    //             "outCharset": "utf-8",
-    //             "notice": 0,
-    //             "platform": "yqq.json",
-    //             "needNewCode": 1,
-    //             "uin": 0,
-    //             "g_tk_new_20200303": 5381,
-    //             "g_tk": 5381
-    //         },
-    //         "req_0": {
-    //             "module": "music.musichallSinger.SingerInfoInter",
-    //             "method": "GetSingerDetail",
-    //             "param": {
-    //                 "singer_mids": [
-    //                     singer.id
-    //                 ],
-    //                 "pic": 1,
-    //                 "group_singer": 1,
-    //                 "wiki_singer": 1,
-    //                 "ex_singer": 1
-    //             }
-    //         },
-    //         "req_1": {
-    //             "module": "music.musichallSong.SongListInter",
-    //             "method": "GetSingerSongList",
-    //             "param": {
-    //                 "singerMid": singer.id,
-    //                 "begin": pageSize * (page - 1),
-    //                 "num": pageSize,
-    //                 "order": 1
-    //             }
-    //         }
-    //     }       
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     singer.img = res.req_0.data.singer_list[0].pic.pic;
-    //     let recommend: Array<Song> = [];
-    //     res.req_1.data.songList.forEach((item:any) => {
-    //         const songInfo = item.songInfo;
-    //         recommend.push({
-    //             id: songInfo.mid,
-    //             name: songInfo.name,
-    //             time: formatTime(songInfo.interval),
-    //             album: {id: songInfo.album.mid, name: songInfo.album.name, chl: CHL},
-    //             singers: songInfo.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
-    //             chl: CHL
-    //         })
-    //     });
-    //     let singerDetail: SingerDetail = {
-    //         id: singer.id,
-    //         name: singer.name,
-    //         img: singer.img,
-    //         songsTotal: res.req_1.data.totalNum,
-    //         recommend: recommend,
-    //         chl: CHL
-    //     };
-    //     return { singerDetail };
-    // }
+    // 歌手详情
+    static getSingerDetail = async (singer: Singer, page: number) => {
+        const pageSize = 100;
+        const reqBody = {
+            id: singer.id,
+        };
+        const res = await get('https://music.163.com/artist', reqBody, null) as any;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(res, "text/html");
+        let img = doc.querySelector(".n-artist img")!.getAttribute('src')||'';
+        singer.img = img;
+        const data = {
+            id: singer.id,
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            e_r: true,
+        }
+        const res1 = await postApi('api/v2/artist/songs', data)
+        let recommend: Array<Song> = [];
+        res1.songs.forEach((item:any) => {
+            recommend.push({
+                id: item.id,
+                name: item.name,
+                time: formatTime(item.duration / 1000),
+                img: item.album.picUrl,
+                album: {id: item.album.mid, name: item.album.name, img: item.album.picUrl, chl: CHL},
+                singers: item.artists.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
+                chl: CHL
+            })
+        });
+        let singerDetail: SingerDetail = {
+            id: singer.id,
+            name: singer.name,
+            img: singer.img,
+            songsTotal: res1.total,
+            recommend: recommend,
+            chl: CHL
+        };
+        return { singerDetail };
+    }
 
-    // // 通过歌手获得歌曲
-    // static getSongsBySinger = async (singer: Singer, page: number) => {
-    //     const pageSize = 30;
-    //     const data = {
-    //         "comm": {
-    //             "cv": 4747474,
-    //             "ct": 24,
-    //             "format": "json",
-    //             "inCharset": "utf-8",
-    //             "outCharset": "utf-8",
-    //             "notice": 0,
-    //             "platform": "yqq.json",
-    //             "needNewCode": 1,
-    //             "uin": 0,
-    //             "g_tk_new_20200303": 5381,
-    //             "g_tk": 5381
-    //         },
-    //         "req_1": {
-    //             "module": "music.musichallSong.SongListInter",
-    //             "method": "GetSingerSongList",
-    //             "param": {
-    //                 "singerMid": singer.id,
-    //                 "begin": pageSize * (page - 1),
-    //                 "num": pageSize,
-    //                 "order": 1
-    //             }
-    //         }
-    //     }       
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let songs: Array<Song> = [];
-    //     res.req_1.data.songList.forEach((item:any) => {
-    //         const songInfo = item.songInfo;
-    //         songs.push({
-    //             id: songInfo.mid,
-    //             name: songInfo.name,
-    //             time: formatTime(songInfo.interval),
-    //             album: {id: songInfo.album.mid, name: songInfo.album.name, chl: CHL},
-    //             singers: songInfo.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
-    //             chl: CHL
-    //         })
-    //     });
-    //     return { songs };
-    // }
+    // 通过歌手获得歌曲
+    static getSongsBySinger = async (singer: Singer, page: number) => {
+        const pageSize = 30;
+        const data = {
+            id: singer.id,
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            e_r: true,
+        }
+        const res1 = await postApi('api/v2/artist/songs', data)
+        let songs: Array<Song> = [];
+        res1.songs.forEach((item:any) => {
+            songs.push({
+                id: item.id,
+                name: item.name,
+                time: formatTime(item.duration / 1000),
+                img: item.album.picUrl,
+                album: {id: item.album.mid, name: item.album.name, img: item.album.picUrl, chl: CHL},
+                singers: item.artists.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
+                chl: CHL
+            })
+        });
+        return { songs };
+    }
 
-    // // 通过歌手获得专辑
-    // static getAlbumsBySinger = async (singer: Singer, page: number) => {
-    //     const pageSize = 30;
-    //     const data = {
-    //         "comm": {
-    //             "cv": 4747474,
-    //             "ct": 24,
-    //             "format": "json",
-    //             "inCharset": "utf-8",
-    //             "outCharset": "utf-8",
-    //             "notice": 0,
-    //             "platform": "yqq.json",
-    //             "needNewCode": 1,
-    //             "uin": 0,
-    //             "g_tk_new_20200303": 5381,
-    //             "g_tk": 5381
-    //         },
-    //         "req_1": {
-    //             "module": "music.musichallAlbum.AlbumListServer",
-    //             "method": "GetAlbumList",
-    //             "param": {
-    //                 "singerMid": singer.id,
-    //                 "begin": pageSize * (page - 1),
-    //                 "num": pageSize,
-    //                 "order": 1
-    //             }
-    //         }
-    //     }       
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let albums: Array<Album> = [];
-    //     res.req_1.data.albumList.forEach((item:any) => {
-    //         albums.push({
-    //             id: item.albumMid,
-    //             name: item.albumName,
-    //             img: `https://y.qq.com/music/photo_new/T002R300x300M000${item.pmid}.jpg?max_age=2592000`, // 封面
-    //             time: item.publishDate,  // 发行时间
-    //             singer: singer,
-    //             chl: CHL
-    //         })
-    //     });
-    //     return { albums };
-    // }
+    // 通过歌手获得专辑
+    static getAlbumsBySinger = async (singer: Singer, page: number) => {
+        const pageSize = 30;
+        const data = {
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            e_r: true,
+        }
+        const res = await postApi(`api/artist/albums/${singer.id}`, data)
+        let albums: Array<Album> = [];
+        res.hotAlbums.forEach((item:any) => {
+            albums.push({
+                id: item.id,
+                name: item.name,
+                img: item.picUrl, // 封面
+                time: timestampToDate(item.publishTime),  // 发行时间
+                singer: singer,
+                chl: CHL
+            })
+        });
+        return { albums };
+    }
 
-    // // 专辑详情
-    // static getAlbumDetail = async (album: Album) => {
-    //     const data = {
-    //         "comm": {
-    //             "cv": 4747474,
-    //             "ct": 24,
-    //             "format": "json",
-    //             "inCharset": "utf-8",
-    //             "outCharset": "utf-8",
-    //             "notice": 0,
-    //             "platform": "yqq.json",
-    //             "needNewCode": 1,
-    //             "uin": 0,
-    //             "g_tk_new_20200303": 5381,
-    //             "g_tk": 5381
-    //         },
-    //         "req_1": {
-    //             "module": "music.musichallAlbum.AlbumInfoServer",
-    //             "method": "GetAlbumDetail",
-    //             "param": {
-    //                 "albumMid": album.id
-    //             }
-    //         },
-    //             "req_2": {
-    //             "module": "music.musichallAlbum.AlbumSongList",
-    //             "method": "GetAlbumSongList",
-    //             "param": {
-    //                 "albumMid": album.id,
-    //                 "begin": 0,
-    //                 "num": 60,
-    //                 "order": 2
-    //             }
-    //         }
-    //     }       
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let songs: Array<Song> = [];
-    //     res.req_2.data.songList.forEach((item:any) => {
-    //         const songInfo = item.songInfo;
-    //         songs.push({
-    //             id: songInfo.mid,
-    //             name: songInfo.name,
-    //             time: formatTime(songInfo.interval),
-    //             album: {id: songInfo.album.mid, name: songInfo.album.name, chl: CHL},
-    //             singers: songInfo.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
-    //             chl: CHL
-    //         })
-    //     });
-    //     const basicInfo = res.req_1.data.basicInfo;
-    //     let albumDetail = {
-    //         id: album.id,
-    //         name: album.name,
-    //         img: album.img || `https://y.qq.com/music/photo_new/T002R300x300M000${basicInfo.pmid}.jpg?max_age=2592000`,  // 封面
-    //         time: album.time || basicInfo.publishDate,  // 发行时间
-    //         desc: basicInfo.desc,  // 描述
-    //         singer: album.singer || songs[0].singers[0],  // 歌手
-    //         songs: songs,
-    //         chl: CHL
-    //     };
-    //     return { albumDetail };
-    // }
+    // 专辑详情
+    static getAlbumDetail = async (album: Album) => {
+        const reqBody = {
+            id: album.id,
+        };
+        const res = await get('https://music.163.com/album', reqBody, null) as any;
+        console.log(res);
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(res, "text/html");
+        let songs: Array<Song> = [];
+        const spans = doc.body.querySelectorAll('.n-songtb .m-table tbody span[data-res-id]');
+        console.log(spans);
+        res.req_2.data.songList.forEach((item:any) => {
+            const songInfo = item.songInfo;
+            songs.push({
+                id: songInfo.mid,
+                name: songInfo.name,
+                time: formatTime(songInfo.interval),
+                album: {id: songInfo.album.mid, name: songInfo.album.name, chl: CHL},
+                singers: songInfo.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
+                chl: CHL
+            })
+        });
+        let albumDetail = {
+            id: album.id,
+            name: album.name,
+            img: album.img || doc.body.querySelector('.m-info .cover img')?.getAttribute('src'),  // 封面
+            time: album.time || doc.body.querySelectorAll('.m-info .intr')![1]!.lastChild!.textContent,  // 发行时间
+            desc: doc.body.querySelector('.n-albdesc #album-desc-dot')?.textContent,  // 描述
+            singer: album.singer || songs[0].singers[0],  // 歌手
+            songs: songs,
+            chl: CHL
+        };
+        return { albumDetail };
+    }
 
-    // // 所有歌手
-    // static getAllSingers = async () => {
-    //     const data = {
-    //         "req_0": {
-    //             "module": "music.musichallSinger.SingerList",
-    //             "method": "GetSingerListIndex",
-    //             "param": {
-    //                 "area": -100,
-    //                 "sex": -100,
-    //                 "index": -100,
-    //                 "genre": -100,
-    //                 "cur_page": 1,
-    //                 "sin": 0
-    //             }
-    //         },
-    //         "comm": {
-    //             "g_tk": 159249210,
-    //             "uin": "1152921504780534770",
-    //             "format": "json",
-    //             "ct": 20,
-    //             "cv": 1957,
-    //             "platform": "wk_v17",
-    //             "uid": "5238907661",
-    //             "guid": "AE5C5AFDB0D1F69DC4D50AF54E2054B6"
-    //         }
-    //     }     
-    //     const res = await post(BASE_URL, data, null, null) as any;
-    //     let categories: Record<string, Array<SingerCategory>> = {};
-    //     Object.entries(res.req_0.data.tags).forEach(([key, value]) => {
-    //         let singerCategory: Array<SingerCategory> = [];
-    //         (value as any).forEach((el:any) => {
-    //             if(el.name == '全部'){
-    //                 singerCategory.push({
-    //                     id: el.id,
-    //                     name: el.name,
-    //                     default: true,
-    //                     chl: CHL
-    //                 })
-    //             }else {
-    //                 singerCategory.push({
-    //                     id: el.id,
-    //                     name: el.name,
-    //                     chl: CHL
-    //                 })
-    //             }
-    //         });
-    //         categories[key] = singerCategory;
-    //     })
-    //     let singerSquare : SingerSquare = {categories: categories, chl: CHL};
-    //     let singers: Array<Singer> = [];
-    //     res.req_0.data.singerlist.forEach((item: any) => {
-    //         singers.push({
-    //             id: item.singer_mid,
-    //             name: item.singer_name,
-    //             img: item.singer_pic,  // 封面
-    //             chl: CHL
-    //         })
-    //     })
-    //     return { singerSquare, singers };
-    // }
+    // 所有歌手
+    static getAllSingers = async () => {
+        let categories: Record<string, Array<SingerCategory>> = {};
+        let area: Array<SingerCategory> = [];
+        area.push({id: '-1', name: '全部', chl: CHL, default: true});
+        area.push({id: '7', name: '华语', chl: CHL});
+        area.push({id: '96', name: '欧美', chl: CHL});
+        area.push({id: '8', name: '日本', chl: CHL});
+        area.push({id: '16', name: '韩国', chl: CHL});
+        area.push({id: '0', name: '其他', chl: CHL});
+        categories['area'] = area;
+        let type: Array<SingerCategory> = [];
+        type.push({id: '-1', name: '全部', chl: CHL, default: true});
+        type.push({id: '1', name: '男歌手', chl: CHL});
+        type.push({id: '2', name: '女歌手', chl: CHL});
+        type.push({id: '3', name: '乐队组合', chl: CHL});
+        categories['type'] = type;
+        let initial: Array<SingerCategory> = [];
+        initial.push({id: '-1', name: '热门', chl: CHL, default: true});
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach((item: string) => {
+            initial.push({id: item.charCodeAt(0).toString(), name: item, chl: CHL});
+        })
+        initial.push({id: '0', name: '#', chl: CHL});
+        categories['initial'] = initial;
+        let singerSquare : SingerSquare = {categories: categories, chl: CHL};
+        let singers = (await this.getSingersByTypes({area: '-1', type: '-1', initial: '-1'}, 1)).singers;
+        return { singerSquare, singers };
+    }
 
-    // // 查询歌手
-    // static getSingersByTypes = async (data:any, page:number) => {
-    //     const reqBody = {
-    //         "req_0": {
-    //             "module": "music.musichallSinger.SingerList",
-    //             "method": "GetSingerListIndex",
-    //             "param": {
-    //                 "area": data["area"],
-    //                 "sex": data["sex"],
-    //                 "index": data["index"],
-    //                 "genre": data["genre"],
-    //                 "cur_page": page,
-    //                 "sin": 80 * (page - 1)
-    //             }
-    //         },
-    //         "comm": {
-    //             "g_tk": 159249210,
-    //             "uin": "1152921504780534770",
-    //             "format": "json",
-    //             "ct": 20,
-    //             "cv": 1957,
-    //             "platform": "wk_v17",
-    //             "uid": "5238907661",
-    //             "guid": "AE5C5AFDB0D1F69DC4D50AF54E2054B6"
-    //         }
-    //     }     
-    //     const res = await post(BASE_URL, reqBody, null, null) as any;
-    //     let singers: Array<Singer> = [];
-    //     res.req_0.data.singerlist.forEach((item: any) => {
-    //         singers.push({
-    //             id: item.singer_mid,
-    //             name: item.singer_name,
-    //             img: item.singer_pic,  // 封面
-    //             chl: CHL
-    //         })
-    //     })
-    //     return { singers };
-    // }
+    // 查询歌手
+    static getSingersByTypes = async (data:any, page:number) => {
+        const pageSize = 30;
+        const params = {
+            area: data['area'],
+            type: data['type'],
+            initial: data['initial'],
+            limit: pageSize,
+            offset: pageSize * (page - 1),
+            e_r: true,
+        }
+        const res = await postApi(`api/v1/artist/list`, params)
+        let singers: Array<Singer> = [];
+        res.artists.forEach((item: any) => {
+            singers.push({
+                id: item.id,
+                name: item.name,
+                img: item.picUrl,  // 封面
+                chl: CHL
+            })
+        })
+        return { singers };
+    }
 }
 
 const parseLyrics = (lyrics: string) => {

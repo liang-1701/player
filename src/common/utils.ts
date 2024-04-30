@@ -36,10 +36,6 @@ export function timestampToDate(timestamp: any) {
     return year + "-" + month + "-" + day;
   }
   
-  // 使用示例
-  var timestamp = Date.now(); // 获取当前时间戳
-  console.log(timestampToDate(timestamp)); // 输出格式化的当前日期
-
 // 指定范围的随机数
 export const nextInt = (max:number) => {
     max = max || 1024
