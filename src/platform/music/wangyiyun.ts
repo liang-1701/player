@@ -350,7 +350,7 @@ export class WangYiYunMusicApi {
                 name: item.name,
                 time: formatTime(item.duration / 1000),
                 img: item.album.picUrl,
-                album: {id: item.album.mid, name: item.album.name, img: item.album.picUrl, chl: CHL},
+                album: {id: item.album.id, name: item.album.name, img: item.album.picUrl, chl: CHL},
                 singers: item.artists.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
                 chl: CHL
             })
@@ -383,7 +383,7 @@ export class WangYiYunMusicApi {
                 name: item.name,
                 time: formatTime(item.duration / 1000),
                 img: item.album.picUrl,
-                album: {id: item.album.mid, name: item.album.name, img: item.album.picUrl, chl: CHL},
+                album: {id: item.album.id, name: item.album.name, img: item.album.picUrl, chl: CHL},
                 singers: item.artists.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
                 chl: CHL
             })
@@ -420,20 +420,18 @@ export class WangYiYunMusicApi {
             id: album.id,
         };
         const res = await get('https://music.163.com/album', reqBody, null) as any;
-        console.log(res);
         const parser = new DOMParser();
         const doc = parser.parseFromString(res, "text/html");
         let songs: Array<Song> = [];
-        const spans = doc.body.querySelectorAll('.n-songtb .m-table tbody span[data-res-id]');
-        console.log(spans);
-        res.req_2.data.songList.forEach((item:any) => {
-            const songInfo = item.songInfo;
+        const songData = doc.body.querySelector('#song-list-pre-data');
+        JSON.parse(songData?.textContent!).forEach((item:any) => {
             songs.push({
-                id: songInfo.mid,
-                name: songInfo.name,
-                time: formatTime(songInfo.interval),
-                album: {id: songInfo.album.mid, name: songInfo.album.name, chl: CHL},
-                singers: songInfo.singer.map((s: { mid: any, name: any}) => ({id: s.mid, name: s.name, chl: CHL})),
+                id: item.id,
+                name: item.name,
+                time: formatTime(item.duration / 1000),
+                img: item.album.picUrl,
+                album: {id: item.album.id, name: item.album.name, img: item.album.picUrl, chl: CHL},
+                singers: item.artists.map((s: { id: any, name: any}) => ({id: s.id, name: s.name, chl: CHL})),
                 chl: CHL
             })
         });
